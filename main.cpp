@@ -82,11 +82,11 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame()
-       : wxFrame(NULL, wxID_ANY, wxT("wxWidgets OpenGL Cube Sample"))
+       : wxFrame(NULL, wxID_ANY, wxT("Gamma-View 2012"))
 {
     new TestGLCanvas(this);
 
-    SetIcon(wxICON(sample));
+    SetIcon(wxICON(gamma-view));
 
     // Make a menubar
     wxMenu *menu = new wxMenu;

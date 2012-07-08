@@ -791,6 +791,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\gamma-view.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

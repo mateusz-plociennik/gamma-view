@@ -245,7 +245,12 @@ void TestGLCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
     glViewport(0, 0, ClientSize.x, ClientSize.y);
 
     // Render the graphics and swap the buffers.
+	wxDateTime tStart = wxDateTime::UNow();
     canvas.Draw();
+	wxDateTime tStop = wxDateTime::UNow();
+	wxTimeSpan tDiff = tStop.Subtract(tStart);
+	wxLogStatus("Calculation time = %s", tDiff.Format("%l").c_str());
+	
     SwapBuffers();
 }
 
