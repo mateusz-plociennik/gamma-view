@@ -42,6 +42,8 @@ public:
 private:
     void OnClose(wxCommandEvent& event);
     void OnNewWindow(wxCommandEvent& event);
+	void OnResizeWindow(wxCommandEvent& event);
+
 
     DECLARE_EVENT_TABLE()
 };
