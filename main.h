@@ -1,12 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        cube.h
-// Purpose:     wxGLCanvas demo program
-// Author:      Julian Smart
-// Modified by:
+// Name:        main.h
+// Purpose:     gamma-view main
+// Author:      Mateusz Plociennik
 // Created:     04/01/98
-// RCS-ID:      $Id$
-// Copyright:   (c) Julian Smart
-// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MAIN_H_
@@ -41,6 +37,7 @@ public:
 
 private:
     void OnClose(wxCommandEvent& event);
+	void OnHelpAbout(wxCommandEvent& event);
     void OnNewWindow(wxCommandEvent& event);
 	void OnResizeWindow(wxCommandEvent& event);
 

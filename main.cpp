@@ -83,12 +83,13 @@ TestGLContext& MyApp::GetContext(wxGLCanvas *canvas)
 enum
 {
 	Menu_View_Zoom = 200,
-	Menu_ViewZoomMenu_50,
-    Menu_ViewZoomMenu_100,
-	Menu_ViewZoomMenu_200,
-	Menu_ViewZoomMenu_300,
-	Menu_ViewZoomMenu_400,
-//	Menu_ViewZoomMenu_Other
+	Menu_View_Zoom_50,
+    Menu_View_Zoom_100,
+	Menu_View_Zoom_200,
+	Menu_View_Zoom_300,
+	Menu_View_Zoom_400,
+	
+	Menu_Help_About = 300
 };
 
 // ----------------------------------------------------------------------------
@@ -98,12 +99,13 @@ enum
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(wxID_NEW, MyFrame::OnNewWindow)
     EVT_MENU(wxID_CLOSE, MyFrame::OnClose)
-	EVT_MENU(Menu_ViewZoomMenu_50, MyFrame::OnResizeWindow)
-	EVT_MENU(Menu_ViewZoomMenu_100, MyFrame::OnResizeWindow)
-	EVT_MENU(Menu_ViewZoomMenu_200, MyFrame::OnResizeWindow)
-	EVT_MENU(Menu_ViewZoomMenu_300, MyFrame::OnResizeWindow)
-	EVT_MENU(Menu_ViewZoomMenu_400, MyFrame::OnResizeWindow)
-//	EVT_MENU(Menu_ViewZoomMenu_Other, MyFrame::OnResizeWindow)
+
+	EVT_MENU(Menu_View_Zoom_50, MyFrame::OnResizeWindow)
+	EVT_MENU(Menu_View_Zoom_100, MyFrame::OnResizeWindow)
+	EVT_MENU(Menu_View_Zoom_200, MyFrame::OnResizeWindow)
+	EVT_MENU(Menu_View_Zoom_300, MyFrame::OnResizeWindow)
+
+	EVT_MENU(Menu_Help_About, MyFrame::OnHelpAbout)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame()
@@ -120,30 +122,33 @@ MyFrame::MyFrame()
     fileMenu->Append(wxID_CLOSE);
 
 	wxMenu *viewZoomMenu = new wxMenu;
-	viewZoomMenu->AppendRadioItem(Menu_ViewZoomMenu_50, 
+	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_50, 
 		wxT("&50%\tAlt-1"), wxT("Resize window to 50%"));
-	viewZoomMenu->AppendRadioItem(Menu_ViewZoomMenu_100, 
+	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_100, 
 		wxT("&100%\tAlt-2"), wxT("Resize window to 100%"));
-	viewZoomMenu->AppendRadioItem(Menu_ViewZoomMenu_200, 
+	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_200, 
 		wxT("&200%\tAlt-3"), wxT("Resize window to 200%"));
-	viewZoomMenu->AppendRadioItem(Menu_ViewZoomMenu_300, 
+	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_300, 
 		wxT("&300%\tAlt-4"), wxT("Resize window to 300%"));
-/*	viewZoomMenu->Append(Menu_ViewZoomMenu_Other, 
-		wxT("&Other...\tAlt-5"), wxT("Resize window to..."));
-*/
 	
 	wxMenu *viewMenu = new wxMenu;
-	viewMenu->Append(Menu_View_Zoom, wxT("Window Size"), viewZoomMenu);
+	viewMenu->Append(Menu_View_Zoom, 
+		wxT("Window Size"), viewZoomMenu);
+
+	wxMenu *helpMenu = new wxMenu;
+	helpMenu->Append(Menu_Help_About, 
+		wxT("About..."), wxT("About the program"));
 
     wxMenuBar *menuBar = new wxMenuBar;
     menuBar->Append(fileMenu, wxT("&File"));
 	menuBar->Append(viewMenu, wxT("&View"));
+	menuBar->Append(helpMenu, wxT("&Help"));
 
     SetMenuBar(menuBar);
 
     CreateStatusBar();
 
-	viewZoomMenu->Check(Menu_ViewZoomMenu_200, true);
+	viewZoomMenu->Check(Menu_View_Zoom_200, true);
     SetClientSize(512, 512);
 
     Show();
@@ -160,38 +165,63 @@ void MyFrame::OnClose(wxCommandEvent& WXUNUSED(event))
     Close(true);
 }
 
-void MyFrame::OnNewWindow( wxCommandEvent& WXUNUSED(event) )
+#include "wx/aboutdlg.h"
+
+void MyFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
+{
+	wxAboutDialogInfo info;
+    
+	info.SetName(wxT("gamma-view"));
+    info.SetVersion(wxT("0.1"));
+
+	wxDateTime dt;
+	wxString::const_iterator dEnd, tEnd;
+	dt.ParseDate(__DATE__, &dEnd);
+	dt.ParseTime(__TIME__, &tEnd);
+
+	info.SetDescription(
+		"\nMade with " + wxString(wxVERSION_STRING) + 
+		"\nDate: " + dt.FormatDate() +
+		"\nTime: " + dt.FormatTime() +
+		"\n");
+    info.SetCopyright(wxT("(C) 2012 Mateusz Plociennik"));
+    //info.AddDeveloper(wxT("Mateusz Plociennik"));
+
+	info.SetWebSite(wxT("http://github.com/mateusz-plociennik/gamma-view"), wxT("Web Site"));
+
+    wxAboutBox(info, this);
+}
+
+void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event))
 {
     new MyFrame();
 }
 
-#include "wx/numdlg.h"
-
-void MyFrame::OnResizeWindow( wxCommandEvent& commandEvent )
+void MyFrame::OnResizeWindow(wxCommandEvent& commandEvent)
 {
 	switch( commandEvent.GetId() )
 	{
-		case Menu_ViewZoomMenu_50:
+		case Menu_View_Zoom_50:
 		{
 			SetClientSize(128, 128);
 			break;
 		}
-		case Menu_ViewZoomMenu_100:
+		case Menu_View_Zoom_100:
 		{
 			SetClientSize(256, 256);
 			break;
 		}
-		case Menu_ViewZoomMenu_200:
+		case Menu_View_Zoom_200:
 		{
 			SetClientSize(512, 512);
 			break;
 		}
-		case Menu_ViewZoomMenu_300:
+		case Menu_View_Zoom_300:
 		{
 			SetClientSize(768, 768);
 			break;
 		}
-/*		case Menu_ViewZoomMenu_Other:
+/*		case Menu_View_Zoom_Other:
 		{
 			long res = wxGetNumberFromUser( 
 				wxT("Enter size in percent.\n"),

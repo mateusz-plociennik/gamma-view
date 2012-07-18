@@ -417,7 +417,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswud&quot;"
+				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswud&quot;;&quot;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -444,12 +444,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions=""
-				AdditionalDependencies="wxmsw29ud_gl.lib opengl32.lib glu32.lib wxmsw29ud_core.lib  wxbase29ud.lib   wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
+				AdditionalOptions="/VERBOSE:LIB"
+				AdditionalDependencies="wxmsw29ud_gl.lib opengl32.lib glu32.lib wxmsw29ud_core.lib wxbase29ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib wxmsw29ud_adv.lib CyAPI.lib"
 				OutputFile="vc_mswuddll\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;"
+				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;;&quot;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\lib\x86&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="vc_mswuddll\gamma-view.pdb"
@@ -769,6 +769,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\block.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\block_usb.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\glview.cpp"
 				>
 			</File>
@@ -782,6 +790,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\block.h"
+				>
+			</File>
+			<File
+				RelativePath=".\block_usb.h"
+				>
+			</File>
+			<File
+				RelativePath=".\data_types.h"
+				>
+			</File>
 			<File
 				RelativePath=".\glview.h"
 				>

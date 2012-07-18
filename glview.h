@@ -2,7 +2,6 @@
 // Name:        glview.h
 // Purpose:     GL View
 // Author:      Mateusz Plociennik
-// Modified by:
 // Created:     16/06/2012
 /////////////////////////////////////////////////////////////////////////////
 
