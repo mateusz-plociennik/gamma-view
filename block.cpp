@@ -28,6 +28,15 @@ void GammaBlock::DataGet(gammaData* data_p)
 	m_dataInListMutex.Unlock();
 }
 
+int GammaBlock::DataWaitingCount()
+{
+	wxASSERT(!m_dataInListMutex.Lock());
+	int ret = m_dataInList.size();
+	m_dataInListMutex.Unlock();
+	
+	return ret;
+}
+
 void GammaBlock::DataSend()
 {
 	wxASSERT(!m_dataOutListMutex.Lock());
@@ -46,6 +55,20 @@ void GammaBlock::DataSend()
 	m_dataOutListMutex.Unlock();
 }
 
+void GammaBlock::BlockRun()
+{
+	m_running = TRUE;
+	Create();
+	SetPriority(m_priority);
+	Run();
+}
+
+void GammaBlock::BlockStop()
+{
+	m_running = FALSE;
+	Wait();
+}
+
 wxThread::ExitCode GammaBlock::Entry()
 {
 	while (m_running)
@@ -58,14 +81,8 @@ wxThread::ExitCode GammaBlock::Entry()
 
 GammaBlock::GammaBlock()
 {
-	m_running = TRUE;
-	Create();
-	SetPriority(m_priority);
-	Run();
 }
 
 GammaBlock::~GammaBlock()
 {
-	m_running = FALSE;
-	Wait();
 }

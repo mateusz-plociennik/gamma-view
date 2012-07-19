@@ -12,13 +12,19 @@
 #include <wx/thread.h>
 #include "data_types.h"
 
-class GammaBlock : wxThread
+class GammaBlock : public wxThread
 {
 public:
 	void BlockAttach(GammaBlock* block_p);
 	void BlockDetach(GammaBlock* block_p);
+
 	void DataGet(gammaData* data_p);
+	int DataWaitingCount();
 	void DataSend();
+
+	virtual void BlockRun();
+	virtual void BlockStop();
+
 	virtual void FrameShow() = 0;
 	virtual wxThread::ExitCode Entry();
 

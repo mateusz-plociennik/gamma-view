@@ -773,6 +773,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\block_trans.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\block_usb.cpp"
 				>
 			</File>
@@ -792,6 +796,10 @@
 			>
 			<File
 				RelativePath=".\block.h"
+				>
+			</File>
+			<File
+				RelativePath=".\block_trans.h"
 				>
 			</File>
 			<File
