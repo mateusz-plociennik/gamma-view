@@ -19,9 +19,6 @@ public:
 	GammaBlockUSB();
 	~GammaBlockUSB();
 
-	void BlockRun();
-	void BlockStop();
-
 	void USBClose();
 	bool USBInit();
 	bool USBOpen();

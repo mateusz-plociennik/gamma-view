@@ -39,13 +39,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -65,7 +65,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;__WXMSW__;_UNICODE;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -77,7 +77,7 @@
 				OutputFile="vc_mswud\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\..\..\..\lib\vc_lib"
+				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="vc_mswud\gamma-view.pdb"
@@ -132,13 +132,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -156,7 +156,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -168,7 +168,7 @@
 				OutputFile="vc_mswu\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\..\..\..\lib\vc_lib"
+				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="vc_mswu\gamma-view.pdb"
@@ -225,13 +225,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -251,7 +251,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -263,7 +263,7 @@
 				OutputFile="vc_mswunivud\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\..\..\..\lib\vc_lib"
+				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="vc_mswunivud\gamma-view.pdb"
@@ -318,13 +318,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -342,7 +342,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_lib\mswunivu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -354,7 +354,7 @@
 				OutputFile="vc_mswunivu\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=".\..\..\..\lib\vc_lib"
+				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="vc_mswunivu\gamma-view.pdb"
@@ -411,13 +411,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswud&quot;;&quot;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc&quot;"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -437,7 +437,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -504,13 +504,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswu&quot;"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -528,7 +528,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="__WXMSW__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -597,13 +597,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswunivud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswunivud&quot;"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -623,7 +623,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswunivud;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivud;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -690,13 +690,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswunivu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="2"
-				AdditionalIncludeDirectories=".;&quot;C:\wxWidgets-2.9.3\include&quot;;&quot;C:\wxWidgets-2.9.3\lib\vc_dll\mswunivu&quot;"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -714,7 +714,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH"
 				Culture="1033"
-				AdditionalIncludeDirectories=".\..\..\..\lib\vc_dll\mswunivu;.\..\..\..\include;.;.\..\..\..\samples"
+				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivu;C:\wxWidgets-2.9.3\include;."
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
