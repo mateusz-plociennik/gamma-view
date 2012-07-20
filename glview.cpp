@@ -250,7 +250,7 @@ void TestGLCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
 	wxDateTime tStop = wxDateTime::UNow();
 	wxTimeSpan tDiff = tStop.Subtract(tStart);
 	//wxLogStatus("Calculation time = %s", tDiff.Format("%l").c_str());
-	wxLogStatus("Calculation time = %llu - %llu", tStop.GetValue(), tStart.GetValue());
+	wxLogStatus("Calculation time = %llx - %llx", tStop.GetValue(), tStart.GetValue());
 	
     SwapBuffers();
 }

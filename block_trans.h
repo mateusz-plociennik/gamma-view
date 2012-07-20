@@ -10,17 +10,17 @@
 
 #include "block.h"
 
-class GammaBlockTrans : public GammaBlock
+class GammaBlockTrans : 
+	public GammaBlock< GammaBlockData<unsigned char*> , GammaBlockData<std::list<GammaItem>> >
 {
 public:
 	GammaBlockTrans();
 	~GammaBlockTrans();
 
-	void BlockRun();
-	void BlockStop();
+protected:
+	wxThread::ExitCode Entry();
 
 private:
-	wxThread::ExitCode Entry();
 
 };
 

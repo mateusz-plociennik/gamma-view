@@ -773,6 +773,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\block_data.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\block_fsave.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\block_trans.cpp"
 				>
 			</File>
@@ -799,6 +807,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\block_data.h"
+				>
+			</File>
+			<File
+				RelativePath=".\block_fsave.h"
+				>
+			</File>
+			<File
 				RelativePath=".\block_trans.h"
 				>
 			</File>
@@ -819,10 +835,18 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\gamma-view.rc"
+		<Filter
+			Name="Resources"
 			>
-		</File>
+			<File
+				RelativePath=".\gamma-view.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\gamma-view.rc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

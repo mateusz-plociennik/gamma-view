@@ -12,7 +12,8 @@
 #include "data_types.h"
 #include "block.h"
 
-class GammaBlockUSB : public GammaBlock
+class GammaBlockUSB : 
+	public GammaBlock< void , GammaBlockData<unsigned char*> >
 {
 public:
 	GammaBlockUSB();
@@ -27,12 +28,12 @@ public:
 	bool USBReset();
 	bool USBSet(unsigned char setting, unsigned char value);
 
-private:
+protected:
 	wxThread::ExitCode Entry();
 
+private:
 	CCyUSBDevice* m_USBDevice;
-	PUCHAR m_buffer;
-	LONG m_length;
+
 };
 
 #endif //_GAMMA_VIEW_BLOCK_USB_H_

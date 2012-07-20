@@ -7,20 +7,6 @@
 
 #include "block_usb.h"
 
-void GammaBlockUSB::BlockRun()
-{
-	m_running = TRUE;
-	Create();
-	SetPriority(m_priority);
-	Run();
-}
-
-void GammaBlockUSB::BlockStop()
-{
-	m_running = FALSE;
-	Wait();
-}
-
 void GammaBlockUSB::USBClose()
 {
 	m_USBDevice->Close();
@@ -34,8 +20,8 @@ bool GammaBlockUSB::USBInit()
 	USBSet(GAMMA_SET_ZOOM, 0x80) &&
 	USBSet(GAMMA_SET_SHIFT_X, 0x80) &&
 	USBSet(GAMMA_SET_SHIFT_Y, 0x80) &&
-	USBSet(GAMMA_SET_T_MARKER, GAMMA_T_MARKER_1MS) &&
-	USBSet(GAMMA_SET_GATE_ON, 0) );
+	USBSet(GAMMA_SET_TMARKER, GAMMA_TMARKER_1MS) &&
+	USBSet(GAMMA_SET_GATE, 0) );
 
 	return ret;
 }
@@ -52,30 +38,25 @@ bool GammaBlockUSB::USBReset()
 
 bool GammaBlockUSB::USBSet(unsigned char setting, unsigned char value)
 {
-	m_length = 2;
-	m_buffer[0] = setting;
-	m_buffer[1] = value;
-	return m_USBDevice->BulkOutEndPt->XferData(m_buffer, m_length);
+	long int length = 2;
+	unsigned char buffer[] = {setting, value};
+
+	return m_USBDevice->BulkOutEndPt->XferData(buffer, length);
 }
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
-	while (m_running)
+	while (!GetThread()->TestDestroy())
 	{
-		m_length = 512;
-		memset(m_buffer, 0, sizeof(m_buffer));
-		m_USBDevice->BulkInEndPt->XferData(m_buffer, m_length);
+		long int length = 512;
+		GammaBlockData<unsigned char*>* blockDataOut = new GammaBlockData<unsigned char*>;
+		blockDataOut->data = new unsigned char[512];
 		
-		unsigned char* t_buffer = new unsigned char[512];
-		memcpy(t_buffer, m_buffer, sizeof(m_buffer));
+		blockDataOut->datetime = 0;
+
+		m_USBDevice->BulkInEndPt->XferData(blockDataOut->data, length);
 		
-		gammaData* data = new gammaData;
-		data->data_p = t_buffer;
-		data->length = sizeof(t_buffer);
-		data->type = GAMMA_DATA_USB_RAW;
-		
-		m_dataOutList.push_back(data);
-		DataSend();
+		BlockDataPush(blockDataOut);
 	}
 
 	return 0;
@@ -83,8 +64,6 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 
 GammaBlockUSB::GammaBlockUSB()
 {
-	m_buffer = new UCHAR[512];
-	m_priority = 75;
 	m_USBDevice = new CCyUSBDevice(NULL);
 }
 
@@ -92,3 +71,5 @@ GammaBlockUSB::~GammaBlockUSB()
 {
 	
 }
+
+
