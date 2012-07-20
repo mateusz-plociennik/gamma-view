@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="vc_mswud"
-			IntermediateDirectory="vc_mswud\gamma-view"
+			IntermediateDirectory="build\vc_mswud\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -52,8 +52,8 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswud\gamma-view\"
-				ProgramDataBaseFileName="vc_mswud\gamma-view.pdb"
+				ObjectFile="build\vc_mswud\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswud\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -74,13 +74,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmsw29ud_gl.lib opengl32.lib glu32.lib wxmsw29ud_core.lib  wxbase29ud.lib   wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswud\gamma-view.exe"
+				OutputFile="build\vc_mswud\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswud\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswud\gamma-view.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -96,7 +96,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswud\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswud\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -111,7 +111,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="vc_mswu"
-			IntermediateDirectory="vc_mswu\gamma-view"
+			IntermediateDirectory="build\vc_mswu\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -143,8 +143,8 @@
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswu\gamma-view\"
-				ProgramDataBaseFileName="vc_mswu\gamma-view.pdb"
+				ObjectFile="build\vc_mswu\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswu\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -165,13 +165,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmsw29u_gl.lib opengl32.lib glu32.lib wxmsw29u_core.lib  wxbase29u.lib   wxtiff.lib wxjpeg.lib wxpng.lib  wxzlib.lib wxregexu.lib wxexpat.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswu\gamma-view.exe"
+				OutputFile="build\vc_mswu\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswu\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswu\gamma-view.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -189,7 +189,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswu\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswu\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -204,7 +204,7 @@
 		<Configuration
 			Name="Universal Debug|Win32"
 			OutputDirectory="vc_mswunivud"
-			IntermediateDirectory="vc_mswunivud\gamma-view"
+			IntermediateDirectory="build\vc_mswunivud\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -238,8 +238,8 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswunivud\gamma-view\"
-				ProgramDataBaseFileName="vc_mswunivud\gamma-view.pdb"
+				ObjectFile="build\vc_mswunivud\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswunivud\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -260,13 +260,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmswuniv29ud_gl.lib opengl32.lib glu32.lib wxmswuniv29ud_core.lib  wxbase29ud.lib   wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswunivud\gamma-view.exe"
+				OutputFile="build\vc_mswunivud\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswunivud\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswunivud\gamma-view.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -282,7 +282,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswunivud\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswunivud\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -297,7 +297,7 @@
 		<Configuration
 			Name="Universal Release|Win32"
 			OutputDirectory="vc_mswunivu"
-			IntermediateDirectory="vc_mswunivu\gamma-view"
+			IntermediateDirectory="build\vc_mswunivu\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -329,8 +329,8 @@
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswunivu\gamma-view\"
-				ProgramDataBaseFileName="vc_mswunivu\gamma-view.pdb"
+				ObjectFile="build\vc_mswunivu\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswunivu\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -351,13 +351,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmswuniv29u_gl.lib opengl32.lib glu32.lib wxmswuniv29u_core.lib  wxbase29u.lib   wxtiff.lib wxjpeg.lib wxpng.lib  wxzlib.lib wxregexu.lib wxexpat.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswunivu\gamma-view.exe"
+				OutputFile="build\vc_mswunivu\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\wxWidgets-2.9.3\lib\vc_lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswunivu\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswunivu\gamma-view.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -375,7 +375,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswunivu\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswunivu\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -390,7 +390,7 @@
 		<Configuration
 			Name="DLL Debug|Win32"
 			OutputDirectory="vc_mswuddll"
-			IntermediateDirectory="vc_mswuddll\gamma-view"
+			IntermediateDirectory="build\vc_mswuddll\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -424,8 +424,8 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswuddll\gamma-view\"
-				ProgramDataBaseFileName="vc_mswuddll\gamma-view.pdb"
+				ObjectFile="build\vc_mswuddll\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswuddll\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -446,13 +446,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/VERBOSE:LIB"
 				AdditionalDependencies="wxmsw29ud_gl.lib opengl32.lib glu32.lib wxmsw29ud_core.lib wxbase29ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib wxmsw29ud_adv.lib CyAPI.lib"
-				OutputFile="vc_mswuddll\gamma-view.exe"
+				OutputFile="build\vc_mswuddll\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;;&quot;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\lib\x86&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswuddll\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswuddll\gamma-view.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -468,7 +468,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswuddll\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswuddll\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -483,7 +483,7 @@
 		<Configuration
 			Name="DLL Release|Win32"
 			OutputDirectory="vc_mswudll"
-			IntermediateDirectory="vc_mswudll\gamma-view"
+			IntermediateDirectory="build\vc_mswudll\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -515,8 +515,8 @@
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswudll\gamma-view\"
-				ProgramDataBaseFileName="vc_mswudll\gamma-view.pdb"
+				ObjectFile="build\vc_mswudll\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswudll\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -537,13 +537,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmsw29u_gl.lib opengl32.lib glu32.lib wxmsw29u_core.lib  wxbase29u.lib   wxtiff.lib wxjpeg.lib wxpng.lib  wxzlib.lib wxregexu.lib wxexpat.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswudll\gamma-view.exe"
+				OutputFile="build\vc_mswudll\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswudll\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswudll\gamma-view.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -561,7 +561,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswudll\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswudll\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -576,7 +576,7 @@
 		<Configuration
 			Name="DLL Universal Debug|Win32"
 			OutputDirectory="vc_mswunivuddll"
-			IntermediateDirectory="vc_mswunivuddll\gamma-view"
+			IntermediateDirectory="build\vc_mswunivuddll\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -610,8 +610,8 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswunivuddll\gamma-view\"
-				ProgramDataBaseFileName="vc_mswunivuddll\gamma-view.pdb"
+				ObjectFile="build\vc_mswunivuddll\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswunivuddll\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -632,13 +632,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmswuniv29ud_gl.lib opengl32.lib glu32.lib wxmswuniv29ud_core.lib  wxbase29ud.lib   wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswunivuddll\gamma-view.exe"
+				OutputFile="build\vc_mswunivuddll\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswunivuddll\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswunivuddll\gamma-view.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -654,7 +654,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswunivuddll\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswunivuddll\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -669,7 +669,7 @@
 		<Configuration
 			Name="DLL Universal Release|Win32"
 			OutputDirectory="vc_mswunivudll"
-			IntermediateDirectory="vc_mswunivudll\gamma-view"
+			IntermediateDirectory="build\vc_mswunivudll\gamma-view"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -701,8 +701,8 @@
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				ObjectFile="vc_mswunivudll\gamma-view\"
-				ProgramDataBaseFileName="vc_mswunivudll\gamma-view.pdb"
+				ObjectFile="build\vc_mswunivudll\gamma-view\"
+				ProgramDataBaseFileName="build\vc_mswunivudll\gamma-view.pdb"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -723,13 +723,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions=""
 				AdditionalDependencies="wxmswuniv29u_gl.lib opengl32.lib glu32.lib wxmswuniv29u_core.lib  wxbase29u.lib   wxtiff.lib wxjpeg.lib wxpng.lib  wxzlib.lib wxregexu.lib wxexpat.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib"
-				OutputFile="vc_mswunivudll\gamma-view.exe"
+				OutputFile="build\vc_mswunivudll\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.9.3\lib\vc_dll&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="vc_mswunivudll\gamma-view.pdb"
+				ProgramDatabaseFile="build\vc_mswunivudll\gamma-view.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -747,7 +747,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="vc_mswunivudll\gamma-view_vc9.bsc"
+				OutputFile="build\vc_mswunivudll\gamma-view_vc9.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -769,31 +769,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\block.cpp"
+				RelativePath=".\src\block.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\block_data.cpp"
+				RelativePath=".\src\block_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\block_fsave.cpp"
+				RelativePath=".\src\block_fsave.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\block_trans.cpp"
+				RelativePath=".\src\block_trans.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\block_usb.cpp"
+				RelativePath=".\src\block_usb.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\glview.cpp"
+				RelativePath=".\src\glview.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath=".\src\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -803,35 +803,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\block.h"
+				RelativePath=".\src\block.h"
 				>
 			</File>
 			<File
-				RelativePath=".\block_data.h"
+				RelativePath=".\src\block_data.h"
 				>
 			</File>
 			<File
-				RelativePath=".\block_fsave.h"
+				RelativePath=".\src\block_fsave.h"
 				>
 			</File>
 			<File
-				RelativePath=".\block_trans.h"
+				RelativePath=".\src\block_trans.h"
 				>
 			</File>
 			<File
-				RelativePath=".\block_usb.h"
+				RelativePath=".\src\block_usb.h"
 				>
 			</File>
 			<File
-				RelativePath=".\data_types.h"
+				RelativePath=".\src\data_types.h"
 				>
 			</File>
 			<File
-				RelativePath=".\glview.h"
+				RelativePath=".\src\glview.h"
 				>
 			</File>
 			<File
-				RelativePath=".\main.h"
+				RelativePath=".\src\main.h"
 				>
 			</File>
 		</Filter>
@@ -839,11 +839,11 @@
 			Name="Resources"
 			>
 			<File
-				RelativePath=".\gamma-view.ico"
+				RelativePath=".\src\gamma-view.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\gamma-view.rc"
+				RelativePath=".\src\gamma-view.rc"
 				>
 			</File>
 		</Filter>
