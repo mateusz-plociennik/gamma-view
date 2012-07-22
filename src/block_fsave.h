@@ -12,7 +12,7 @@
 #include <wx/file.h>
 
 class GammaBlockFileSave : 
-	public GammaBlock < GammaBlockData<std::list<GammaItem>> , void >
+	public GammaBlockBase < GammaBlockData<std::list<GammaItem>> , void >
 {
 public:
 //	GammaBlockFileSave();

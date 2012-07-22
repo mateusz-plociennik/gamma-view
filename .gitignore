@@ -1,4 +1,5 @@
 build/
+doc/doxygen
 vc9/gamma-view.suo
 vc9/gamma-view.ncb
 vc9/gamma-view.vcproj.*

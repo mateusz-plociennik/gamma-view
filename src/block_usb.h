@@ -13,7 +13,7 @@
 #include "block.h"
 
 class GammaBlockUSB : 
-	public GammaBlock< void , GammaBlockData<unsigned char*> >
+	public GammaBlockBase< void , GammaBlockData<unsigned char*> >
 {
 public:
 	GammaBlockUSB();

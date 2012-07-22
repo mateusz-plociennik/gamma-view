@@ -1,15 +1,27 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block.h
-// Purpose:     Base class for blocks used to get / filter / view data
-// Author:      Mateusz Plociennik
-// Created:     16/06/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block.h
+ * @brief	The file contains GammaBlockBase class template.
+ * @author	Mateusz Plociennik
+ * @date	2012-07-16
+ */
 
 #ifndef _GAMMA_VIEW_BLOCK_H_
 #define _GAMMA_VIEW_BLOCK_H_
 
-#define GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME 20
+/** 
+ * Sleep time for thread, which called BlockDataGet(), when in-queue is empty. 
+ */
+#define GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME 20 
+
+/** 
+ * Sleep time for thread which called BlockDataPop(), when in-queue is full. 
+ */
 #define GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME 20
+
+/**
+ * Maximum size of in-queue. 
+ * It is used by BlockDataPop() function to determine whether in-queue is full.
+ */
 #define GAMMA_BLOCK_QUEUE_MAX 256
 
 #include <list>
@@ -20,44 +32,109 @@
 #include "data_types.h"
 #include "block_data.h"
 
+/**
+ * Template for GammaBlockBase class.
+ * @tparam BlockDataIn In data type.
+ * @tparam BlockDataOut Out data type.
+ */
 template<typename BlockDataIn, typename BlockDataOut>
-class GammaBlock : 
+class GammaBlockBase : 
 	public wxThreadHelper
 {
 public:
-	void BlockAttach(GammaBlock* block_p);
-	void BlockDetach(GammaBlock* block_p);
+	GammaBlockBase<BlockDataIn, BlockDataOut>();
+	~GammaBlockBase<BlockDataIn, BlockDataOut>();
 
+	/**
+	 * This function adds block_p to internal list of blocks to which will send data.
+	 * @param[in] block_p Pointer to GammaBlockBase to attach
+	 */
+	void BlockAttach(GammaBlockBase* block_p);
+
+	/**
+	 * This function removes block_p from internal list of blocks to which will send data.
+	 * @param[in] block_p Pointer to GammaBlockBase to detach
+	 */
+	void BlockDetach(GammaBlockBase* block_p);
+
+	/**
+	 * This function gets GammaBlockData object from in-queue.
+	 * If in-queue is empty, it will put the calling thread to sleep for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
+	 * @return Pointer to GammaBlockData from in-queue
+	 */
 	BlockDataIn* BlockDataGet();
-	virtual void BlockDataPop(BlockDataIn* data_p);
-	void BlockDataPush(BlockDataOut* data_p);
-	int BlockDataWaitingCount();
 
+	/**
+	 * This function is called by other blocks to add GammaBlockData referenced by data_p to in-queue.
+	 * @param[in] data_p Pointer to GammaBlockData
+	 */
+	virtual void BlockDataPop(BlockDataIn* data_p);
+
+	/**
+	 * This function pushes GammaBlockData referenced by data_p to attached blocks.
+	 * @param[in] data_p Pointer to GammaBlockData
+	 */
+	void BlockDataPush(BlockDataOut* data_p);
+
+	/**
+	 * This function returns count of items in in-queue.
+	 * @return Count of items in in-queue.
+	 */
+	int BlockDataWaitingCount();
+	
+	/**
+	 * This function creates, sets priority and run block thread.
+	 */
 	void BlockRun();
+
+	/**
+	 * This function pauses block thread.
+	 */
 	void BlockPause();
+
+	/**
+	 * This function waits for thread end and deletes thread.
+	 */
 	void BlockStop();
 
-	virtual void FrameShow() = 0;
-	virtual void MenuShow() = 0;
-
-	GammaBlock<BlockDataIn, BlockDataOut>();
-	~GammaBlock<BlockDataIn, BlockDataOut>();
+//	virtual void FrameShow() = 0;
+//	virtual void MenuShow() = 0;
 
 protected:
-	wxThread::ExitCode Entry();
+	/**
+	 * In this function there is thread execute code. It must be defined in children classes.
+	 */
+	virtual wxThread::ExitCode Entry() = 0;
 
 public:
-	std::list<GammaBlock*> m_blockList;
+	/**
+	 * List of attached blocks.
+	 */
+	std::list<GammaBlockBase*> m_blockList;
+
+	/**
+	 * Mutex for list of attached blocks access.
+	 */
+	wxMutex m_blockListMutex;
+
+	/**
+	 * In-queue.
+	 */
 	std::list<BlockDataIn*> m_blockDataInList;
 
-	wxMutex m_blockListMutex;
+	/**
+	 * Mutex for in-queue access.
+	 */
 	wxMutex m_blockDataInListMutex;
-
+	
+	/**
+	 * Priority parameter (0 - 100).
+	 */
 	unsigned int m_priority;
 };
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockAttach(GammaBlock* block_p)
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockAttach(GammaBlockBase* block_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
 	m_blockList.push_back(block_p);
@@ -65,7 +142,7 @@ void GammaBlock<BlockDataIn, BlockDataOut>::BlockAttach(GammaBlock* block_p)
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockDetach(GammaBlock* block_p)
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockDetach(GammaBlockBase* block_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
 	m_blockList.remove(block_p);
@@ -90,7 +167,7 @@ BlockDataIn* BlockDataGet()
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockDataPop(BlockDataIn* data_p)
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockDataPop(BlockDataIn* data_p)
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
 	while (m_blockDataInList.size() == GAMMA_BLOCK_QUEUE_MAX);
@@ -104,19 +181,19 @@ void GammaBlock<BlockDataIn, BlockDataOut>::BlockDataPop(BlockDataIn* data_p)
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockDataPush(BlockDataOut* data_p)
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockDataPush(BlockDataOut* data_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
-	for ( std::list<GammaBlock*>::iterator block_p=m_blockList.begin(); 
+	for ( std::list<GammaBlockBase*>::iterator block_p=m_blockList.begin(); 
 		block_p != m_blockList.end(); block_p++ )
 	{
-		(*block_p)->BlockDataPop(data_p);
+		//(*block_p)->BlockDataPop(data_p); //Doesn't work!!!
 	} 
 	m_blockListMutex.Unlock();
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-int GammaBlock<BlockDataIn, BlockDataOut>::BlockDataWaitingCount()
+int GammaBlockBase<BlockDataIn, BlockDataOut>::BlockDataWaitingCount()
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
 	int ret = m_blockDataInList.size();
@@ -126,7 +203,7 @@ int GammaBlock<BlockDataIn, BlockDataOut>::BlockDataWaitingCount()
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockRun()
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockRun()
 {
 	CreateThread();
 	GetThread()->SetPriority(m_priority);
@@ -134,41 +211,24 @@ void GammaBlock<BlockDataIn, BlockDataOut>::BlockRun()
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockPause()
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockPause()
 {
 	GetThread()->Pause();
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-void GammaBlock<BlockDataIn, BlockDataOut>::BlockStop()
+void GammaBlockBase<BlockDataIn, BlockDataOut>::BlockStop()
 {
 	GetThread()->Wait();
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-wxThread::ExitCode GammaBlock<BlockDataIn, BlockDataOut>::Entry()
-{
-	while (!GetThread()->TestDestroy())
-	{
-		wxASSERT(!m_blockDataInListMutex.Lock());
-		if (!m_blockDataInList.empty())
-		{
-			wxASSERT(typeid(BlockDataIn) == typeid(BlockDataOut));
-			//BlockDataPush(m_blockDataInList.front());
-			m_blockDataInList.pop_front();
-		}
-		m_blockDataInListMutex.Unlock();
-	}
-	return 0;
-}
-
-template<typename BlockDataIn, typename BlockDataOut>
-GammaBlock<BlockDataIn, BlockDataOut>::GammaBlock()
+GammaBlockBase<BlockDataIn, BlockDataOut>::GammaBlockBase()
 {
 }
 
 template<typename BlockDataIn, typename BlockDataOut>
-GammaBlock<BlockDataIn, BlockDataOut>::~GammaBlock()
+GammaBlockBase<BlockDataIn, BlockDataOut>::~GammaBlockBase()
 {
 }
 

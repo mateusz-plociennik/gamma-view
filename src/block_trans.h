@@ -11,7 +11,7 @@
 #include "block.h"
 
 class GammaBlockTrans : 
-	public GammaBlock< GammaBlockData<unsigned char*> , GammaBlockData<std::list<GammaItem>> >
+	public GammaBlockBase< GammaBlockData<unsigned char*> , GammaBlockData<std::list<GammaItem>> >
 {
 public:
 	GammaBlockTrans();
