@@ -12,6 +12,12 @@ wxThread::ExitCode GammaBlockTrans::Entry()
 	while (!GetThread()->TestDestroy())
 	{
 		wxASSERT(!m_dataInListMutex.Lock());
+		if (m_dataInList.empty())
+		{
+			m_dataInListMutex.Unlock();
+			//sleep(GAMMA_BLOCK_SLEEP);
+			continue;
+		}
 		GammaBlockData<unsigned char*>* blockDataIn = m_dataInList.front();
 		m_dataInList.pop_front();
 		m_dataInListMutex.Unlock();
@@ -46,7 +52,7 @@ wxThread::ExitCode GammaBlockTrans::Entry()
 			}
 		}
 
-		BlockDataPush(blockDataOut);
+		//BlockDataPush(blockDataOut);
 	}
 
 	return 0;

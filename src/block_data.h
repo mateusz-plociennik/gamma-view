@@ -27,4 +27,16 @@ private:
 
 };
 
+template<typename Data>
+GammaBlockData<Data>::GammaBlockData()
+{
+	m_refCount = 0;
+}
+
+template<typename Data>
+GammaBlockData<Data>::~GammaBlockData()
+{
+	delete[] data;
+}
+
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

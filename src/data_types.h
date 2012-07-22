@@ -8,10 +8,6 @@
 #ifndef _GAMMA_VIEW_DATA_TYPES_H_
 #define _GAMMA_VIEW_DATA_TYPES_H_
 
-//#include <wx/wx.h>
-//#include <wx/datetime.h>
-
-
 enum GammaSetting_e
 {
 	GAMMA_SET_RESERVED = 0x00,

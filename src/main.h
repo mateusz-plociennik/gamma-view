@@ -10,6 +10,14 @@
 
 #include "glview.h"
 
+/*
+#include "block.h"
+#include "block_data.h"
+#include "block_usb.h"
+#include "block_trans.h"
+#include "block_fsave.h"
+*/
+
 // Define a new application type
 class MyApp : public wxApp
 {
