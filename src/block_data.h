@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        block_data.h
-// Purpose:     data container for GammaBlock
+// Purpose:     blockData container for GammaBlock
 // Author:      Mateusz Plociennik
 // Created:     20/07/2012
 /////////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 
 //#include <wx/wx.h>
 
-template<typename Data>
+template<typename BlockData>
 class GammaBlockData
 {
 public:
@@ -20,21 +20,21 @@ public:
 //	wxDateTime datetime;
 //	wxMutex dataMutex;
 	int datetime;
-	Data data;
+	BlockData data;
 
 private:
 	unsigned char m_refCount;
 
 };
 
-template<typename Data>
-GammaBlockData<Data>::GammaBlockData()
+template<typename BlockData>
+GammaBlockData<BlockData>::GammaBlockData()
 {
 	m_refCount = 0;
 }
 
-template<typename Data>
-GammaBlockData<Data>::~GammaBlockData()
+template<typename BlockData>
+GammaBlockData<BlockData>::~GammaBlockData()
 {
 	delete[] data;
 }

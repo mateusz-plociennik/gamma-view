@@ -8,8 +8,9 @@
 #ifndef _GAMMA_VIEW_BLOCK_H_
 #define _GAMMA_VIEW_BLOCK_H_
 
-#define GAMMA_BLOCK_SLEEP 100
-
+#define GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME 20
+#define GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME 20
+#define GAMMA_BLOCK_QUEUE_MAX 256
 
 #include <list>
 #include <wx/thread.h>
@@ -19,7 +20,7 @@
 #include "data_types.h"
 #include "block_data.h"
 
-template<typename DataIn, typename DataOut>
+template<typename BlockDataIn, typename BlockDataOut>
 class GammaBlock : 
 	public wxThreadHelper
 {
@@ -27,8 +28,9 @@ public:
 	void BlockAttach(GammaBlock* block_p);
 	void BlockDetach(GammaBlock* block_p);
 
-	void BlockDataPop(DataIn* data_p);
-	void BlockDataPush(DataOut* data_p);
+	BlockDataIn* BlockDataGet();
+	virtual void BlockDataPop(BlockDataIn* data_p);
+	void BlockDataPush(BlockDataOut* data_p);
 	int BlockDataWaitingCount();
 
 	void BlockRun();
@@ -38,48 +40,71 @@ public:
 	virtual void FrameShow() = 0;
 	virtual void MenuShow() = 0;
 
-	GammaBlock<DataIn, DataOut>();
-	~GammaBlock<DataIn, DataOut>();
+	GammaBlock<BlockDataIn, BlockDataOut>();
+	~GammaBlock<BlockDataIn, BlockDataOut>();
 
 protected:
 	wxThread::ExitCode Entry();
 
 public:
 	std::list<GammaBlock*> m_blockList;
-	std::list<DataIn*> m_dataInList;
+	std::list<BlockDataIn*> m_blockDataInList;
 
 	wxMutex m_blockListMutex;
-	wxMutex m_dataInListMutex;
+	wxMutex m_blockDataInListMutex;
 
 	unsigned int m_priority;
 };
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockAttach(GammaBlock* block_p)
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockAttach(GammaBlock* block_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
 	m_blockList.push_back(block_p);
 	m_blockListMutex.Unlock();
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockDetach(GammaBlock* block_p)
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockDetach(GammaBlock* block_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
 	m_blockList.remove(block_p);
 	m_blockListMutex.Unlock();
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockDataPop(DataIn* data_p)
+template<typename BlockDataIn, typename BlockDataOut>
+BlockDataIn* BlockDataGet()
 {
-	wxASSERT(!m_dataInListMutex.Lock());
-	m_dataInList.push_back(data_p);
-	m_dataInListMutex.Unlock();
+	wxASSERT(!m_blockDataInListMutex.Lock());
+	while (m_blockDataInList.empty());
+	{
+		m_blockDataInListMutex.Unlock();
+		GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
+		m_blockDataInListMutex.Lock();
+	}
+	BlockDataIn* blockBlockDataIn = m_blockDataInList.front();
+	m_blockDataInList.pop_front();
+	m_blockDataInListMutex.Unlock();
+
+	return blockBlockDataIn;
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockDataPush(DataOut* data_p)
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockDataPop(BlockDataIn* data_p)
+{
+	wxASSERT(!m_blockDataInListMutex.Lock());
+	while (m_blockDataInList.size() == GAMMA_BLOCK_QUEUE_MAX);
+	{
+		m_blockDataInListMutex.Unlock();
+		GetThread()->Sleep(GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME);
+		wxASSERT(!m_blockDataInListMutex.Lock());
+	}
+	m_blockDataInList.push_back(data_p);
+	m_blockDataInListMutex.Unlock();
+}
+
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockDataPush(BlockDataOut* data_p)
 {
 	wxASSERT(!m_blockListMutex.Lock());
 	for ( std::list<GammaBlock*>::iterator block_p=m_blockList.begin(); 
@@ -90,60 +115,60 @@ void GammaBlock<DataIn, DataOut>::BlockDataPush(DataOut* data_p)
 	m_blockListMutex.Unlock();
 }
 
-template<typename DataIn, typename DataOut>
-int GammaBlock<DataIn, DataOut>::BlockDataWaitingCount()
+template<typename BlockDataIn, typename BlockDataOut>
+int GammaBlock<BlockDataIn, BlockDataOut>::BlockDataWaitingCount()
 {
-	wxASSERT(!m_dataInListMutex.Lock());
-	int ret = m_dataInList.size();
-	m_dataInListMutex.Unlock();
+	wxASSERT(!m_blockDataInListMutex.Lock());
+	int ret = m_blockDataInList.size();
+	m_blockDataInListMutex.Unlock();
 	
 	return ret;
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockRun()
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockRun()
 {
 	CreateThread();
 	GetThread()->SetPriority(m_priority);
 	GetThread()->Run();
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockPause()
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockPause()
 {
 	GetThread()->Pause();
 }
 
-template<typename DataIn, typename DataOut>
-void GammaBlock<DataIn, DataOut>::BlockStop()
+template<typename BlockDataIn, typename BlockDataOut>
+void GammaBlock<BlockDataIn, BlockDataOut>::BlockStop()
 {
 	GetThread()->Wait();
 }
 
-template<typename DataIn, typename DataOut>
-wxThread::ExitCode GammaBlock<DataIn, DataOut>::Entry()
+template<typename BlockDataIn, typename BlockDataOut>
+wxThread::ExitCode GammaBlock<BlockDataIn, BlockDataOut>::Entry()
 {
 	while (!GetThread()->TestDestroy())
 	{
-		wxASSERT(!m_dataInListMutex.Lock());
-		if (!m_dataInList.empty())
+		wxASSERT(!m_blockDataInListMutex.Lock());
+		if (!m_blockDataInList.empty())
 		{
-			wxASSERT(typeid(DataIn) == typeid(DataOut));
-			//BlockDataPush(m_dataInList.front());
-			m_dataInList.pop_front();
+			wxASSERT(typeid(BlockDataIn) == typeid(BlockDataOut));
+			//BlockDataPush(m_blockDataInList.front());
+			m_blockDataInList.pop_front();
 		}
-		m_dataInListMutex.Unlock();
+		m_blockDataInListMutex.Unlock();
 	}
 	return 0;
 }
 
-template<typename DataIn, typename DataOut>
-GammaBlock<DataIn, DataOut>::GammaBlock()
+template<typename BlockDataIn, typename BlockDataOut>
+GammaBlock<BlockDataIn, BlockDataOut>::GammaBlock()
 {
 }
 
-template<typename DataIn, typename DataOut>
-GammaBlock<DataIn, DataOut>::~GammaBlock()
+template<typename BlockDataIn, typename BlockDataOut>
+GammaBlock<BlockDataIn, BlockDataOut>::~GammaBlock()
 {
 }
 
