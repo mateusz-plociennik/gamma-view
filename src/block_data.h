@@ -1,42 +1,100 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_data.h
-// Purpose:     blockData container for GammaBlockBase
-// Author:      Mateusz Plociennik
-// Created:     20/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file block_data.h
+ * @brief GammaBlockDataBase class declaration.
+ * @author Mateusz Plociennik
+ * @data 2012-07-20
+ */
 
 #ifndef _GAMMA_VIEW_BLOCK_DATA_H_
 #define _GAMMA_VIEW_BLOCK_DATA_H_
 
-//#include <wx/wx.h>
+#include <wx/datetime.h>
+#include <wx/thread.h>
 
-template<typename BlockData>
-class GammaBlockData
+/**
+ * Base class to make GammaBlock able to send pointers without cast.
+ */
+class GammaBlockDataBase
 {
 public:
-	GammaBlockData();
-	~GammaBlockData();
+	/**
+	 * Locks dataMutex.
+	 */
+	wxMutexError Lock()
+	{
+		return dataMutex.Lock();
+	}
 
-//	wxDateTime datetime;
-//	wxMutex dataMutex;
-	int datetime;
-	BlockData data;
+	/**
+	 * Unlocks dataMutex.
+	 */
+	wxMutexError Unlock()
+	{
+		return dataMutex.Unlock();
+	}
+
+	/**
+	 * Increases count of subscribers.
+	 */
+	virtual void Subscribe() = 0;
+
+	/**
+	 * Decerases count of subscribers. If subscribers value reaches zero data should be destroyed.
+	 */
+	virtual void Unsubscribe() = 0;
+
+	/**
+	 * Date and time of packet arrival.
+	 */
+	wxDateTime datetime;
+
+	/**
+	 * Count of subscribers. When its value reaches zero, object should be destroyed.
+	 */
+	unsigned char m_subCount;
 
 private:
-	unsigned char m_refCount;
+	/**
+	 * Mutex for data access.
+	 */
+	wxMutex dataMutex;
 
 };
 
-template<typename BlockData>
-GammaBlockData<BlockData>::GammaBlockData()
+/**
+ * GammaBlockData class template.
+ * @tparam BlockDataT Type of data stored in GammaBlockData structure.
+ */
+template <typename BlockDataT>
+class GammaBlockData :
+	public GammaBlockDataBase
 {
-	m_refCount = 0;
-}
+public:
+	/**
+	 * Increases count of subscribers.
+	 */
+	void Subscribe()
+	{
+		m_subCount++;
+	}
 
-template<typename BlockData>
-GammaBlockData<BlockData>::~GammaBlockData()
-{
-	delete[] data;
-}
+	/**
+	 * Decerases count of subscribers. If subscribers value reaches zero data should be destroyed.
+	 */
+	void Unsubscribe()
+	{
+		m_subCount--;
+		if (m_subCount == 0)
+		{
+			delete[] data;
+		}
+	}
+
+	/**
+	 * Data (type given in template).
+	 */
+	BlockDataT data;
+
+};
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

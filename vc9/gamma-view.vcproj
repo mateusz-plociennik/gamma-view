@@ -769,23 +769,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\..\src\block_fsave.cpp"
+				RelativePath="..\src\block_base.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_trans.cpp"
+				RelativePath="..\src\block_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_usb.cpp"
+				RelativePath="..\src\block_fsave.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\glview.cpp"
+				RelativePath="..\src\block_trans.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\main.cpp"
+				RelativePath="..\src\block_usb.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\glview.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -795,35 +803,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\..\src\block.h"
+				RelativePath="..\src\block_base.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_data.h"
+				RelativePath="..\src\block_data.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_fsave.h"
+				RelativePath="..\src\block_fsave.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_trans.h"
+				RelativePath="..\src\block_trans.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\block_usb.h"
+				RelativePath="..\src\block_usb.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\data_types.h"
+				RelativePath="..\src\data_types.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\glview.h"
+				RelativePath="..\src\glview.h"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\main.h"
+				RelativePath="..\src\main.h"
 				>
 			</File>
 		</Filter>
@@ -832,11 +840,11 @@
 			Filter="rc;ico"
 			>
 			<File
-				RelativePath=".\..\src\gamma-view.ico"
+				RelativePath="..\src\gamma-view.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\..\src\gamma-view.rc"
+				RelativePath="..\src\gamma-view.rc"
 				>
 			</File>
 		</Filter>

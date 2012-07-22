@@ -55,7 +55,7 @@ union GammaItem				// 7 bytes
 	unsigned char type;			// 1 byte
 	union
 	{
-		unsigned long int time;	// 4 bytes
+		unsigned long time;		// 4 bytes
 		GammaPoint point;		// 6 bytes
 	} data;
 };

@@ -10,10 +10,10 @@
 
 #include "CyAPI.h"
 #include "data_types.h"
-#include "block.h"
+#include "block_base.h"
 
 class GammaBlockUSB : 
-	public GammaBlockBase< void , GammaBlockData<unsigned char*> >
+	public GammaBlockBase
 {
 public:
 	GammaBlockUSB();

@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "block_usb.h"
+#include "block_trans.h"
 
 void GammaBlockUSB::USBClose()
 {
@@ -20,9 +21,10 @@ bool GammaBlockUSB::USBInit()
 	USBSet(GAMMA_SET_ZOOM, 0x80) &&
 	USBSet(GAMMA_SET_SHIFT_X, 0x80) &&
 	USBSet(GAMMA_SET_SHIFT_Y, 0x80) &&
-	USBSet(GAMMA_SET_TMARKER, GAMMA_TMARKER_1MS) &&
+	USBSet(GAMMA_SET_TMARKER, GAMMA_TMARKER_10MS) &&
 	USBSet(GAMMA_SET_GATE, 0) );
-
+	
+	static_cast<GammaBlockTrans*> (m_blockList.front())->SetTimeDiv(10);
 	return ret;
 }
 

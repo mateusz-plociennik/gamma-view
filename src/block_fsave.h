@@ -8,11 +8,11 @@
 #ifndef _GAMMA_VIEW_BLOCK_FSAVE_H_
 #define _GAMMA_VIEW_BLOCK_FSAVE_H_
 
-#include "block.h"
+#include "block_base.h"
 #include <wx/file.h>
 
 class GammaBlockFileSave : 
-	public GammaBlockBase < GammaBlockData<std::list<GammaItem>> , void >
+	public GammaBlockBase
 {
 public:
 //	GammaBlockFileSave();
