@@ -1,13 +1,13 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_fsave.h
-// Purpose:     saving data to a file
-// Author:      Mateusz Plociennik
-// Created:     15/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block_fwrite.cpp
+ * @brief	saving data to a file
+ * @author	Mateusz Plociennik
+ * @data	2012-07-15
+ */
 
-#include "block_fsave.h"
+#include "block_fwrite.h"
 
-wxThread::ExitCode GammaBlockFileSave::Entry()
+wxThread::ExitCode GammaBlockFileWrite::Entry()
 {
 	wxFile file;
 
@@ -26,6 +26,7 @@ wxThread::ExitCode GammaBlockFileSave::Entry()
 		blockDataIn->Unlock();
 		blockDataIn->Unsubscribe();
 	}
+	file.Close();
 
 	return 0;
 }

@@ -30,6 +30,7 @@
 
 #include "main.h"
 #include "glview.h"
+#include "block_mgmt.h"
 
 #if !defined(__WXMSW__) && !defined(__WXPM__)
     #include "../../sample.xpm"
@@ -47,12 +48,14 @@ bool MyApp::OnInit()
         return false;
 
     new MyFrame();
+	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_USB_2_FILE);
 
     return true;
 }
 
 int MyApp::OnExit()
 {
+	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_NONE);
     delete m_glContext;
 
     return wxApp::OnExit();

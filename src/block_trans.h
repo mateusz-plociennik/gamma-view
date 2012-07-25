@@ -1,9 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_trans.h
-// Purpose:     driver for GammaUSB
-// Author:      Mateusz Plociennik
-// Created:     15/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block_trans.h
+ * @brief	translator for RAW data from USB
+ * @author	Mateusz Plociennik
+ * @data	2012-07-15
+ */
 
 #ifndef _GAMMA_VIEW_BLOCK_TRANS_H_
 #define _GAMMA_VIEW_BLOCK_TRANS_H_
@@ -14,8 +14,8 @@ class GammaBlockTrans :
 	public GammaBlockBase
 {
 public:
-	GammaBlockTrans();
-	~GammaBlockTrans();
+	//GammaBlockTrans();
+	//~GammaBlockTrans();
 
 	void SetTimeDiv(unsigned long timeDiv)
 	{

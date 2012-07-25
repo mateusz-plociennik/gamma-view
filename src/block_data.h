@@ -1,8 +1,8 @@
 /**
- * @file block_data.h
- * @brief GammaBlockDataBase class declaration.
- * @author Mateusz Plociennik
- * @data 2012-07-20
+ * @file	block_data.h
+ * @brief	GammaBlockDataBase class declaration.
+ * @author	Mateusz Plociennik
+ * @data	2012-07-20
  */
 
 #ifndef _GAMMA_VIEW_BLOCK_DATA_H_

@@ -777,7 +777,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\block_fsave.cpp"
+				RelativePath="..\src\block_fread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_fwrite.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_mgmt.cpp"
 				>
 			</File>
 			<File
@@ -811,7 +819,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\block_fsave.h"
+				RelativePath="..\src\block_fread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_fwrite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_mgmt.h"
 				>
 			</File>
 			<File

@@ -1,9 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_usb.h
-// Purpose:     driver for GammaUSB
-// Author:      Mateusz Plociennik
-// Created:     15/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block_usb.h
+ * @brief	GammaUSB driver
+ * @author	Mateusz Plociennik
+ * @data	2012-07-15
+ */
 
 #ifndef _GAMMA_VIEW_BLOCK_USB_H_
 #define _GAMMA_VIEW_BLOCK_USB_H_

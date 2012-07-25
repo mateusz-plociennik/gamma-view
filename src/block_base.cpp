@@ -1,8 +1,8 @@
 /**
- * @file block_base.cpp
- * @brief GammaBlockBase class methods.
- * @author Mateusz Plociennik
- * @data 2012-07-22
+ * @file	block_base.cpp
+ * @brief	GammaBlockBase class methods.
+ * @author	Mateusz Plociennik
+ * @data	2012-07-22
  */
 
 #include "block_base.h"
@@ -24,7 +24,7 @@ void GammaBlockBase::BlockDetach(GammaBlockBase* block_p)
 GammaBlockDataBase* GammaBlockBase::BlockDataGet()
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
-	while (m_blockDataInList.empty());
+	while (m_blockDataInList.empty())
 	{
 		m_blockDataInListMutex.Unlock();
 		GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
@@ -71,19 +71,19 @@ int GammaBlockBase::BlockDataWaitingCount()
 	return ret;
 }
 
-void GammaBlockBase::BlockRun()
+void GammaBlockBase::Run()
 {
 	CreateThread();
-	GetThread()->SetPriority(m_priority);
+	//GetThread()->SetPriority(m_priority);
 	GetThread()->Run();
 }
 
-void GammaBlockBase::BlockPause()
+void GammaBlockBase::Pause()
 {
 	GetThread()->Pause();
 }
 
-void GammaBlockBase::BlockStop()
+void GammaBlockBase::Stop()
 {
 	GetThread()->Wait();
 }

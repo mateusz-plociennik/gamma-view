@@ -82,17 +82,17 @@ public:
 	/**
 	 * This function creates, sets priority and run block thread.
 	 */
-	void BlockRun();
+	void Run();
 
 	/**
 	 * This function pauses block thread.
 	 */
-	void BlockPause();
+	void Pause();
 
 	/**
 	 * This function waits for thread end and deletes thread.
 	 */
-	void BlockStop();
+	void Stop();
 
 //	virtual void FrameShow() = 0;
 //	virtual void MenuShow() = 0;

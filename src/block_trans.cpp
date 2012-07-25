@@ -1,9 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_trans.cpp
-// Purpose:     driver for GammaUSB
-// Author:      Mateusz Plociennik
-// Created:     15/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block_trans.h
+ * @brief	translator for RAW data from USB
+ * @author	Mateusz Plociennik
+ * @data	2012-07-15
+ */
 
 #include "block_trans.h"
 
@@ -16,6 +16,7 @@ wxThread::ExitCode GammaBlockTrans::Entry()
 
 		GammaBlockData<std::list<GammaItem>*>* blockDataOut = 
 			new GammaBlockData<std::list<GammaItem>*>;
+		blockDataOut->data = new std::list<GammaItem>;
 
 		blockDataIn->Lock();
 		for (unsigned short int i = 0; i < 256; i++)

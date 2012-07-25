@@ -1,9 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        block_usb.cpp
-// Purpose:     driver for GammaUSB
-// Author:      Mateusz Plociennik
-// Created:     15/07/2012
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file	block_usb.cpp
+ * @brief	GammaUSB driver
+ * @author	Mateusz Plociennik
+ * @data	2012-07-15
+ */
 
 #include "block_usb.h"
 #include "block_trans.h"
@@ -48,6 +48,7 @@ bool GammaBlockUSB::USBSet(unsigned char setting, unsigned char value)
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
+	USBInit();
 	while (!GetThread()->TestDestroy())
 	{
 		long int length = 512;
