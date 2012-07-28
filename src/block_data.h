@@ -10,6 +10,8 @@
 
 #include <wx/datetime.h>
 #include <wx/thread.h>
+#include <list>
+#include "data_types.h"
 
 /**
  * Base class to make GammaBlock able to send pointers without cast.
@@ -96,5 +98,8 @@ public:
 	BlockDataT data;
 
 };
+
+typedef GammaBlockData<unsigned char*> GammaDataUSB;
+typedef GammaBlockData<std::list<GammaItem>*> GammaDataItem;
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

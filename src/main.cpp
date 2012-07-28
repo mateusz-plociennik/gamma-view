@@ -31,6 +31,7 @@
 #include "main.h"
 #include "glview.h"
 #include "block_mgmt.h"
+#include <wx/fileconf.h>
 
 #if !defined(__WXMSW__) && !defined(__WXPM__)
     #include "../../sample.xpm"
@@ -47,7 +48,10 @@ bool MyApp::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
+	wxFileConfig::Set( new wxFileConfig("gamma-view", "MP", 
+		"gamma-view.ini", wxEmptyString, wxCONFIG_USE_LOCAL_FILE) );
     new MyFrame();
+
 	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_USB_2_FILE);
 
     return true;

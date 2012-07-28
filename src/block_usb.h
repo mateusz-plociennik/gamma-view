@@ -12,6 +12,8 @@
 #include "data_types.h"
 #include "block_base.h"
 
+#define GAMMA_NO_DEVICE -1
+
 class GammaBlockUSB : 
 	public GammaBlockBase
 {
@@ -19,18 +21,18 @@ public:
 	GammaBlockUSB();
 	~GammaBlockUSB();
 
-	void USBClose();
-	bool USBInit();
-	bool USBOpen();
-	bool USBReset();
-	bool USBSet(unsigned char setting, unsigned char value);
+	bool DeviceFind();
+	bool DeviceInit();
+	bool DeviceOpen();
+	bool DeviceReset();
+	bool DeviceSet(unsigned char setting, unsigned char value);
 
 protected:
 	wxThread::ExitCode Entry();
 
 private:
 	CCyUSBDevice* m_USBDevice;
-
+	short int m_device;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_USB_H_

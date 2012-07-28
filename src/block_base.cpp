@@ -24,7 +24,7 @@ void GammaBlockBase::BlockDetach(GammaBlockBase* block_p)
 GammaBlockDataBase* GammaBlockBase::BlockDataGet()
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
-	while (m_blockDataInList.empty())
+	while (m_blockDataInList.empty() && !GetThread()->TestDestroy())
 	{
 		m_blockDataInListMutex.Unlock();
 		GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);

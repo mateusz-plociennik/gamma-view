@@ -11,7 +11,8 @@ wxThread::ExitCode GammaBlockFileWrite::Entry()
 {
 	wxFile file;
 
-	file.Open(wxDateTime::Now().Format("%Y%m%d_%H%M.gvb"), wxFile::write);
+	file.Open(wxDateTime::Now().Format("%Y%m%d_%H%M%S.gvb"), wxFile::write);
+	file.Write("GVB", 3);
 	while (!GetThread()->TestDestroy())
 	{
 		GammaBlockData<std::list<GammaItem>*>* blockDataIn = 
