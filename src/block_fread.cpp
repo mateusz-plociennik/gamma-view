@@ -11,24 +11,24 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 {
 	wxFile file;
 
-	file.Open("data/read.gvb", wxFile::read);
-	while ( (!GetThread()->TestDestroy()) && (!file.Eof()) )
+	file.Open("read.gvb", wxFile::read);
+	char tBuffer[3];
+	file.Read(tBuffer, 3);
+	if (!strcmp(tBuffer, "GVB"))
 	{
-		GammaBlockData<std::list<GammaItem>*>* blockDataOut = 
-			new GammaBlockData<std::list<GammaItem>*>;
-
-		//blockDataOut->Lock();
-		for (unsigned short int i = 0; i < 256; i++)
+		while ( (!GetThread()->TestDestroy()) && (!file.Eof()) )
 		{
-			if (file.Eof())
+			GammaDataItems* blockDataOut = new GammaDataItems;
+
+			//blockDataOut->Lock();
+			for (unsigned short int i = 0; ( (i < 256) && (!file.Eof()) ); i++)
 			{
-				break;
+				blockDataOut->data->resize(blockDataOut->data->size() + 1);
+				file.Read(&(*(blockDataOut->data->rend())), sizeof(GammaItem));
 			}
-			blockDataOut->data->resize(blockDataOut->data->size() + 1);
-			file.Read(&(*(blockDataOut->data->rend())), sizeof(GammaItem));
+			//blockDataOut->Unlock();
+			DataPush(blockDataOut);
 		}
-		//blockDataOut->Unlock();
-		BlockDataPush(blockDataOut);
 	}
 	file.Close();
 

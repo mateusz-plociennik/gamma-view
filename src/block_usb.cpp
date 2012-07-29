@@ -39,27 +39,15 @@ bool GammaBlockUSB::DeviceFind()
 bool GammaBlockUSB::DeviceInit()
 {
 	wxConfigBase* config = wxFileConfig::Get();
-	wxConfigPathChanger changer(config, "/USBDevice");
-
-	long tZoom;
-	long tShiftX;
-	long tShiftY;
-	long tTmarker;
-	long tGateOn;
-
-	config->Read("Zoom", &tZoom, 128);
-	config->Read("ShiftX", &tShiftX, 128);
-	config->Read("ShiftY", &tShiftY, 128);
-	config->Read("Tmarker", &tTmarker, 10);
-	config->Read("GateOn", &tGateOn, 0);
+	wxConfigPathChanger changer(config, "/USBDevice/");
 	
 	bool ret = (
 	DeviceReset() &&
-	DeviceSet(GAMMA_SET_ZOOM, tZoom) &&
-	DeviceSet(GAMMA_SET_SHIFT_X, tShiftX) &&
-	DeviceSet(GAMMA_SET_SHIFT_Y, tShiftY) &&
-	DeviceSet(GAMMA_SET_TMARKER, log10((float)tTmarker) + 1) &&
-	DeviceSet(GAMMA_SET_GATE, tGateOn) );
+	DeviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 128)) &&
+	DeviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 128)) &&
+	DeviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 128)) &&
+	DeviceSet(GAMMA_SET_TMARKER, log10(config->ReadDouble("Tmarker", 10)) + 1) &&
+	DeviceSet(GAMMA_SET_GATE, config->ReadLong("GateOn", 0)) );
 	
 	return ret;
 }
@@ -91,7 +79,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 			blockDataOut->datetime.UNow();
 			m_USBDevice->BulkInEndPt->XferData(blockDataOut->data, length);
 			
-			BlockDataPush(blockDataOut);
+			DataPush(blockDataOut);
 		}
 	}
 

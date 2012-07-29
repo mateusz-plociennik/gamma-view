@@ -100,6 +100,6 @@ public:
 };
 
 typedef GammaBlockData<unsigned char*> GammaDataUSB;
-typedef GammaBlockData<std::list<GammaItem>*> GammaDataItem;
+typedef GammaBlockData<std::list<GammaItem>*> GammaDataItems;
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

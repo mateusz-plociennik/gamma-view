@@ -48,8 +48,12 @@ bool MyApp::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
-	wxFileConfig::Set( new wxFileConfig("gamma-view", "MP", 
-		"gamma-view.ini", wxEmptyString, wxCONFIG_USE_LOCAL_FILE) );
+	wxConfigBase* config= new wxFileConfig( "gamma-view", "MP", 
+		"./gamma-view.ini", wxEmptyString, 
+		wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
+	config->SetRecordDefaults();
+	wxConfigBase::Set(config);
+
     new MyFrame();
 
 	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_USB_2_FILE);

@@ -39,67 +39,131 @@ class GammaBlockBase :
 	public wxThreadHelper
 {
 public:
+	/*
 	GammaBlockBase();
 	~GammaBlockBase();
-
+*/
 	/**
-	 * This function adds block_p to internal list of blocks to which will send data.
+	 * This function adds block_p to internal list of blocks to which will 
+	 * send data.
 	 * @param[in] block_p Pointer to GammaBlockBase to attach
 	 */
-	void BlockAttach(GammaBlockBase* block_p);
+	void BlockAttach(GammaBlockBase* block_p)
+	{
+		wxMutexLocker locker(m_blockListMutex);
+		m_blockList.push_back(block_p);
+	}
 
 	/**
-	 * This function removes block_p from internal list of blocks to which will send data.
+	 * This function removes block_p from internal list of blocks to which 
+	 * will send data.
 	 * @param[in] block_p Pointer to GammaBlockBase to detach
 	 */
-	void BlockDetach(GammaBlockBase* block_p);
+	void BlockDetach(GammaBlockBase* block_p)
+	{
+		wxMutexLocker locker(m_blockListMutex);
+		m_blockList.remove(block_p);
+	}
 
 	/**
 	 * This function gets GammaBlockDataBase object from in-queue.
-	 * If in-queue is empty, it will put the calling thread to sleep for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
+	 * If in-queue is empty, it will put the calling thread to sleep 
+	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
 	 * @return Pointer to GammaBlockDataBase from in-queue
 	 */
-	GammaBlockDataBase* BlockDataGet();
+	GammaBlockDataBase* DataGet()
+	{
+		wxASSERT(!m_blockDataInListMutex.Lock());
+		while (m_blockDataInList.empty() && !GetThread()->TestDestroy())
+		{
+			m_blockDataInListMutex.Unlock();
+			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
+			m_blockDataInListMutex.Lock();
+		}
+		GammaBlockDataBase* blockBlockDataIn = m_blockDataInList.front();
+		m_blockDataInList.pop_front();
+		m_blockDataInListMutex.Unlock();
+
+		return blockBlockDataIn;
+	}
 
 	/**
-	 * This function is called by other blocks to add GammaBlockDataBase referenced by blockData_p to in-queue.
+	 * This function is called by other blocks to add GammaBlockDataBase 
+	 * referenced by blockData_p to in-queue.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	virtual void BlockDataPop(GammaBlockDataBase* blockData_p);
+	virtual void DataPop(GammaBlockDataBase* blockData_p)
+	{
+		wxASSERT(!m_blockDataInListMutex.Lock());
+		while (m_blockDataInList.size() == GAMMA_BLOCK_QUEUE_MAX);
+		{
+			m_blockDataInListMutex.Unlock();
+			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME);
+			wxASSERT(!m_blockDataInListMutex.Lock());
+		}
+		m_blockDataInList.push_back(blockData_p);
+		blockData_p->Subscribe();
+		m_blockDataInListMutex.Unlock();
+	}
 
 	/**
-	 * This function pushes GammaBlockDataBase referenced by blockData_p to attached blocks.
+	 * This function pushes GammaBlockDataBase referenced by blockData_p 
+	 * to attached blocks.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	void BlockDataPush(GammaBlockDataBase* blockData_p);
+	void DataPush(GammaBlockDataBase* blockData_p)
+	{
+		wxMutexLocker locker(m_blockListMutex);
+		for ( std::list<GammaBlockBase*>::iterator block_p=m_blockList.begin(); 
+			block_p != m_blockList.end(); block_p++ )
+		{
+			(*block_p)->DataPop(blockData_p);
+		}
+	}
 
 	/**
 	 * This function returns count of items in in-queue.
 	 * @return Count of items in in-queue.
 	 */
-	int BlockDataWaitingCount();
+	int DataWaitingCount()
+	{
+		wxMutexLocker locker(m_blockDataInListMutex);
+	
+		return m_blockDataInList.size();
+	}
 	
 	/**
 	 * This function creates, sets priority and run block thread.
 	 */
-	void Run();
+	void Run()
+	{
+		CreateThread();
+		GetThread()->Run();
+	}
 
 	/**
 	 * This function pauses block thread.
 	 */
-	void Pause();
+	void Pause()
+	{
+		GetThread()->Pause();
+	}
 
 	/**
 	 * This function waits for thread end and deletes thread.
 	 */
-	void Stop();
+	void Stop()
+	{
+		GetThread()->Delete();
+	}
 
 //	virtual void FrameShow() = 0;
 //	virtual void MenuShow() = 0;
 
 protected:
 	/**
-	 * In this function there is thread execute code. It must be defined in children classes.
+	 * In this function there is thread execute code. It must be defined 
+	 * in children classes.
 	 */
 	virtual wxThread::ExitCode Entry() = 0;
 

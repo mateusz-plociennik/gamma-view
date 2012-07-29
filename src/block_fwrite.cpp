@@ -16,7 +16,7 @@ wxThread::ExitCode GammaBlockFileWrite::Entry()
 	while (!GetThread()->TestDestroy())
 	{
 		GammaBlockData<std::list<GammaItem>*>* blockDataIn = 
-			static_cast<GammaBlockData<std::list<GammaItem>*>*> (BlockDataGet());
+			static_cast<GammaBlockData<std::list<GammaItem>*>*> (DataGet());
 
 		blockDataIn->Lock();
 		for ( std::list<GammaItem>::iterator i = blockDataIn->data->begin();

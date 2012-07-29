@@ -7,20 +7,6 @@
 
 #include "block_base.h"
 
-void GammaBlockBase::BlockAttach(GammaBlockBase* block_p)
-{
-	wxASSERT(!m_blockListMutex.Lock());
-	m_blockList.push_back(block_p);
-	m_blockListMutex.Unlock();
-}
-
-void GammaBlockBase::BlockDetach(GammaBlockBase* block_p)
-{
-	wxASSERT(!m_blockListMutex.Lock());
-	m_blockList.remove(block_p);
-	m_blockListMutex.Unlock();
-}
-
 GammaBlockDataBase* GammaBlockBase::BlockDataGet()
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
@@ -49,49 +35,4 @@ void GammaBlockBase::BlockDataPop(GammaBlockDataBase* blockData_p)
 	m_blockDataInList.push_back(blockData_p);
 	blockData_p->Subscribe();
 	m_blockDataInListMutex.Unlock();
-}
-
-void GammaBlockBase::BlockDataPush(GammaBlockDataBase* blockData_p)
-{
-	wxASSERT(!m_blockListMutex.Lock());
-	for ( std::list<GammaBlockBase*>::iterator block_p=m_blockList.begin(); 
-		block_p != m_blockList.end(); block_p++ )
-	{
-		(*block_p)->BlockDataPop(blockData_p);
-	} 
-	m_blockListMutex.Unlock();
-}
-
-int GammaBlockBase::BlockDataWaitingCount()
-{
-	wxASSERT(!m_blockDataInListMutex.Lock());
-	int ret = m_blockDataInList.size();
-	m_blockDataInListMutex.Unlock();
-	
-	return ret;
-}
-
-void GammaBlockBase::Run()
-{
-	CreateThread();
-	//GetThread()->SetPriority(m_priority);
-	GetThread()->Run();
-}
-
-void GammaBlockBase::Pause()
-{
-	GetThread()->Pause();
-}
-
-void GammaBlockBase::Stop()
-{
-	GetThread()->Wait();
-}
-
-GammaBlockBase::GammaBlockBase()
-{
-}
-
-GammaBlockBase::~GammaBlockBase()
-{
 }

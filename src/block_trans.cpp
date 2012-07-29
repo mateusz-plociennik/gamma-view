@@ -6,19 +6,25 @@
  */
 
 #include "block_trans.h"
+#include <wx/fileconf.h>
 
 wxThread::ExitCode GammaBlockTrans::Entry()
 {
+	{
+		wxConfigBase* config = wxFileConfig::Get();
+		wxConfigPathChanger changer(config, "/USBDevice/");
+		m_timeDiv = config->ReadLong("Tmarker", 10);
+		m_timeCounter = 0;
+	}
 	while (!GetThread()->TestDestroy())
 	{
-		GammaBlockData<unsigned char*>* blockDataIn = 
-			static_cast<GammaBlockData<unsigned char*>*> (BlockDataGet());
+		GammaDataUSB* blockDataIn = (GammaDataUSB*)DataGet();
 
-		GammaBlockData<std::list<GammaItem>*>* blockDataOut = 
-			new GammaBlockData<std::list<GammaItem>*>;
+		GammaDataItems* blockDataOut = new GammaDataItems;
 		blockDataOut->data = new std::list<GammaItem>;
 
 		blockDataIn->Lock();
+		blockDataOut->datetime = blockDataIn->datetime;
 		for (unsigned short int i = 0; i < 256; i++)
 		{
 			blockDataOut->data->resize(blockDataOut->data->size() + 1);
@@ -41,14 +47,17 @@ wxThread::ExitCode GammaBlockTrans::Entry()
 			else
 			{
 				blockDataOut->data->back().type = GAMMA_ITEM_POINT;
-				blockDataOut->data->back().data.point.x = blockDataIn->data[2 * i + 0];
-				blockDataOut->data->back().data.point.y = blockDataIn->data[2 * i + 1];
-				blockDataOut->data->back().data.point.z = -1; //Not Available
+				blockDataOut->data->back().data.point.x = 
+					blockDataIn->data[2 * i + 0];
+				blockDataOut->data->back().data.point.y = 
+					blockDataIn->data[2 * i + 1];
+				blockDataOut->data->back().data.point.z = 
+					(-1); //Not Available
 			}
 		}
 		blockDataIn->Unlock();
 		blockDataIn->Unsubscribe();
-		BlockDataPush(blockDataOut);
+		DataPush(blockDataOut);
 	}
 
 	return 0;
