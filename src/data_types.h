@@ -17,7 +17,7 @@ enum GammaSetting_e
 	GAMMA_SET_SHIFT_Y,
 	GAMMA_SET_TMARKER,
 	GAMMA_SET_GATE,
-	GAMMA_SET_END,
+	GAMMA_SET_END, //end
 };
 
 enum GammaSettingTmarker_e
@@ -46,6 +46,7 @@ enum GammaBlockDataType_e
 enum GammaBlockMode_e
 {
 	GAMMA_MODE_USB_2_FILE = 0,
+	GAMMA_MODE_FAKE_2_FILE,
 	GAMMA_MODE_PLAYBACK,
 	GAMMA_MODE_VIRTUAL,
 	GAMMA_MODE_NONE,

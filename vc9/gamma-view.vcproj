@@ -769,10 +769,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\block_data.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\block_fread.cpp"
 				>
 			</File>
@@ -790,6 +786,10 @@
 			</File>
 			<File
 				RelativePath="..\src\block_usb.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_usb_fake.cpp"
 				>
 			</File>
 			<File
@@ -832,6 +832,10 @@
 			</File>
 			<File
 				RelativePath="..\src\block_usb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_usb_fake.h"
 				>
 			</File>
 			<File

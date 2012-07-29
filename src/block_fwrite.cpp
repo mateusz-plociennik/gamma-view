@@ -15,17 +15,19 @@ wxThread::ExitCode GammaBlockFileWrite::Entry()
 	file.Write("GVB", 3);
 	while (!GetThread()->TestDestroy())
 	{
-		GammaBlockData<std::list<GammaItem>*>* blockDataIn = 
-			static_cast<GammaBlockData<std::list<GammaItem>*>*> (DataGet());
-
-		blockDataIn->Lock();
-		for ( std::list<GammaItem>::iterator i = blockDataIn->data->begin();
-			i != blockDataIn->data->end(); i++ )
+		if (DataReady())
 		{
-			file.Write(&(*i), sizeof(GammaItem));
+			GammaDataItems* blockDataIn = (GammaDataItems*)DataGet();
+
+			blockDataIn->Lock();
+			for ( wxVector<GammaItem>::iterator i = blockDataIn->data.begin();
+				i != blockDataIn->data.end(); i++ )
+			{
+				file.Write(&(*i), sizeof(GammaItem));
+			}
+			blockDataIn->Unlock();
+			blockDataIn->Unsubscribe();
 		}
-		blockDataIn->Unlock();
-		blockDataIn->Unsubscribe();
 	}
 	file.Close();
 

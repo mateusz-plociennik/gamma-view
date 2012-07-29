@@ -20,6 +20,20 @@ class GammaBlockDataBase
 {
 public:
 	/**
+	 * Default constructor.
+	 */
+	GammaBlockDataBase()
+	{
+		m_subCount = 0;
+	}
+
+	/**
+	 * True virtual function to destroy data. 
+	 * Must be virtual, because different methods to destroy data.
+	 */
+	virtual void DataDestroy() = 0;
+
+	/**
 	 * Locks dataMutex.
 	 */
 	wxMutexError Lock()
@@ -38,12 +52,24 @@ public:
 	/**
 	 * Increases count of subscribers.
 	 */
-	virtual void Subscribe() = 0;
+	void Subscribe()
+	{
+		m_subCount++;
+	}
 
 	/**
-	 * Decerases count of subscribers. If subscribers value reaches zero data should be destroyed.
+	 * Decerases count of subscribers. 
+	 * If subscribers value reaches zero data should be destroyed.
 	 */
-	virtual void Unsubscribe() = 0;
+	void Unsubscribe()
+	{
+		m_subCount--;
+		if (m_subCount == 0)
+		{
+			DataDestroy();
+			delete this;
+		}
+	}
 
 	/**
 	 * Date and time of packet arrival.
@@ -64,42 +90,48 @@ private:
 };
 
 /**
- * GammaBlockData class template.
- * @tparam BlockDataT Type of data stored in GammaBlockData structure.
+ * GammaDataUSB class.
  */
-template <typename BlockDataT>
-class GammaBlockData :
+class GammaDataUSB:
 	public GammaBlockDataBase
 {
 public:
-	/**
-	 * Increases count of subscribers.
-	 */
-	void Subscribe()
+	virtual void DataDestroy()
 	{
-		m_subCount++;
+		delete[] data;
 	}
 
-	/**
-	 * Decerases count of subscribers. If subscribers value reaches zero data should be destroyed.
-	 */
-	void Unsubscribe()
-	{
-		m_subCount--;
-		if (m_subCount == 0)
-		{
-			delete[] data;
-		}
-	}
-
-	/**
-	 * Data (type given in template).
-	 */
-	BlockDataT data;
-
+	unsigned char* data;
 };
 
-typedef GammaBlockData<unsigned char*> GammaDataUSB;
-typedef GammaBlockData<std::list<GammaItem>*> GammaDataItems;
+/**
+ * GammaDataItems class.
+ */
+class GammaDataItems:
+	public GammaBlockDataBase
+{
+public:
+	virtual void DataDestroy()
+	{
+		data.clear();
+	}
+
+	wxVector<GammaItem> data;
+};
+
+/**
+ * GammaDataImage class.
+ */
+class GammaDataImage:
+	public GammaBlockDataBase
+{
+public:
+	virtual void DataDestroy()
+	{
+		//delete data;
+	}
+
+	wxImage data;
+};
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

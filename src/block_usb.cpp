@@ -67,9 +67,12 @@ bool GammaBlockUSB::DeviceSet(unsigned char setting, unsigned char value)
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
-	if (m_device != GAMMA_NO_DEVICE)
+	if (DeviceFind())
 	{
-		DeviceInit();
+		if (DeviceInit())
+		{
+			wxLogStatus("Init OK.");
+		}
 		while (!GetThread()->TestDestroy())
 		{
 			GammaDataUSB* blockDataOut = new GammaDataUSB;
@@ -77,6 +80,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 			long int length = 512;
 			
 			blockDataOut->datetime.UNow();
+
 			m_USBDevice->BulkInEndPt->XferData(blockDataOut->data, length);
 			
 			DataPush(blockDataOut);
@@ -89,13 +93,9 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 GammaBlockUSB::GammaBlockUSB()
 {
 	m_USBDevice = new CCyUSBDevice(NULL);
-
-	DeviceFind();
 }
 
 GammaBlockUSB::~GammaBlockUSB()
 {
 	delete m_USBDevice;
 }
-
-

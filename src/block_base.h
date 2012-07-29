@@ -13,6 +13,7 @@
  */
 #define GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME 20 
 
+#if 0
 /** 
  * Sleep time for thread which called BlockDataPop(), when in-queue is full. 
  */
@@ -23,7 +24,9 @@
  * It is used by BlockDataPop() function to determine whether in-queue is full.
  */
 #define GAMMA_BLOCK_QUEUE_MAX 256
+#endif
 
+//#include <wx/list.h>
 #include <list>
 #include <wx/thread.h>
 #include <wx/wx.h>
@@ -73,16 +76,9 @@ public:
 	 */
 	GammaBlockDataBase* DataGet()
 	{
-		wxASSERT(!m_blockDataInListMutex.Lock());
-		while (m_blockDataInList.empty() && !GetThread()->TestDestroy())
-		{
-			m_blockDataInListMutex.Unlock();
-			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
-			m_blockDataInListMutex.Lock();
-		}
+		wxMutexLocker locker(m_blockDataInListMutex);
 		GammaBlockDataBase* blockBlockDataIn = m_blockDataInList.front();
 		m_blockDataInList.pop_front();
-		m_blockDataInListMutex.Unlock();
 
 		return blockBlockDataIn;
 	}
@@ -92,18 +88,11 @@ public:
 	 * referenced by blockData_p to in-queue.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	virtual void DataPop(GammaBlockDataBase* blockData_p)
+	void DataPop(GammaBlockDataBase* blockData_p)
 	{
-		wxASSERT(!m_blockDataInListMutex.Lock());
-		while (m_blockDataInList.size() == GAMMA_BLOCK_QUEUE_MAX);
-		{
-			m_blockDataInListMutex.Unlock();
-			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME);
-			wxASSERT(!m_blockDataInListMutex.Lock());
-		}
+		wxMutexLocker locker(m_blockDataInListMutex);
 		m_blockDataInList.push_back(blockData_p);
 		blockData_p->Subscribe();
-		m_blockDataInListMutex.Unlock();
 	}
 
 	/**
@@ -119,6 +108,25 @@ public:
 		{
 			(*block_p)->DataPop(blockData_p);
 		}
+	}
+
+	/**
+	 * If there are no data in in-queue, than make the thread sleep 
+	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
+	 * @return Bool if in-gueue has data.
+	 */
+	bool DataReady()
+	{
+		m_blockDataInListMutex.Lock();
+		bool ready = !m_blockDataInList.empty();
+		m_blockDataInListMutex.Unlock();
+
+		if (!ready)
+		{
+			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
+		}
+
+		return ready;
 	}
 
 	/**

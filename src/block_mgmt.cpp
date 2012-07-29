@@ -9,8 +9,10 @@
 
 #include "block_fread.h"
 #include "block_fwrite.h"
-#include "block_trans.h"
+#include "block_tr_si.h"
+#include "block_tr_us.h"
 #include "block_usb.h"
+#include "block_usb_fake.h"
 
 void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 {
@@ -19,7 +21,24 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 		case GAMMA_MODE_USB_2_FILE:
 		{
 			GammaBlockBase* usb = new GammaBlockUSB;
-			GammaBlockBase* trans = new GammaBlockTrans;
+			GammaBlockBase* trans = new GammaBlockTransUS;
+			GammaBlockBase* file = new GammaBlockFileWrite;
+			m_blockList.push_back(usb);
+			m_blockList.push_back(trans);
+			m_blockList.push_back(file);
+
+			trans->BlockAttach(file);
+			usb->BlockAttach(trans);
+			
+			file->Run();
+			trans->Run();
+			usb->Run();
+			break;
+		}
+		case GAMMA_MODE_FAKE_2_FILE:
+		{
+			GammaBlockBase* usb = new GammaBlockUSBFake;
+			GammaBlockBase* trans = new GammaBlockTransUS;
 			GammaBlockBase* file = new GammaBlockFileWrite;
 			m_blockList.push_back(usb);
 			m_blockList.push_back(trans);
@@ -35,7 +54,12 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 		}
 		default:
 		{
-			m_blockList.front()->Stop();
+			while (!m_blockList.empty())
+			{
+				m_blockList.front()->Stop();
+				delete m_blockList.front();
+				m_blockList.pop_front();
+			}
 
 			break;
 		}
