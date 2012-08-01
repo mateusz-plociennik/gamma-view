@@ -781,7 +781,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\block_trans.cpp"
+				RelativePath="..\src\block_tr_si.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_tr_us.cpp"
 				>
 			</File>
 			<File
@@ -827,7 +831,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\block_trans.h"
+				RelativePath="..\src\block_tr_si.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\block_tr_us.h"
 				>
 			</File>
 			<File

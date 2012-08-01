@@ -1,13 +1,13 @@
 /**
- * @file	block_tr_si.cpp
- * @brief	saving data to a file
+ * @file	block_tr_sm.cpp
+ * @brief	translate points to matrix
  * @author	Mateusz Plociennik
- * @data	2012-07-15
+ * @data	2012-07-30
  */
 
 #include "block_tr_si.h"
 
-wxThread::ExitCode GammaBlockTransSI::Entry()
+wxThread::ExitCode GammaBlockTransSM::Entry()
 {
 	while (!GetThread()->TestDestroy())
 	{

@@ -31,7 +31,7 @@ public:
 	 * True virtual function to destroy data. 
 	 * Must be virtual, because different methods to destroy data.
 	 */
-	virtual void DataDestroy() = 0;
+	//virtual void DataDestroy() = 0;
 
 	/**
 	 * Locks dataMutex.
@@ -66,7 +66,6 @@ public:
 		m_subCount--;
 		if (m_subCount == 0)
 		{
-			DataDestroy();
 			delete this;
 		}
 	}
@@ -96,7 +95,12 @@ class GammaDataUSB:
 	public GammaBlockDataBase
 {
 public:
-	virtual void DataDestroy()
+	GammaDataUSB()
+	{
+		data = new unsigned char(512);
+	}
+
+	~GammaDataUSB()
 	{
 		delete[] data;
 	}
@@ -111,7 +115,7 @@ class GammaDataItems:
 	public GammaBlockDataBase
 {
 public:
-	virtual void DataDestroy()
+	~GammaDataItems()
 	{
 		data.clear();
 	}
@@ -122,11 +126,31 @@ public:
 /**
  * GammaDataImage class.
  */
+class GammaDataMatrix:
+	public GammaBlockDataBase
+{
+public:
+	GammaDataMatrix()
+	{
+		data = new unsigned short int(256 * 256);
+	}
+
+	~GammaDataMatrix()
+	{
+		delete[] data;
+	}
+
+	unsigned short int* data;
+};
+
+/**
+ * GammaDataImage class.
+ */
 class GammaDataImage:
 	public GammaBlockDataBase
 {
 public:
-	virtual void DataDestroy()
+	~GammaData()
 	{
 		//delete data;
 	}
