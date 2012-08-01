@@ -6,7 +6,7 @@
  */
 
 #include "block_usb.h"
-#include "block_trans.h"
+#include "block_tr_us.h"
 #include <wx/fileconf.h>
 
 bool GammaBlockUSB::DeviceFind()
@@ -76,7 +76,6 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 		while (!GetThread()->TestDestroy())
 		{
 			GammaDataUSB* blockDataOut = new GammaDataUSB;
-			blockDataOut->data = new unsigned char[512];
 			long int length = 512;
 			
 			blockDataOut->datetime.UNow();

@@ -27,6 +27,10 @@ public:
 		m_subCount = 0;
 	}
 
+	virtual ~GammaBlockDataBase()
+	{
+	}
+
 	/**
 	 * True virtual function to destroy data. 
 	 * Must be virtual, because different methods to destroy data.
@@ -97,7 +101,7 @@ class GammaDataUSB:
 public:
 	GammaDataUSB()
 	{
-		data = new unsigned char(512);
+		data = new unsigned char[512];
 	}
 
 	~GammaDataUSB()
@@ -115,6 +119,11 @@ class GammaDataItems:
 	public GammaBlockDataBase
 {
 public:
+	GammaDataItems()
+	{
+		data.resize(256);
+	}
+
 	~GammaDataItems()
 	{
 		data.clear();
@@ -132,7 +141,7 @@ class GammaDataMatrix:
 public:
 	GammaDataMatrix()
 	{
-		data = new unsigned short int(256 * 256);
+		data = new unsigned short int[256 * 256];
 	}
 
 	~GammaDataMatrix()
@@ -150,12 +159,17 @@ class GammaDataImage:
 	public GammaBlockDataBase
 {
 public:
-	~GammaData()
+	GammaDataImage()
 	{
-		//delete data;
+		data = new wxImage(256, 256, false);
 	}
 
-	wxImage data;
+	~GammaDataImage()
+	{
+		delete data;
+	}
+
+	wxImage* data;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

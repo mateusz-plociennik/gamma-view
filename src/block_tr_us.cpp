@@ -1,5 +1,5 @@
 /**
- * @file	block_trans.h
+ * @file	block_tr_us.cpp
  * @brief	translator for RAW data from USB
  * @author	Mateusz Plociennik
  * @data	2012-07-15
@@ -23,7 +23,6 @@ wxThread::ExitCode GammaBlockTransUS::Entry()
 			GammaDataUSB* blockDataIn = (GammaDataUSB*)DataGet();
 
 			GammaDataItems* blockDataOut = new GammaDataItems;
-			blockDataOut->data.resize(256);
 
 			blockDataIn->Lock();
 			blockDataOut->datetime = blockDataIn->datetime;

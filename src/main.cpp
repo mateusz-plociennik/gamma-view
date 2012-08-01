@@ -56,7 +56,7 @@ bool MyApp::OnInit()
 
     new MyFrame();
 
-	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_FAKE_2_FILE);
+	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_FAKE_2_IMAGE);
 
     return true;
 }

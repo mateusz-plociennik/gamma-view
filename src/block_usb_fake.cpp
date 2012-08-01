@@ -12,7 +12,6 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 	while (!GetThread()->TestDestroy())
 	{
 		GammaDataUSB* blockDataOut = new GammaDataUSB;
-		blockDataOut->data = new unsigned char[512];
 
 		blockDataOut->datetime.UNow();
 

@@ -5,7 +5,7 @@
  * @data	2012-07-30
  */
 
-#include "block_tr_si.h"
+#include "block_tr_sm.h"
 
 wxThread::ExitCode GammaBlockTransSM::Entry()
 {
@@ -14,22 +14,24 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 		if (DataReady())
 		{
 			GammaDataItems* blockDataIn = (GammaDataItems*)DataGet();
-			unsigned int m[256*256];
+			GammaDataMatrix* blockDataOut = new GammaDataMatrix;
 
 			blockDataIn->Lock();
+			blockDataOut->datetime = blockDataIn->datetime;
 			for ( wxVector<GammaItem>::iterator it = blockDataIn->data.begin();
 				it != blockDataIn->data.end(); it++ )
 			{
 				if ((*it).type == GAMMA_ITEM_POINT)
 				{
-					m[256 * (*it).data.point.x + (*it).data.point.y] += 1;
+					blockDataOut->data[256 * (*it).data.point.x + 
+						(*it).data.point.y] += 1;
 				}
 			}
 			blockDataIn->Unlock();
 			blockDataIn->Unsubscribe();
+			DataPush(blockDataOut);
 		}
 	}
-	file.Close();
 
 	return 0;
 }

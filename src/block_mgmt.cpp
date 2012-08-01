@@ -9,8 +9,9 @@
 
 #include "block_fread.h"
 #include "block_fwrite.h"
-#include "block_tr_si.h"
 #include "block_tr_us.h"
+#include "block_tr_sm.h"
+#include "block_tr_mi.h"
 #include "block_usb.h"
 #include "block_usb_fake.h"
 
@@ -49,6 +50,27 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			
 			file->Run();
 			trans->Run();
+			usb->Run();
+			break;
+		}
+		case GAMMA_MODE_FAKE_2_IMAGE:
+		{
+			GammaBlockBase* usb = new GammaBlockUSBFake;
+			GammaBlockBase* tr_us = new GammaBlockTransUS;
+			GammaBlockBase* tr_sm = new GammaBlockTransSM;
+			GammaBlockBase* tr_mi = new GammaBlockTransMI;
+			m_blockList.push_back(usb);
+			m_blockList.push_back(tr_us);
+			m_blockList.push_back(tr_sm);
+			m_blockList.push_back(tr_mi);
+
+			usb->BlockAttach(tr_us);
+			tr_us->BlockAttach(tr_sm);
+			tr_sm->BlockAttach(tr_mi);
+
+			tr_mi->Run();
+			tr_sm->Run();
+			tr_us->Run();
 			usb->Run();
 			break;
 		}
