@@ -13,7 +13,7 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataItems* blockDataIn = (GammaDataItems*)DataGet();
+			GammaDataItems* blockDataIn = (GammaDataItems*)(DataGet());
 			GammaDataMatrix* blockDataOut = new GammaDataMatrix;
 
 			blockDataIn->Lock();

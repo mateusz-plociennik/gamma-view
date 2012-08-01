@@ -64,9 +64,9 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			m_blockList.push_back(tr_sm);
 			m_blockList.push_back(tr_mi);
 
-			usb->BlockAttach(tr_us);
-			tr_us->BlockAttach(tr_sm);
 			tr_sm->BlockAttach(tr_mi);
+			tr_us->BlockAttach(tr_sm);
+			usb->BlockAttach(tr_us);
 
 			tr_mi->Run();
 			tr_sm->Run();

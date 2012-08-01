@@ -13,7 +13,7 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataMatrix* blockDataIn = (GammaDataMatrix*)DataGet();
+			GammaDataMatrix* blockDataIn = (GammaDataMatrix*)(DataGet());
 			GammaDataImage* blockDataOut = new GammaDataImage;
 			unsigned int max = 0;
 
@@ -42,8 +42,8 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 
 			//DataPush(blockDataOut);
 			blockDataOut->data->SaveFile( 
-				blockDataIn->datetime.Format("%Y%m%d_%H%M%S%l.gif"),
-				wxBITMAP_TYPE_GIF );
+				"now.bmp",
+				wxBITMAP_TYPE_BMP );
 		}
 	}
 

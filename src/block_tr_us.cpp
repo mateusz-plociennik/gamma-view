@@ -20,7 +20,7 @@ wxThread::ExitCode GammaBlockTransUS::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataUSB* blockDataIn = (GammaDataUSB*)DataGet();
+			GammaDataUSB* blockDataIn = (GammaDataUSB*)(DataGet());
 
 			GammaDataItems* blockDataOut = new GammaDataItems;
 
