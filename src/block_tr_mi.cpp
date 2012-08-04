@@ -6,6 +6,7 @@
  */
 
 #include "block_tr_mi.h"
+#include "wx/time.h"
 
 wxThread::ExitCode GammaBlockTransMI::Entry()
 {
@@ -13,29 +14,37 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataMatrix* blockDataIn = (GammaDataMatrix*)(DataGet());
+			GammaDataMatrix* blockDataIn = 
+				static_cast<GammaDataMatrix*>(DataGet());
 			GammaDataImage* blockDataOut = new GammaDataImage;
-			unsigned int max = 0;
 
 			blockDataIn->Lock();
-			for ( unsigned int i = 0; i < (256 * 256); i++ )
-			{
-				if ( max < blockDataIn->data[i] )
-				{
-					max = blockDataIn->data[i];
-				}
-			}
-
+			wxDateTime tStart = wxDateTime::UNow();
+			
 			for ( unsigned int x = 0; x < 256; x++ )
 			{
 				for ( unsigned int y = 0; y < 256; y++ )
 				{
-					blockDataOut->data->SetRGB( wxRect(x,y,1,1), 
-						blockDataIn->data[256 * x + y] / max,
-						blockDataIn->data[256 * x + y] / max,
-						blockDataIn->data[256 * x + y] / max );
+
+					if (blockDataIn->data[256 * x + y] != 0)
+					{
+					/*
+						blockDataOut->data->SetRGB( x, y, 
+							255 * blockDataIn->data[256 * x + y] / max,
+							255 * blockDataIn->data[256 * x + y] / max,
+							255 * blockDataIn->data[256 * x + y] / max );
+							*/
+						blockDataOut->data->GetData()[3 * (256 * x + y) + 0] = 
+						blockDataOut->data->GetData()[3 * (256 * x + y) + 1] = 
+						blockDataOut->data->GetData()[3 * (256 * x + y) + 2] = 
+							255 * blockDataIn->data[256 * x + y] / blockDataIn->max;
+					}
 				}
 			}
+			wxDateTime tStop = wxDateTime::UNow();
+
+			wxTimeSpan tDiff = tStop.Subtract(tStart);
+			wxLogStatus("Calculation time = %s", tDiff.Format("%l").c_str());
 
 			blockDataIn->Unlock();
 			blockDataIn->Unsubscribe();
@@ -44,6 +53,7 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			blockDataOut->data->SaveFile( 
 				"now.bmp",
 				wxBITMAP_TYPE_BMP );
+			delete blockDataOut;
 		}
 	}
 

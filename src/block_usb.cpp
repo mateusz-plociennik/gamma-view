@@ -78,7 +78,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 			GammaDataUSB* blockDataOut = new GammaDataUSB;
 			long int length = 512;
 			
-			blockDataOut->datetime.UNow();
+			blockDataOut->datetime = wxDateTime::UNow();
 
 			m_USBDevice->BulkInEndPt->XferData(blockDataOut->data, length);
 			

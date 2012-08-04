@@ -13,15 +13,15 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 	{
 		GammaDataUSB* blockDataOut = new GammaDataUSB;
 
-		blockDataOut->datetime.UNow();
+		blockDataOut->datetime = wxDateTime::UNow();
 
-		for (short int i = 0; i < 256; i++)
+		for (int i = 255; i >= 0; i--)
 		{
 			blockDataOut->data[2 * i + 0] = blockDataOut->data[2 * i + 1] = i;
 		}
 		DataPush(blockDataOut);
 
-		GetThread()->Sleep(10);
+		GetThread()->Sleep(5);
 	}
 
 	return 0;

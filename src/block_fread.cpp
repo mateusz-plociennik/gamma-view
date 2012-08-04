@@ -26,10 +26,10 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 			//blockDataOut->Lock();
 			for (unsigned short int i = 0; ( (i < 256) && (!file.Eof()) ); i++)
 			{
-				file.Read(&(blockDataOut->data[i]), sizeof(GammaItem));
-				if (blockDataOut->data[i].type == GAMMA_ITEM_TMARKER)
+				file.Read(&(blockDataOut->data.at(i)), sizeof(GammaItem));
+				if (blockDataOut->data.at(i).type == GAMMA_ITEM_TMARKER)
 				{
-					m_timeCounter = blockDataOut->data[i].data.time;
+					m_timeCounter = blockDataOut->data.at(i).data.time;
 				}
 			}
 			//blockDataOut->Unlock();

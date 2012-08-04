@@ -101,7 +101,7 @@ class GammaDataUSB:
 public:
 	GammaDataUSB()
 	{
-		data = new unsigned char[512];
+		data = new unsigned char[512]();
 	}
 
 	~GammaDataUSB()
@@ -141,7 +141,8 @@ class GammaDataMatrix:
 public:
 	GammaDataMatrix()
 	{
-		data = new unsigned short int[256 * 256];
+		data = new unsigned short int[256 * 256]();
+		max = 0;
 	}
 
 	~GammaDataMatrix()
@@ -150,6 +151,7 @@ public:
 	}
 
 	unsigned short int* data;
+	unsigned short int max;
 };
 
 /**

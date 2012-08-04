@@ -13,7 +13,7 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataItems* blockDataIn = (GammaDataItems*)(DataGet());
+			GammaDataItems* blockDataIn = static_cast<GammaDataItems*>(DataGet());
 			GammaDataMatrix* blockDataOut = new GammaDataMatrix;
 
 			blockDataIn->Lock();
@@ -23,8 +23,12 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 			{
 				if ((*it).type == GAMMA_ITEM_POINT)
 				{
-					blockDataOut->data[256 * (*it).data.point.x + 
-						(*it).data.point.y] += 1;
+					blockDataOut->data[256 * (*it).data.point.x + (*it).data.point.y] += 1;
+
+					if ( blockDataOut->max < blockDataOut->data[256 * (*it).data.point.x + (*it).data.point.y] )
+					{
+						blockDataOut->max = blockDataOut->data[256 * (*it).data.point.x + (*it).data.point.y];
+					}
 				}
 			}
 			blockDataIn->Unlock();

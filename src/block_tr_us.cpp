@@ -20,37 +20,37 @@ wxThread::ExitCode GammaBlockTransUS::Entry()
 	{
 		if (DataReady())
 		{
-			GammaDataUSB* blockDataIn = (GammaDataUSB*)(DataGet());
+			GammaDataUSB* blockDataIn = static_cast<GammaDataUSB*>(DataGet());
 
 			GammaDataItems* blockDataOut = new GammaDataItems;
 
 			blockDataIn->Lock();
 			blockDataOut->datetime = blockDataIn->datetime;
-			for (unsigned short int i = 0; i < 256; i++)
+			for (unsigned int i = 0; i < 256; i++)
 			{
 				if ( (blockDataIn->data[2 * i + 0] == 0xFF) && 
 					(blockDataIn->data[2 * i + 1] == 0xFF) )
 				{
-					blockDataOut->data[i].type = GAMMA_ITEM_TMARKER;
-					blockDataOut->data[i].data.time = m_timeCounter;
+					blockDataOut->data.at(i).type = GAMMA_ITEM_TMARKER;
+					blockDataOut->data.at(i).data.time = m_timeCounter;
 					m_timeCounter += m_timeDiv;
 					continue;
 				}
 				else if ( (blockDataIn->data[2 * i + 0] == 0x00) && 
 					(blockDataIn->data[2 * i + 1] == 0x00) )
 				{
-					blockDataOut->data[i].type = GAMMA_ITEM_TRIGGER;
-					blockDataOut->data[i].data.time = m_timeCounter;
+					blockDataOut->data.at(i).type = GAMMA_ITEM_TRIGGER;
+					blockDataOut->data.at(i).data.time = m_timeCounter;
 					continue;
 				}
 				else
 				{
-					blockDataOut->data[i].type = GAMMA_ITEM_POINT;
-					blockDataOut->data[i].data.point.x = 
+					blockDataOut->data.at(i).type = GAMMA_ITEM_POINT;
+					blockDataOut->data.at(i).data.point.x = 
 						blockDataIn->data[2 * i + 0];
-					blockDataOut->data[i].data.point.y = 
+					blockDataOut->data.at(i).data.point.y = 
 						blockDataIn->data[2 * i + 1];
-					blockDataOut->data[i].data.point.z = 
+					blockDataOut->data.at(i).data.point.z = 
 						(-1); //Not Available
 				}
 			}

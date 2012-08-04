@@ -60,7 +60,7 @@ struct GammaPoint 		// 6 bytes
 	float z;			// 4 bytes
 };
 
-union GammaItem				// 7 bytes
+struct GammaItem				// 7 bytes
 {
 	unsigned char type;			// 1 byte
 	union
