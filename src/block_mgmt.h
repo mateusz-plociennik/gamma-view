@@ -5,8 +5,8 @@
  * @data	2012-07-15
  */
 
-#ifndef _GAMMA_VIEW_BLOCK_FREAD_H_
-#define _GAMMA_VIEW_BLOCK_FREAD_H_
+#ifndef _GAMMA_VIEW_BLOCK_MGMT_H_
+#define _GAMMA_VIEW_BLOCK_MGMT_H_
 
 #include "data_types.h"
 #include "block_base.h"
@@ -42,4 +42,4 @@ private:
 	std::list<GammaBlockBase*> m_blockList;
 };
 
-#endif //_GAMMA_VIEW_BLOCK_FREAD_H_
+#endif //_GAMMA_VIEW_BLOCK_MGMT_H_

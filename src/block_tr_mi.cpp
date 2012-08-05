@@ -25,19 +25,17 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			{
 				for ( unsigned int y = 0; y < 256; y++ )
 				{
-
 					if (blockDataIn->data[256 * x + y] != 0)
 					{
-					/*
-						blockDataOut->data->SetRGB( x, y, 
-							255 * blockDataIn->data[256 * x + y] / max,
-							255 * blockDataIn->data[256 * x + y] / max,
-							255 * blockDataIn->data[256 * x + y] / max );
-							*/
+						/*
+						unsigned char val = 
+							(255 * blockDataIn->data[256 * x + y] / blockDataIn->max);
+						blockDataOut->data->SetRGB( x, y, val, val, val );
+						*/
 						blockDataOut->data->GetData()[3 * (256 * x + y) + 0] = 
 						blockDataOut->data->GetData()[3 * (256 * x + y) + 1] = 
 						blockDataOut->data->GetData()[3 * (256 * x + y) + 2] = 
-							255 * blockDataIn->data[256 * x + y] / blockDataIn->max;
+							(255 * blockDataIn->data[256 * x + y] / blockDataIn->max);
 					}
 				}
 			}

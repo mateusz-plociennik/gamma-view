@@ -14,11 +14,19 @@ class GammaBlockTransSM :
 	public GammaBlockBase
 {
 public:
-//	GammaBlockFileSave();
+	GammaBlockTransSM(unsigned long int timeDiff = 100, bool integrate = false)
+	{
+		m_timeDiff = timeDiff;
+		m_integrate = integrate;
+	}
 //	~GammaBlockFileSave();
 
 protected:
 	wxThread::ExitCode Entry();
+
+private:
+	unsigned long int m_timeDiff;
+	bool m_integrate;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_TRANS_SM_H_

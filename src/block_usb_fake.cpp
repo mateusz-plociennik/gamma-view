@@ -15,13 +15,16 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 
 		blockDataOut->datetime = wxDateTime::UNow();
 
-		for (int i = 255; i >= 0; i--)
+		for (int i = 0; i < 256; i++)
 		{
-			blockDataOut->data[2 * i + 0] = blockDataOut->data[2 * i + 1] = i;
+			blockDataOut->data[2 * i + 0] = i;
+			blockDataOut->data[2 * i + 1] = rand();
 		}
+		blockDataOut->data[0] = blockDataOut->data[1] = 0xFF;
+
 		DataPush(blockDataOut);
 
-		GetThread()->Sleep(5);
+		GetThread()->Sleep(1);
 	}
 
 	return 0;

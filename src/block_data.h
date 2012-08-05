@@ -163,7 +163,7 @@ class GammaDataImage:
 public:
 	GammaDataImage()
 	{
-		data = new wxImage(256, 256, false);
+		data = new wxImage(256, 256, true);
 	}
 
 	~GammaDataImage()

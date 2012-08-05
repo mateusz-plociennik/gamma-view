@@ -16,24 +16,24 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	file.Read(tBuffer, 3);
 	if (!strcmp(tBuffer, "GVB"))
 	{
-		long int m_timeCounter = 0;
+		unsigned long int timeCounter = 0;
 		while ( (!GetThread()->TestDestroy()) && (!file.Eof()) )
 		{
 			GammaDataItems* blockDataOut = new GammaDataItems;
 			blockDataOut->data.resize(256);
 			
-			long int m_timeCounterStart = m_timeCounter;
+			long int timeCounterStart = timeCounter;
 			//blockDataOut->Lock();
 			for (unsigned short int i = 0; ( (i < 256) && (!file.Eof()) ); i++)
 			{
 				file.Read(&(blockDataOut->data.at(i)), sizeof(GammaItem));
 				if (blockDataOut->data.at(i).type == GAMMA_ITEM_TMARKER)
 				{
-					m_timeCounter = blockDataOut->data.at(i).data.time;
+					timeCounter = blockDataOut->data.at(i).data.time;
 				}
 			}
 			//blockDataOut->Unlock();
-			GetThread()->Sleep(m_timeCounter - m_timeCounterStart);
+			GetThread()->Sleep(timeCounter - timeCounterStart);
 			DataPush(blockDataOut);
 		}
 	}
