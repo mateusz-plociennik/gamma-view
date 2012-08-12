@@ -24,7 +24,7 @@ GammaFrameView::GammaFrameView( wxWindow* parent,
 {
 	SetIcon(wxICON(gamma-view));
 	CreateStatusBar();
-	SetClientSize(256, 256);
+	SetClientSize(512, 512);
 	Show();
 }
 

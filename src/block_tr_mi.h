@@ -18,13 +18,11 @@ class GammaBlockTransMI :
 public:
 	GammaBlockTransMI(wxWindow* parent);
 
-	wxImage* GetImage();
-
 protected:
 	wxThread::ExitCode Entry();
 
 private:
-	//wxImage* m_image;
+	wxImage m_image;
 
 	GammaFrameView m_frame;
 };

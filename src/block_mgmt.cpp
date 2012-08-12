@@ -57,7 +57,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 		{
 			GammaBlockBase* usb = new GammaBlockUSBFake;
 			GammaBlockBase* tr_us = new GammaBlockTransUS;
-			GammaBlockBase* tr_sm = new GammaBlockTransSM(40, false);
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(150, true);
 			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
 			m_blockList.push_back(usb);
 			m_blockList.push_back(tr_us);

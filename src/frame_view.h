@@ -12,11 +12,12 @@
 #include <wx/image.h>
 #include <wx/thread.h>
 
+
 class GammaFrameView : 
 	public wxFrame
 {
 public:
-	GammaFrameView( wxWindow *parent, 
+	GammaFrameView(	wxWindow *parent, 
 		wxWindowID id, 
 		const wxString &title, 
 		const wxPoint &pos=wxDefaultPosition, 
