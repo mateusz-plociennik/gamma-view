@@ -32,10 +32,6 @@
 #include "main.h"
 #include <algorithm>
 
-#if !defined(__WXMSW__) && !defined(__WXPM__)
-    #include "../../sample.xpm"
-#endif
-
 GLThread::GLThread(void)
 {
 }
@@ -110,7 +106,7 @@ int DrawImage(wxImage *image)
 			factor = pow(factor, (double)1/2);
 			randVal = factor * (64 + rand() % 192);
 			
-			image->SetRGB(wxRect(x,y,1,1), randVal, randVal, randVal);
+			image->SetRGB(x, y, randVal, randVal, randVal);
 		}
 	}
 
@@ -210,6 +206,7 @@ void TestGLContext::Draw()
 BEGIN_EVENT_TABLE(TestGLCanvas, wxGLCanvas)
     EVT_PAINT(TestGLCanvas::OnPaint)
     EVT_KEY_DOWN(TestGLCanvas::OnKeyDown)
+	EVT_SIZE(TestGLCanvas::OnSize)
     EVT_TIMER(SpinTimer, TestGLCanvas::OnSpinTimer)
 END_EVENT_TABLE()
 
@@ -219,13 +216,18 @@ TestGLCanvas::TestGLCanvas(wxWindow *parent)
     // be followed by a paint event that updates the entire canvas with new
     // viewport settings.
     : wxGLCanvas(parent, wxID_ANY, NULL /* attribs */,
-                 wxDefaultPosition, wxDefaultSize,
-                 wxFULL_REPAINT_ON_RESIZE),
+                 wxPoint(30, 30), wxSize(256,256),//wxDefaultSize,
+                 wxFULL_REPAINT_ON_RESIZE | wxBORDER_DEFAULT),
       m_xangle(0.0),
       m_yangle(0.0),
       m_spinTimer(this,SpinTimer),
 	  m_time(50)
 {
+}
+
+void TestGLCanvas::OnSize(wxSizeEvent& event)
+{
+	event.StopPropagation();
 }
 
 void TestGLCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))

@@ -40,6 +40,7 @@ public:
     TestGLCanvas(wxWindow *parent);
 
 private:
+	void OnSize(wxSizeEvent& event);
     void OnPaint(wxPaintEvent& event);
     void Spin(float xSpin, float ySpin);
     void OnKeyDown(wxKeyEvent& event);

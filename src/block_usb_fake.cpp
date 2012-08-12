@@ -18,7 +18,7 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 		for (int i = 0; i < 256; i++)
 		{
 			blockDataOut->data[2 * i + 0] = i;
-			blockDataOut->data[2 * i + 1] = rand();
+			blockDataOut->data[2 * i + 1] = rand() % 256;
 		}
 		blockDataOut->data[0] = blockDataOut->data[1] = 0xFF;
 

@@ -40,13 +40,15 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 					if ( timeSend < timeCounter )
 					{
 						timeSend += m_timeDiff;
-
-						GammaDataMatrix* blockDataOut = new GammaDataMatrix;
-						blockDataOut->datetime = blockDataIn->datetime;
-						memcpy(blockDataOut->data, t_matrix, 
-							256 * 256 * sizeof(unsigned short int));
-						blockDataOut->max = t_max;
-						DataPush(blockDataOut);
+						
+						{
+							GammaDataMatrix* blockDataOut = new GammaDataMatrix;
+							blockDataOut->datetime = blockDataIn->datetime;
+							memcpy(blockDataOut->data, t_matrix, 
+								256 * 256 * sizeof(unsigned short int));
+							blockDataOut->max = t_max;
+							DataPush(blockDataOut);
+						}
 
 						if (!m_integrate)
 						{

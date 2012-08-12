@@ -801,6 +801,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\frame_view.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\glview.cpp"
 				>
 			</File>
@@ -856,6 +860,10 @@
 			</File>
 			<File
 				RelativePath="..\src\data_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\frame_view.h"
 				>
 			</File>
 			<File

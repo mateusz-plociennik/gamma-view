@@ -123,6 +123,7 @@ MyFrame::MyFrame()
        : wxFrame(NULL, wxID_ANY, wxT("gamma-view"))
 {
     new TestGLCanvas(this);
+	new TestGLCanvas(this);
 
     SetIcon(wxICON(gamma-view));
 

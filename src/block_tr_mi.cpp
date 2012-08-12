@@ -8,6 +8,14 @@
 #include "block_tr_mi.h"
 #include "wx/time.h"
 
+GammaBlockTransMI::GammaBlockTransMI(wxWindow* parent)
+	: m_frame(parent, wxID_ANY, wxT("gamma-view"))
+{
+	//m_image = new wxImage(256,256);
+	m_frame.SetClientSize(256, 256);
+	m_frame.Show();
+}
+
 wxThread::ExitCode GammaBlockTransMI::Entry()
 {
 	while (!GetThread()->TestDestroy())
@@ -48,9 +56,10 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			blockDataIn->Unsubscribe();
 
 			//DataPush(blockDataOut);
-			blockDataOut->data->SaveFile( 
-				"now.bmp",
-				wxBITMAP_TYPE_BMP );
+			blockDataOut->data->SaveFile( "now.bmp", wxBITMAP_TYPE_BMP );
+			
+			m_frame.SetImage(*(blockDataOut->data));
+			
 			delete blockDataOut;
 		}
 	}
