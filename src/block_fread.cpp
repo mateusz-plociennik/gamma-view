@@ -9,21 +9,26 @@
 
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
+	wxLogStatus("%s - started", __FUNCTION__);
 	wxFile file;
 
-	file.Open("read.gvb", wxFile::read);
+	file.Open("20120813_184157.gvb", wxFile::read);
 	char tBuffer[3];
 	file.Read(tBuffer, 3);
-	if (!strcmp(tBuffer, "GVB"))
+	if (!strncmp(tBuffer, "GVB", 3))
 	{
 		unsigned long int timeCounter = 0;
+		unsigned char loaded = 0;
+
 		while ( (!GetThread()->TestDestroy()) && (!file.Eof()) )
 		{
+			if (GetThread()->TestDestroy())
+			{
+				break;
+			}
 			GammaDataItems* blockDataOut = new GammaDataItems;
-			blockDataOut->data.resize(256);
 			
 			long int timeCounterStart = timeCounter;
-			//blockDataOut->Lock();
 			for (unsigned short int i = 0; ( (i < 256) && (!file.Eof()) ); i++)
 			{
 				file.Read(&(blockDataOut->data.at(i)), sizeof(GammaItem));
@@ -32,12 +37,19 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 					timeCounter = blockDataOut->data.at(i).data.time;
 				}
 			}
-			//blockDataOut->Unlock();
-			GetThread()->Sleep(timeCounter - timeCounterStart);
+			//GetThread()->Sleep(timeCounter - timeCounterStart);
 			DataPush(blockDataOut);
+
+			if ( loaded < (100 * file.Tell() / file.Length()) )
+			{
+				loaded = (100 * file.Tell() / file.Length());
+				wxLogStatus("%s - loading (%u%%)", __FUNCTION__, loaded);
+			}
 		}
 	}
 	file.Close();
+
+	wxLogStatus("%s - stoped", __FUNCTION__);
 
 	return 0;
 }

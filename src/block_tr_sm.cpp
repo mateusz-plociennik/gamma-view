@@ -9,6 +9,8 @@
 
 wxThread::ExitCode GammaBlockTransSM::Entry()
 {
+	wxLogStatus("%s - started", __FUNCTION__);
+
 	unsigned long int timeCounter = 0;
 	unsigned long int timeSend = m_timeDiff;
 	unsigned short int* t_matrix = new unsigned short int[256 * 256]();

@@ -22,11 +22,14 @@
 class MyApp : public wxApp
 {
 public:
-    MyApp() { m_glContext = NULL; }
+    MyApp() 
+	{ 
+		//m_glContext = NULL; 
+	}
 
     // Returns the shared context used by all frames and sets it as current for
     // the given canvas.
-    TestGLContext& GetContext(wxGLCanvas *canvas);
+    //TestGLContext& GetContext(wxGLCanvas *canvas);
 
     // virtual wxApp methods
     virtual bool OnInit();
@@ -34,7 +37,8 @@ public:
 
 private:
     // the GL context we use for all our windows
-    TestGLContext *m_glContext;
+    //TestGLContext *m_glContext;
+	wxFrame* m_pFrame;
 };
 
 // Define a new frame type
@@ -44,7 +48,8 @@ public:
     MyFrame();
 
 private:
-    void OnClose(wxCommandEvent& event);
+	void OnClose(wxCommandEvent& event);
+    void OnCloseWindow(wxCloseEvent& event);
 	void OnHelpAbout(wxCommandEvent& event);
     void OnNewWindow(wxCommandEvent& event);
 	void OnResizeWindow(wxCommandEvent& event);

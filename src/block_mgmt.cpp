@@ -19,7 +19,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 {
 	switch(mode)
 	{
-		case GAMMA_MODE_USB_2_FILE:
+	case GAMMA_MODE_USB_2_FILE:
 		{
 			GammaBlockBase* usb = new GammaBlockUSB;
 			GammaBlockBase* trans = new GammaBlockTransUS;
@@ -36,7 +36,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			usb->Run();
 			break;
 		}
-		case GAMMA_MODE_FAKE_2_FILE:
+	case GAMMA_MODE_FAKE_2_FILE:
 		{
 			GammaBlockBase* usb = new GammaBlockUSBFake;
 			GammaBlockBase* trans = new GammaBlockTransUS;
@@ -53,7 +53,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			usb->Run();
 			break;
 		}
-		case GAMMA_MODE_FAKE_2_IMAGE:
+	case GAMMA_MODE_FAKE_2_IMAGE:
 		{
 			GammaBlockBase* usb = new GammaBlockUSBFake;
 			GammaBlockBase* tr_us = new GammaBlockTransUS;
@@ -74,7 +74,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			usb->Run();
 			break;
 		}
-		case GAMMA_MODE_USB_2_IMAGE:
+	case GAMMA_MODE_USB_2_IMAGE:
 		{
 			GammaBlockBase* usb = new GammaBlockUSB;
 			GammaBlockBase* tr_us = new GammaBlockTransUS;
@@ -95,7 +95,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			usb->Run();
 			break;
 		}
-		case GAMMA_MODE_USB_FULL:
+	case GAMMA_MODE_USB_FULL:
 		{
 			GammaBlockBase* usb = new GammaBlockUSB;
 			GammaBlockBase* tr_us = new GammaBlockTransUS;
@@ -130,7 +130,25 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 			usb->Run();
 			break;
 		}
-		default:
+	case GAMMA_MODE_FILE_2_IMAGE:
+		{
+			GammaBlockBase* file = new GammaBlockFileRead;
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(10000, true);
+			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
+			m_blockList.push_back(file);
+			m_blockList.push_back(tr_sm);
+			m_blockList.push_back(tr_mi);
+
+			tr_sm->BlockAttach(tr_mi);
+			file->BlockAttach(tr_sm);
+
+			tr_mi->Run();
+			tr_sm->Run();
+			file->Run();
+			break;
+		}
+	case GAMMA_MODE_NONE:
+	default:
 		{
 			while (!m_blockList.empty())
 			{

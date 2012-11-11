@@ -15,6 +15,14 @@ class GammaBlockFileRead :
 	public GammaBlockBase
 {
 public:
+	GammaBlockFileRead()
+	{
+		wxLogStatus("%s", __FUNCTION__);
+	}
+	~GammaBlockFileRead()
+	{
+		wxLogStatus("%s", __FUNCTION__);
+	}
 
 protected:
 	wxThread::ExitCode Entry();

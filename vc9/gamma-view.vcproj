@@ -48,7 +48,7 @@
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
@@ -137,10 +137,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
+				Optimization="0"
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				ObjectFile=".\..\build\vc_mswu\gamma-view\"
@@ -234,7 +235,7 @@
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
@@ -323,10 +324,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
+				Optimization="0"
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_lib\mswunivu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				ObjectFile=".\..\build\vc_mswunivu\gamma-view\"
@@ -420,7 +422,7 @@
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
@@ -509,10 +511,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
+				Optimization="0"
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				ObjectFile=".\..\build\vc_mswudll\gamma-view\"
@@ -606,7 +609,7 @@
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivud;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXUNIVERSAL__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				RuntimeTypeInfo="true"
@@ -695,10 +698,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
+				Optimization="0"
 				AdditionalIncludeDirectories="C:\wxWidgets-2.9.3\lib\vc_dll\mswunivu;C:\wxWidgets-2.9.3\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
 				PreprocessorDefinitions="WIN32;__WXMSW__;__WXUNIVERSAL__;NDEBUG;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				ObjectFile=".\..\build\vc_mswunivudll\gamma-view\"
@@ -805,10 +809,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\glview.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\main.cpp"
 				>
 			</File>
@@ -864,10 +864,6 @@
 			</File>
 			<File
 				RelativePath="..\src\frame_view.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\glview.h"
 				>
 			</File>
 			<File

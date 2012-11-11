@@ -9,21 +9,32 @@
 #define _GAMMA_VIEW_BLOCK_TRANS_MI_H_
 
 #include "block_base.h"
-#include <wx/image.h>
 #include "frame_view.h"
+#include <wx/image.h>
+
 
 class GammaBlockTransMI : 
 	public GammaBlockBase
 {
 public:
 	GammaBlockTransMI(wxWindow* parent);
+	void SetBC(double b, double c);
 
 protected:
 	wxThread::ExitCode Entry();
 
 private:
-	wxImage m_image;
+	void SetColour(unsigned char colormap, unsigned int index, unsigned int max);
+	
 
+	double m_brightness;
+	double m_contrast;
+	
+	wxColour m_colour;
+	unsigned char m_colorMap;
+	bool m_bInvert;
+
+	//wxImage m_image;
 	GammaFrameView m_frame;
 };
 

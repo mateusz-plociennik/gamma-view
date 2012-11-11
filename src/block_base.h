@@ -13,7 +13,6 @@
  */
 #define GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME 20 
 
-#if 0
 /** 
  * Sleep time for thread which called BlockDataPop(), when in-queue is full. 
  */
@@ -21,10 +20,9 @@
 
 /**
  * Maximum size of in-queue. 
- * It is used by BlockDataPop() function to determine whether in-queue is full.
+ * It is used by BlockDataPush() function to determine whether in-queue is full.
  */
 #define GAMMA_BLOCK_QUEUE_MAX 256
-#endif
 
 //#include <wx/list.h>
 #include <list>
@@ -42,9 +40,15 @@ class GammaBlockBase :
 	public wxThreadHelper
 {
 public:
-	/*
-	GammaBlockBase();
-	~GammaBlockBase();
+/*
+	GammaBlockBase()
+	{
+		wxLogStatus("%s - ctor", __FUNCTION__);
+	}
+	~GammaBlockBase()
+	{
+		wxLogStatus("%s - dtor", __FUNCTION__);
+	}
 */
 	/**
 	 * This function adds block_p to internal list of blocks to which will 
@@ -91,6 +95,7 @@ public:
 	void DataPop(GammaBlockDataBase* blockData_p)
 	{
 		wxMutexLocker locker(m_blockDataInListMutex);
+
 		m_blockDataInList.push_back(blockData_p);
 		blockData_p->Subscribe();
 	}
@@ -103,9 +108,15 @@ public:
 	void DataPush(GammaBlockDataBase* blockData_p)
 	{
 		wxMutexLocker locker(m_blockListMutex);
-		for ( std::list<GammaBlockBase*>::iterator block_p=m_blockList.begin(); 
+
+		for ( std::list<GammaBlockBase*>::iterator block_p = m_blockList.begin(); 
 			block_p != m_blockList.end(); block_p++ )
 		{
+			while ( (*block_p)->DataWaitingCount() >= GAMMA_BLOCK_QUEUE_MAX )
+			{
+				GetThread()->Sleep(GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME);
+			}
+
 			(*block_p)->DataPop(blockData_p);
 		}
 	}
@@ -133,7 +144,7 @@ public:
 	 * This function returns count of items in in-queue.
 	 * @return Count of items in in-queue.
 	 */
-	int DataWaitingCount()
+	unsigned int DataWaitingCount()
 	{
 		wxMutexLocker locker(m_blockDataInListMutex);
 	
@@ -162,7 +173,10 @@ public:
 	 */
 	void Stop()
 	{
-		GetThread()->Delete();
+		if ( GetThread() && GetThread()->IsRunning() )
+		{
+			GetThread()->Delete();
+		}
 	}
 
 //	virtual void FrameShow() = 0;

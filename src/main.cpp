@@ -29,7 +29,7 @@
 #endif
 
 #include "main.h"
-#include "glview.h"
+//#include "glview.h"
 #include "block_mgmt.h"
 #include <wx/fileconf.h>
 
@@ -46,29 +46,20 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
     if ( !wxApp::OnInit() )
+	{
         return false;
-
-	wxConfigBase* config= new wxFileConfig( "gamma-view", "MP", 
-		"./gamma-view.ini", wxEmptyString, 
-		wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
-	config->SetRecordDefaults();
-	wxConfigBase::Set(config);
+	}
 
     new MyFrame();
-
-	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_USB_2_FILE);
 
     return true;
 }
 
 int MyApp::OnExit()
 {
-	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_NONE);
-    delete m_glContext;
-
     return wxApp::OnExit();
 }
-
+/*
 TestGLContext& MyApp::GetContext(wxGLCanvas *canvas)
 {
     if ( !m_glContext )
@@ -82,7 +73,7 @@ TestGLContext& MyApp::GetContext(wxGLCanvas *canvas)
 
     return *m_glContext;
 }
-
+*/
 // ----------------------------------------------------------------------------
 // MyFrame: main application window
 // ----------------------------------------------------------------------------
@@ -108,9 +99,11 @@ enum
 // ----------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+	EVT_CLOSE(MyFrame::OnCloseWindow)
+
     EVT_MENU(wxID_NEW, MyFrame::OnNewWindow)
     EVT_MENU(wxID_CLOSE, MyFrame::OnClose)
-
+	
 	EVT_MENU(Menu_View_Zoom_50, MyFrame::OnResizeWindow)
 	EVT_MENU(Menu_View_Zoom_100, MyFrame::OnResizeWindow)
 	EVT_MENU(Menu_View_Zoom_200, MyFrame::OnResizeWindow)
@@ -122,8 +115,15 @@ END_EVENT_TABLE()
 MyFrame::MyFrame()
        : wxFrame(NULL, wxID_ANY, wxT("gamma-view"))
 {
-    new TestGLCanvas(this);
-	new TestGLCanvas(this);
+	wxConfigBase* config= new wxFileConfig( "gamma-view", "MP", 
+	"./gamma-view.ini", wxEmptyString, 
+	wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
+	config->SetRecordDefaults();
+	wxConfigBase::Set(config);
+
+	
+
+    //new TestGLCanvas(this);
 
     SetIcon(wxICON(gamma-view));
 
@@ -132,6 +132,7 @@ MyFrame::MyFrame()
     fileMenu->Append(wxID_NEW);
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_CLOSE);
+	//printf("hello world\n");
 
 	wxMenu *viewZoomMenu = new wxMenu;
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_50, 
@@ -161,20 +162,34 @@ MyFrame::MyFrame()
     CreateStatusBar();
 
 	viewZoomMenu->Check(Menu_View_Zoom_200, true);
-    SetClientSize(512, 512);
+    //SetClientSize(512, 512);
+	Maximize(true);
 
     Show();
 
+	wxLogWindow* log = new wxLogWindow(this, "Log Window");
+	log->GetFrame()->SetIcon(wxICON(gamma-view));
+	wxLog::SetTimestamp("%H:%M:%S,%l");
+	wxLog::SetActiveTarget(log);
+
+	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_FILE_2_IMAGE);
+
     // test IsDisplaySupported() function:
-    static const int attribs[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
-    wxLogStatus("Double-buffered display %s supported",
-                wxGLCanvas::IsDisplaySupported(attribs) ? "is" : "not");
+    //static const int attribs[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
+    //wxLogStatus("Double-buffered display %s supported",
+    //            wxGLCanvas::IsDisplaySupported(attribs) ? "is" : "not");
 }
 
 void MyFrame::OnClose(wxCommandEvent& WXUNUSED(event))
 {
-    // true is to force the frame to close
-    Close(true);
+	Close(true);
+}
+
+void MyFrame::OnCloseWindow(wxCloseEvent& event)
+{
+	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_NONE);
+
+	event.Skip();
 }
 
 #include "wx/aboutdlg.h"
