@@ -9,24 +9,25 @@
 
 wxThread::ExitCode GammaBlockFileWrite::Entry()
 {
+	wxMutexLocker locker(m_threadRunMutex);
+
 	wxFile file;
 
 	file.Open(wxDateTime::Now().Format("%Y%m%d_%H%M%S.gvb"), wxFile::write);
 	file.Write("GVB", 3);
-	while (!GetThread()->TestDestroy())
+	while ( ShouldBeRunning() )
 	{
 		if (DataReady())
 		{
-			GammaDataItems* blockDataIn = (GammaDataItems*)DataGet();
+			wxSharedPtr<GammaDataBase> dataIn(DataGet());
+			GammaDataItems* pDataIn = static_cast<GammaDataItems*>(dataIn.get());
+			wxMutexLocker locker(*pDataIn);
 
-			blockDataIn->Lock();
-			for ( wxVector<GammaItem>::iterator i = blockDataIn->data.begin();
-				i != blockDataIn->data.end(); i++ )
+			for ( wxVector<GammaItem>::iterator iItem = pDataIn->data.begin();
+				iItem != pDataIn->data.end(); iItem++ )
 			{
-				file.Write(&(*i), sizeof(GammaItem));
+				file.Write(&(*iItem), sizeof(GammaItem));
 			}
-			blockDataIn->Unlock();
-			blockDataIn->Unsubscribe();
 		}
 	}
 	file.Close();

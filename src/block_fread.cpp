@@ -7,38 +7,62 @@
 
 #include "block_fread.h"
 
+#include <wx/filename.h>
+
+bool GammaBlockFileRead::SetParam(GammaParam_e name, void* value)
+{
+	switch ( name )
+	{
+	case GAMMA_PARAM_FILE_READ_NAME:
+		{
+			m_fileName(*static_cast<wxFileName>(value));
+			break;
+		}
+	default:
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
-	wxLogStatus("%s - started", __FUNCTION__);
-	wxFile file;
+	wxMutexLocker locker(m_threadRunMutex);
 
-	file.Open("20120813_184157.gvb", wxFile::read);
+	//wxFileName fileName("20120813_184157.gvb"); //jednorodnosc
+	wxFileName fileName("20120813_200126.gvb"); //siatka
+	//wxFileName fileName("5066901116_002707.gif");
+	wxFile file;
 	char tBuffer[3];
-	file.Read(tBuffer, 3);
-	if (!strncmp(tBuffer, "GVB", 3))
+
+	wxLogStatus("%s - started", __FUNCTION__);
+
+	wxLogStatus("File modification time: " 
+		+ fileName.GetModificationTime().Format());
+	file.Open(fileName.GetFullPath(), wxFile::read);
+	
+	if ( (wxInvalidOffset != file.Read(tBuffer, 3)) 
+		&& (0 == strncmp(tBuffer, "GVB", 3)) )
 	{
 		unsigned long int timeCounter = 0;
 		unsigned char loaded = 0;
 
-		while ( (!GetThread()->TestDestroy()) && (!file.Eof()) )
+		while ( ShouldBeRunning() )
 		{
-			if (GetThread()->TestDestroy())
-			{
-				break;
-			}
-			GammaDataItems* blockDataOut = new GammaDataItems;
+			GammaDataItems* dataOut(new GammaDataItems);
 			
-			long int timeCounterStart = timeCounter;
-			for (unsigned short int i = 0; ( (i < 256) && (!file.Eof()) ); i++)
+			for (unsigned short int i = 0; (i < 256) && (!file.Eof()); i++)
 			{
-				file.Read(&(blockDataOut->data.at(i)), sizeof(GammaItem));
-				if (blockDataOut->data.at(i).type == GAMMA_ITEM_TMARKER)
+				file.Read(&(dataOut->data.at(i)), sizeof(GammaItem));
+				if (dataOut->data.at(i).type == GAMMA_ITEM_TMARKER)
 				{
-					timeCounter = blockDataOut->data.at(i).data.time;
+					timeCounter = dataOut->data.at(i).data.time;
 				}
 			}
-			//GetThread()->Sleep(timeCounter - timeCounterStart);
-			DataPush(blockDataOut);
+
+			DataPush(dataOut);
 
 			if ( loaded < (100 * file.Tell() / file.Length()) )
 			{

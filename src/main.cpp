@@ -1,9 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        cube.cpp
-// Purpose:     wxGLCanvas demo program
-// Author:      Mateusz Plociennik
-// Licence:     wxWindows licence
+// Name:				cube.cpp
+// Purpose:		 wxGLCanvas demo program
+// Author:			Mateusz Plociennik
+// Licence:		 wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 // ============================================================================
 // declarations
@@ -25,7 +29,7 @@
 #endif
 
 #if !wxUSE_GLCANVAS
-    #error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
+		#error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
 #endif
 
 #include "main.h"
@@ -34,7 +38,7 @@
 #include <wx/fileconf.h>
 
 #if !defined(__WXMSW__) && !defined(__WXPM__)
-    #include "../../sample.xpm"
+		#include "../../sample.xpm"
 #endif
 
 // ----------------------------------------------------------------------------
@@ -45,33 +49,34 @@ IMPLEMENT_APP(MyApp)
 
 bool MyApp::OnInit()
 {
-    if ( !wxApp::OnInit() )
+	if ( !wxApp::OnInit() )
 	{
-        return false;
+		return false;
 	}
 
-    new MyFrame();
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	new MyFrame();
 
-    return true;
+	return true;
 }
 
 int MyApp::OnExit()
 {
-    return wxApp::OnExit();
+	return wxApp::OnExit();
 }
 /*
 TestGLContext& MyApp::GetContext(wxGLCanvas *canvas)
 {
-    if ( !m_glContext )
-    {
-        // Create the OpenGL context for the first window which needs it:
-        // subsequently created windows will all share the same context.
-        m_glContext = new TestGLContext(canvas);
-    }
+		if ( !m_glContext )
+		{
+				// Create the OpenGL context for the first window which needs it:
+				// subsequently created windows will all share the same context.
+				m_glContext = new TestGLContext(canvas);
+		}
 
-    m_glContext->SetCurrent(*canvas);
+		m_glContext->SetCurrent(*canvas);
 
-    return *m_glContext;
+		return *m_glContext;
 }
 */
 // ----------------------------------------------------------------------------
@@ -86,7 +91,7 @@ enum
 {
 	Menu_View_Zoom = 200,
 	Menu_View_Zoom_50,
-    Menu_View_Zoom_100,
+	Menu_View_Zoom_100,
 	Menu_View_Zoom_200,
 	Menu_View_Zoom_300,
 	Menu_View_Zoom_400,
@@ -101,8 +106,8 @@ enum
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_CLOSE(MyFrame::OnCloseWindow)
 
-    EVT_MENU(wxID_NEW, MyFrame::OnNewWindow)
-    EVT_MENU(wxID_CLOSE, MyFrame::OnClose)
+	EVT_MENU(wxID_NEW, MyFrame::OnNewWindow)
+	EVT_MENU(wxID_CLOSE, MyFrame::OnClose)
 	
 	EVT_MENU(Menu_View_Zoom_50, MyFrame::OnResizeWindow)
 	EVT_MENU(Menu_View_Zoom_100, MyFrame::OnResizeWindow)
@@ -113,25 +118,26 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame()
-       : wxFrame(NULL, wxID_ANY, wxT("gamma-view"))
+	: wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
+	m_pManager(new GammaManager) 
 {
-	wxConfigBase* config= new wxFileConfig( "gamma-view", "MP", 
-	"./gamma-view.ini", wxEmptyString, 
-	wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
+	wxConfigBase* config = new wxFileConfig( "gamma-view", "MP", 
+		"./gamma-view.ini", wxEmptyString, 
+		wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
 	config->SetRecordDefaults();
 	wxConfigBase::Set(config);
 
 	
 
-    //new TestGLCanvas(this);
+		//new TestGLCanvas(this);
 
-    SetIcon(wxICON(gamma-view));
+	SetIcon(wxICON(gamma-view));
 
-    // Make a menubar
-    wxMenu *fileMenu = new wxMenu;
-    fileMenu->Append(wxID_NEW);
-    fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_CLOSE);
+	// Make a menubar
+	wxMenu *fileMenu = new wxMenu;
+	fileMenu->Append(wxID_NEW);
+	fileMenu->AppendSeparator();
+	fileMenu->Append(wxID_CLOSE);
 	//printf("hello world\n");
 
 	wxMenu *viewZoomMenu = new wxMenu;
@@ -152,32 +158,38 @@ MyFrame::MyFrame()
 	helpMenu->Append(Menu_Help_About, 
 		wxT("About..."), wxT("About the program"));
 
-    wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append(fileMenu, wxT("&File"));
+	wxMenuBar *menuBar = new wxMenuBar;
+	menuBar->Append(fileMenu, wxT("&File"));
 	menuBar->Append(viewMenu, wxT("&View"));
 	menuBar->Append(helpMenu, wxT("&Help"));
 
-    SetMenuBar(menuBar);
+	SetMenuBar(menuBar);
 
-    CreateStatusBar();
+	CreateStatusBar();
 
 	viewZoomMenu->Check(Menu_View_Zoom_200, true);
-    //SetClientSize(512, 512);
+	//SetClientSize(512, 512);
 	Maximize(true);
 
-    Show();
+	Show();
 
 	wxLogWindow* log = new wxLogWindow(this, "Log Window");
 	log->GetFrame()->SetIcon(wxICON(gamma-view));
 	wxLog::SetTimestamp("%H:%M:%S,%l");
 	wxLog::SetActiveTarget(log);
 
-	GammaBlockManager::getInstance().SetMode(GAMMA_MODE_FILE_2_IMAGE);
+	m_pManager->SetMode(GAMMA_MODE_FILE_2_IMAGE);
 
-    // test IsDisplaySupported() function:
-    //static const int attribs[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
-    //wxLogStatus("Double-buffered display %s supported",
-    //            wxGLCanvas::IsDisplaySupported(attribs) ? "is" : "not");
+}
+
+MyFrame::~MyFrame()
+{
+	delete wxConfigBase::Set(NULL);
+}
+
+bool SetParam(GammaParam_e name, void* value)
+{
+	//todo
 }
 
 void MyFrame::OnClose(wxCommandEvent& WXUNUSED(event))
@@ -197,9 +209,9 @@ void MyFrame::OnCloseWindow(wxCloseEvent& event)
 void MyFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
 {
 	wxAboutDialogInfo info;
-    
+		
 	info.SetName(wxT("gamma-view"));
-    info.SetVersion(wxT("0.1"));
+		info.SetVersion(wxT("0.1"));
 
 	wxDateTime dt;
 	wxString::const_iterator dEnd, tEnd;
@@ -211,17 +223,17 @@ void MyFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
 		"\nDate: " + dt.FormatDate() +
 		"\nTime: " + dt.FormatTime() +
 		"\n");
-    info.SetCopyright(wxT("(C) 2012 Mateusz Plociennik"));
-    //info.AddDeveloper(wxT("Mateusz Plociennik"));
+		info.SetCopyright(wxT("(C) 2012 Mateusz Plociennik"));
+		//info.AddDeveloper(wxT("Mateusz Plociennik"));
 
 	info.SetWebSite(wxT("http://github.com/mateusz-plociennik/gamma-view"), wxT("Web Site"));
 
-    wxAboutBox(info, this);
+		wxAboutBox(info, this);
 }
 
 void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event))
 {
-    new MyFrame();
+		new MyFrame();
 }
 
 void MyFrame::OnResizeWindow(wxCommandEvent& commandEvent)

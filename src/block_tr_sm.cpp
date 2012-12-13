@@ -10,61 +10,74 @@
 wxThread::ExitCode GammaBlockTransSM::Entry()
 {
 	wxLogStatus("%s - started", __FUNCTION__);
+	wxMutexLocker locker(m_threadRunMutex);
 
 	unsigned long int timeCounter = 0;
 	unsigned long int timeSend = m_timeDiff;
-	unsigned short int* t_matrix = new unsigned short int[256 * 256]();
+	unsigned short int* t_matrix = new unsigned short int[0x10000]();
 	unsigned short int t_max = 0;
 
-	while (!GetThread()->TestDestroy())
+	while ( ShouldBeRunning() )
 	{
-		if (DataReady())
+		if ( DataReady() )
 		{
-			GammaDataItems* blockDataIn = static_cast<GammaDataItems*>(DataGet());
+			wxSharedPtr<GammaDataBase> dataIn(DataGet());
+			GammaDataItems* pDataIn = static_cast<GammaDataItems*>(dataIn.get());
+			wxMutexLocker locker(*pDataIn);
 			
-			blockDataIn->Lock();
-			for ( wxVector<GammaItem>::iterator it = blockDataIn->data.begin();
-				it != blockDataIn->data.end(); it++ )
+			for ( wxVector<GammaItem>::iterator it = pDataIn->data.begin();
+				it != pDataIn->data.end(); it++ )
 			{
-				if ( (*it).type == GAMMA_ITEM_POINT )
+				switch ( (*it).type )
 				{
-					t_matrix[256 * (*it).data.point.x + (*it).data.point.y] += 1;
-
-					if ( t_max < t_matrix[256 * (*it).data.point.x + (*it).data.point.y] )
+				case GAMMA_ITEM_POINT:
 					{
-						t_max = t_matrix[256 * (*it).data.point.x + (*it).data.point.y];
+						t_matrix[0x100 * (*it).data.point.x + (*it).data.point.y] += 1;
+
+						if ( t_max < t_matrix[0x100 * (*it).data.point.x + (*it).data.point.y] )
+						{
+							t_max = t_matrix[0x100 * (*it).data.point.x + (*it).data.point.y];
+						}
+						break;
 					}
-				}
-				else if ( (*it).type == GAMMA_ITEM_TMARKER )
-				{
-					timeCounter = (*it).data.time;
-
-					if ( timeSend < timeCounter )
+				case GAMMA_ITEM_TMARKER:
 					{
-						timeSend += m_timeDiff;
-						
-						{
-							GammaDataMatrix* blockDataOut = new GammaDataMatrix;
-							blockDataOut->datetime = blockDataIn->datetime;
-							memcpy(blockDataOut->data, t_matrix, 
-								256 * 256 * sizeof(unsigned short int));
-							blockDataOut->max = t_max;
-							DataPush(blockDataOut);
-						}
+						timeCounter = (*it).data.time;
 
-						if (!m_integrate)
+						if ( timeSend < timeCounter )
 						{
-							delete[] t_matrix;
-							t_matrix = new unsigned short int[256 * 256]();
-							t_max = 0;
+							timeSend += m_timeDiff;
+							
+							{
+								GammaDataMatrix* pDataOut(new GammaDataMatrix);
+								pDataOut->dateTime = pDataIn->dateTime;
+								memcpy(pDataOut->data, t_matrix, 
+									sizeof(unsigned short int) * 0x10000);
+								pDataOut->max = t_max;
+								DataPush(pDataOut);
+							}
+
+							if (!m_integrate)
+							{
+								memset(t_matrix, 0x00, 
+									sizeof(unsigned short int) * 0x10000);
+								t_max = 0;
+							}
 						}
+						break;
+					}
+				case GAMMA_ITEM_TRIGGER:
+				default:
+					{
+						break;
 					}
 				}
 			}
-			blockDataIn->Unlock();
-			blockDataIn->Unsubscribe();
 		}
 	}
 
+	delete[] t_matrix;
+
+	wxLogStatus("%s - stoped", __FUNCTION__);
 	return 0;
 }

@@ -11,8 +11,8 @@
 
 bool GammaBlockUSB::DeviceFind()
 {
-	for ( m_device = (m_USBDevice->DeviceCount() - 1); 
-		m_device > -1; m_device-- )
+#ifdef _WIN32
+	for ( m_device = 0; m_device < m_USBDevice->DeviceCount(); m_device++ )
 	{
 		m_USBDevice->Open(m_device);
 		
@@ -23,78 +23,102 @@ bool GammaBlockUSB::DeviceFind()
 		}
 	}
 	
-	if (m_device != GAMMA_NO_DEVICE)
+	if (m_device < m_USBDevice->DeviceCount())
 	{
 		wxLogStatus("Device found (VID_%04X&PID_%04X).", 
 			m_USBDevice->VendorID, m_USBDevice->ProductID);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		wxLogStatus("No device found!");
-		return FALSE;
+		wxLogStatus("No device found.");
+		return false;
 	}
+#else
+	return true;
+#endif
 }
 
 bool GammaBlockUSB::DeviceInit()
 {
 	wxConfigBase* config = wxFileConfig::Get();
 	wxConfigPathChanger changer(config, "/USBDevice/");
-	
-	bool ret = (
-	DeviceReset() &&
-	DeviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 128)) &&
-	DeviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 128)) &&
-	DeviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 128)) &&
-	DeviceSet(GAMMA_SET_TMARKER, log10(config->ReadDouble("Tmarker", 10)) + 1) &&
-	DeviceSet(GAMMA_SET_GATE, config->ReadLong("GateOn", 0)) );
-	
-	return ret;
+
+#ifdef _WIN32	
+	if ( DeviceReset() &&
+		DeviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 128)) &&
+		DeviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 128)) &&
+		DeviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 128)) &&
+		DeviceSet(GAMMA_SET_TMARKER, log10(config->ReadDouble("Tmarker", 10)) + 1) &&
+		DeviceSet(GAMMA_SET_GATE, config->ReadLong("GateOn", 0)) )
+	{
+		wxLogStatus("Device init OK.");
+		return true;
+	}
+	else
+	{
+		wxLogStatus("Device init FAILED.");
+		return false;
+	}
+#else
+	return true;
+#endif
 }
 
 bool GammaBlockUSB::DeviceReset()
 {
+#ifdef _WIN32
 	return m_USBDevice->Reset();
+#else
+	return true;
+#endif
 }
 
 bool GammaBlockUSB::DeviceSet(unsigned char setting, unsigned char value)
 {
+#ifdef _WIN32
 	unsigned char buffer[] = {setting, value};
 	long int length = 2;
 
 	return m_USBDevice->BulkOutEndPt->XferData(buffer, length);
+#else
+	return true;
+#endif
 }
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
-	if (DeviceFind())
-	{
-		if (DeviceInit())
-		{
-			wxLogStatus("Init OK.");
-		}
-		while (!GetThread()->TestDestroy())
-		{
-			GammaDataUSB* blockDataOut = new GammaDataUSB;
-			long int length = 512;
-			
-			blockDataOut->datetime = wxDateTime::UNow();
+	wxMutexLocker locker(m_threadRunMutex);
 
-			m_USBDevice->BulkInEndPt->XferData(blockDataOut->data, length);
+#ifdef _WIN32
+	if ( DeviceFind() && DeviceInit() )
+	{
+		while ( ShouldBeRunning() )
+		{
+			GammaDataUSB* pDataOut(new GammaDataUSB);
+			long int length = 0x200;
+
+			pDataOut->dateTime = wxDateTime::UNow();
+			m_USBDevice->BulkInEndPt->XferData(pDataOut->data, length);
+			wxASSERT(0x200 == length);
 			
-			DataPush(blockDataOut);
+			DataPush(pDataOut);
 		}
 	}
-
+#endif
 	return 0;
 }
 
 GammaBlockUSB::GammaBlockUSB()
 {
+#ifdef _WIN32
 	m_USBDevice = new CCyUSBDevice(NULL);
+#endif
 }
 
 GammaBlockUSB::~GammaBlockUSB()
 {
+#ifdef _WIN32
 	delete m_USBDevice;
+#endif
 }

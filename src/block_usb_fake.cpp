@@ -9,20 +9,21 @@
 
 wxThread::ExitCode GammaBlockUSBFake::Entry()
 {
-	while (!GetThread()->TestDestroy())
+	wxMutexLocker locker(m_threadRunMutex);
+
+	while ( ShouldBeRunning() )
 	{
-		GammaDataUSB* blockDataOut = new GammaDataUSB;
+		GammaDataUSB* pDataOut(new GammaDataUSB);
 
-		blockDataOut->datetime = wxDateTime::UNow();
-
-		for (int i = 0; i < 256; i++)
+		pDataOut->dateTime = wxDateTime::UNow();
+		for (int i = 0; i < 0x100; i++)
 		{
-			blockDataOut->data[2 * i + 0] = i;
-			blockDataOut->data[2 * i + 1] = rand() % 256;
+			pDataOut->data[2 * i + 0] = i;
+			pDataOut->data[2 * i + 1] = rand() % 0x100;
 		}
-		blockDataOut->data[0] = blockDataOut->data[1] = 0xFF;
-
-		DataPush(blockDataOut);
+		pDataOut->data[0] = pDataOut->data[1] = 0xFF;
+		
+		DataPush(pDataOut);
 
 		GetThread()->Sleep(1);
 	}

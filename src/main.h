@@ -9,6 +9,8 @@
 #define _WX_MAIN_H_
 
 #include "glview.h"
+#include "data_types.h"
+#include "block_mgmt.h"
 
 /*
 #include "block_base.h"
@@ -36,8 +38,6 @@ public:
     virtual int OnExit();
 
 private:
-    // the GL context we use for all our windows
-    //TestGLContext *m_glContext;
 	wxFrame* m_pFrame;
 };
 
@@ -45,17 +45,21 @@ private:
 class MyFrame : public wxFrame
 {
 public:
-    MyFrame();
+	MyFrame();
+	~MyFrame();
+
+	bool SetParam(GammaParam_e name, void* value);
 
 private:
 	void OnClose(wxCommandEvent& event);
-    void OnCloseWindow(wxCloseEvent& event);
+	void OnCloseWindow(wxCloseEvent& event);
 	void OnHelpAbout(wxCommandEvent& event);
-    void OnNewWindow(wxCommandEvent& event);
+	void OnNewWindow(wxCommandEvent& event);
 	void OnResizeWindow(wxCommandEvent& event);
 
+	GammaManager* m_pManager;
 
-    DECLARE_EVENT_TABLE()
+  DECLARE_EVENT_TABLE()
 };
 
 

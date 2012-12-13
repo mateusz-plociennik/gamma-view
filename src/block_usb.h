@@ -8,11 +8,12 @@
 #ifndef _GAMMA_VIEW_BLOCK_USB_H_
 #define _GAMMA_VIEW_BLOCK_USB_H_
 
+#ifdef _WIN32
 #include "CyAPI.h"
+#endif
+
 #include "data_types.h"
 #include "block_base.h"
-
-#define GAMMA_NO_DEVICE -1
 
 class GammaBlockUSB : 
 	public GammaBlockBase
@@ -31,8 +32,10 @@ protected:
 	wxThread::ExitCode Entry();
 
 private:
+#ifdef _WIN32
 	CCyUSBDevice* m_USBDevice;
 	short int m_device;
+#endif
 };
 
 #endif //_GAMMA_VIEW_BLOCK_USB_H_

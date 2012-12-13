@@ -16,92 +16,38 @@
 /**
  * Base class to make GammaBlock able to send pointers without cast.
  */
-class GammaBlockDataBase
+class GammaDataBase : 
+	public wxMutex
 {
 public:
 	/**
 	 * Default constructor.
 	 */
-	GammaBlockDataBase()
-	{
-		m_subCount = 0;
-	}
-
-	virtual ~GammaBlockDataBase()
+	GammaDataBase() :
+		wxMutex(wxMUTEX_DEFAULT)
 	{
 	}
 
-	/**
-	 * True virtual function to destroy data. 
-	 * Must be virtual, because different methods to destroy data.
-	 */
-	//virtual void DataDestroy() = 0;
-
-	/**
-	 * Locks dataMutex.
-	 */
-	wxMutexError Lock()
+	virtual ~GammaDataBase()
 	{
-		return dataMutex.Lock();
-	}
-
-	/**
-	 * Unlocks dataMutex.
-	 */
-	wxMutexError Unlock()
-	{
-		return dataMutex.Unlock();
-	}
-
-	/**
-	 * Increases count of subscribers.
-	 */
-	void Subscribe()
-	{
-		m_subCount++;
-	}
-
-	/**
-	 * Decerases count of subscribers. 
-	 * If subscribers value reaches zero data should be destroyed.
-	 */
-	void Unsubscribe()
-	{
-		m_subCount--;
-		if (m_subCount == 0)
-		{
-			delete this;
-		}
 	}
 
 	/**
 	 * Date and time of packet arrival.
 	 */
-	wxDateTime datetime;
-
-	/**
-	 * Count of subscribers. When its value reaches zero, object should be destroyed.
-	 */
-	unsigned char m_subCount;
-
-private:
-	/**
-	 * Mutex for data access.
-	 */
-	wxMutex dataMutex;
-
+	wxDateTime dateTime;
 };
 
 /**
  * GammaDataUSB class.
  */
-class GammaDataUSB:
-	public GammaBlockDataBase
+class GammaDataUSB :
+	public GammaDataBase
 {
 public:
 	GammaDataUSB()
 	{
-		data = new unsigned char[512]();
+		data = new unsigned char[0x200]();
 	}
 
 	~GammaDataUSB()
@@ -115,13 +61,13 @@ public:
 /**
  * GammaDataItems class.
  */
-class GammaDataItems:
-	public GammaBlockDataBase
+class GammaDataItems :
+	public GammaDataBase
 {
 public:
 	GammaDataItems()
 	{
-		data.resize(256);
+		data.resize(0x100);
 	}
 
 	~GammaDataItems()
@@ -135,13 +81,13 @@ public:
 /**
  * GammaDataImage class.
  */
-class GammaDataMatrix:
-	public GammaBlockDataBase
+class GammaDataMatrix :
+	public GammaDataBase
 {
 public:
 	GammaDataMatrix()
 	{
-		data = new unsigned short int[256 * 256]();
+		data = new unsigned short int[0x10000]();
 		max = 0;
 	}
 
@@ -157,13 +103,13 @@ public:
 /**
  * GammaDataImage class.
  */
-class GammaDataImage:
-	public GammaBlockDataBase
+class GammaDataImage :
+	public GammaDataBase
 {
 public:
 	GammaDataImage()
 	{
-		data = new wxImage(256, 256, true);
+		data = new wxImage(0x100, 0x100, true);
 	}
 
 	~GammaDataImage()

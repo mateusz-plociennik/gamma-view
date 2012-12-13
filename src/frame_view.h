@@ -40,6 +40,9 @@ private:
 	int m_startX;
 	int m_startY;
 
+	double m_scaleX;
+	double m_scaleY;
+
 	wxMutex m_mouseMutex;
 
 	bool m_fineScale;

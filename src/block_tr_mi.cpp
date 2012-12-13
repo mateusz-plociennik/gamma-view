@@ -23,43 +23,47 @@ GammaBlockTransMI::GammaBlockTransMI(wxWindow* parent)
 
 wxThread::ExitCode GammaBlockTransMI::Entry()
 {
-	while (!GetThread()->TestDestroy())
+	wxMutexLocker locker(m_threadRunMutex);
+
+	while ( ShouldBeRunning() )
 	{
 		if (DataReady())
 		{
-			GammaDataMatrix* blockDataIn = 
-				static_cast<GammaDataMatrix*>(DataGet());
-			GammaDataImage* blockDataOut = new GammaDataImage;
+			m_colorMap = GAMMA_COLORMAP_HOT;
+			wxSharedPtr<GammaDataBase> dataIn(DataGet());
+			GammaDataMatrix* pDataIn = static_cast<GammaDataMatrix*>(dataIn.get());
 
-			blockDataIn->Lock();
+			GammaDataImage* pDataOut(new GammaDataImage);
+
+			pDataIn->Lock();
 			wxDateTime tStart = wxDateTime::UNow();			
 
 			for ( unsigned int x = 0; x < 256; x++ )
 			{
 				for ( unsigned int y = 0; y < 256; y++ )
 				{
-					if (blockDataIn->data[256 * x + y] != 0)
+					if (pDataIn->data[256 * x + y] != 0)
 					{
 						/*
 						unsigned char val = 
-							(255 * blockDataIn->data[256 * x + y] / blockDataIn->max);
+							(255 * pDataIn->data[256 * x + y] / pDataIn->max);
 						*/
 						
-						SetColour(m_colorMap, blockDataIn->data[256 * x + y], blockDataIn->max);
-						blockDataOut->data->SetRGB( x, y, 
+						SetColour(m_colorMap, pDataIn->data[256 * x + y], pDataIn->max);
+						pDataOut->data->SetRGB( x, y, 
 							m_colour.Red(), 
 							m_colour.Green(), 
 							m_colour.Blue() );
 						/*
-						blockDataOut->data->GetData()[3 * (256 * x + y) + 0] = 
-						blockDataOut->data->GetData()[3 * (256 * x + y) + 1] = 
-						blockDataOut->data->GetData()[3 * (256 * x + y) + 2] = 
-							(255 * blockDataIn->data[256 * x + y] / blockDataIn->max);\
+						pDataOut->data->GetData()[3 * (256 * x + y) + 0] = 
+						pDataOut->data->GetData()[3 * (256 * x + y) + 1] = 
+						pDataOut->data->GetData()[3 * (256 * x + y) + 2] = 
+							(255 * pDataIn->data[256 * x + y] / pDataIn->max);\
 						*/
 					}
 				}
 				SetColour(m_colorMap, 255-x, 255);
-				blockDataOut->data->SetRGB( 255, x, 
+				pDataOut->data->SetRGB( 255, x, 
 					m_colour.Red(), 
 					m_colour.Green(), 
 					m_colour.Blue() );
@@ -68,15 +72,14 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			wxTimeSpan tDiff = tStop.Subtract(tStart);
 			wxLogStatus("%s - Calculation time = %s", __FUNCTION__, tDiff.Format("%l").c_str());
 
-			blockDataIn->Unlock();
-			blockDataIn->Unsubscribe();
+			pDataIn->Unlock();
 
-			//DataPush(blockDataOut);
-			blockDataOut->data->SaveFile( "now.bmp", wxBITMAP_TYPE_BMP );
+			//DataPush(pDataOut);
+			pDataOut->data->SaveFile( "now.bmp", wxBITMAP_TYPE_BMP );
 			
-			m_frame.SetImage(*(blockDataOut->data));
+			m_frame.SetImage(*(pDataOut->data));
 			
-			delete blockDataOut;
+			delete pDataOut;
 		}
 	}
 
@@ -132,7 +135,7 @@ void GammaBlockTransMI::SetColour(unsigned char colormap, unsigned int index, un
 		}
 	case GAMMA_COLORMAP_COPPER:
 		{
-		    r = (x < 4.0/5.0) * (5.0/4.0 * x) 
+		  r = (x < 4.0/5.0) * (5.0/4.0 * x) 
 				+ (x >= 4.0/5.0);
 			g = 4.0/5.0 * x;
 			b = 1.0/2.0 * x;

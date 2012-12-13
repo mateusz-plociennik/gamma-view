@@ -20,15 +20,18 @@
 
 /**
  * Maximum size of in-queue. 
- * It is used by BlockDataPush() function to determine whether in-queue is full.
+ * It is used by BlockDataPush() function to determine whether in-queue is full.                   
  */
 #define GAMMA_BLOCK_QUEUE_MAX 256
 
 //#include <wx/list.h>
 #include <list>
+#include <time.h>
+
+#include <wx/sharedptr.h>
 #include <wx/thread.h>
 #include <wx/wx.h>
-#include <time.h>
+
 
 #include "data_types.h"
 #include "block_data.h"
@@ -36,29 +39,34 @@
 /**
  * GammaBlockBase class.
  */
+//template<typename GammaDataInType, typename GammaDataOutType>
 class GammaBlockBase : 
 	public wxThreadHelper
 {
 public:
-/*
-	GammaBlockBase()
+
+	GammaBlockBase() : 
+		m_bRun(false),
+		m_dataInListConditionNotEmpty(m_dataInListMutex),
+		m_dataInListConditionNotFull(m_dataInListMutex)
 	{
 		wxLogStatus("%s - ctor", __FUNCTION__);
 	}
-	~GammaBlockBase()
+
+	virtual ~GammaBlockBase()
 	{
 		wxLogStatus("%s - dtor", __FUNCTION__);
 	}
-*/
+
 	/**
 	 * This function adds block_p to internal list of blocks to which will 
 	 * send data.
 	 * @param[in] block_p Pointer to GammaBlockBase to attach
 	 */
-	void BlockAttach(GammaBlockBase* block_p)
+	void BlockAttach(GammaBlockBase* pBlock)
 	{
-		wxMutexLocker locker(m_blockListMutex);
-		m_blockList.push_back(block_p);
+		wxMutexLocker locker(m_blockOutListMutex);
+		m_blockOutList.push_back(pBlock);
 	}
 
 	/**
@@ -66,10 +74,10 @@ public:
 	 * will send data.
 	 * @param[in] block_p Pointer to GammaBlockBase to detach
 	 */
-	void BlockDetach(GammaBlockBase* block_p)
+	void BlockDetach(GammaBlockBase* pBlock)
 	{
-		wxMutexLocker locker(m_blockListMutex);
-		m_blockList.remove(block_p);
+		wxMutexLocker locker(m_blockOutListMutex);
+		m_blockOutList.remove(pBlock);
 	}
 
 	/**
@@ -78,13 +86,16 @@ public:
 	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
 	 * @return Pointer to GammaBlockDataBase from in-queue
 	 */
-	GammaBlockDataBase* DataGet()
+	wxSharedPtr<GammaDataBase> DataGet()
 	{
-		wxMutexLocker locker(m_blockDataInListMutex);
-		GammaBlockDataBase* blockBlockDataIn = m_blockDataInList.front();
-		m_blockDataInList.pop_front();
+		wxMutexLocker locker(m_dataInListMutex);
 
-		return blockBlockDataIn;
+		wxSharedPtr<GammaDataBase> dataIn(m_dataInList.front());
+		m_dataInList.pop_front();
+
+		m_dataInListConditionNotFull.Signal();
+
+		return dataIn;
 	}
 
 	/**
@@ -92,12 +103,17 @@ public:
 	 * referenced by blockData_p to in-queue.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	void DataPop(GammaBlockDataBase* blockData_p)
+	void DataPop(wxSharedPtr<GammaDataBase> dataIn)
 	{
-		wxMutexLocker locker(m_blockDataInListMutex);
+		wxMutexLocker locker(m_dataInListMutex);
 
-		m_blockDataInList.push_back(blockData_p);
-		blockData_p->Subscribe();
+		while ( ShouldBeRunning()	&& m_dataInList.size() >= GAMMA_BLOCK_QUEUE_MAX )
+		{
+			m_dataInListConditionNotFull.Wait();
+		}
+
+		m_dataInList.push_back(dataIn);
+		m_dataInListConditionNotEmpty.Signal();
 	}
 
 	/**
@@ -105,39 +121,33 @@ public:
 	 * to attached blocks.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	void DataPush(GammaBlockDataBase* blockData_p)
+	void DataPush(GammaDataBase* pDataOut)
 	{
-		wxMutexLocker locker(m_blockListMutex);
+		wxSharedPtr<GammaDataBase> dataOut(pDataOut);
+		wxMutexLocker locker(m_blockOutListMutex);
 
-		for ( std::list<GammaBlockBase*>::iterator block_p = m_blockList.begin(); 
-			block_p != m_blockList.end(); block_p++ )
+		for ( std::list<GammaBlockBase*>::iterator iBlock = m_blockOutList.begin(); 
+			iBlock != m_blockOutList.end(); iBlock++ )
 		{
-			while ( (*block_p)->DataWaitingCount() >= GAMMA_BLOCK_QUEUE_MAX )
-			{
-				GetThread()->Sleep(GAMMA_BLOCK_QUEUE_FULL_SLEEP_TIME);
-			}
-
-			(*block_p)->DataPop(blockData_p);
+			(*iBlock)->DataPop(dataOut);
 		}
 	}
 
 	/**
 	 * If there are no data in in-queue, than make the thread sleep 
 	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
-	 * @return Bool if in-gueue has data.
+	 * @return Bool if in-queue has data.
 	 */
 	bool DataReady()
 	{
-		m_blockDataInListMutex.Lock();
-		bool ready = !m_blockDataInList.empty();
-		m_blockDataInListMutex.Unlock();
+		wxMutexLocker locker(m_dataInListMutex);
 
-		if (!ready)
+		while ( ShouldBeRunning() && m_dataInList.empty() )
 		{
-			GetThread()->Sleep(GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME);
+			m_dataInListConditionNotEmpty.Wait();
 		}
 
-		return ready;
+		return ShouldBeRunning();
 	}
 
 	/**
@@ -146,17 +156,23 @@ public:
 	 */
 	unsigned int DataWaitingCount()
 	{
-		wxMutexLocker locker(m_blockDataInListMutex);
+		wxMutexLocker locker(m_dataInListMutex);
 	
-		return m_blockDataInList.size();
+		return m_dataInList.size();
 	}
 	
+	bool ShouldBeRunning()
+	{
+		return m_bRun && !GetThread()->TestDestroy();
+	}
+
 	/**
 	 * This function creates, sets priority and run block thread.
 	 */
 	void Run()
 	{
 		CreateThread();
+		m_bRun = true;
 		GetThread()->Run();
 	}
 
@@ -173,14 +189,24 @@ public:
 	 */
 	void Stop()
 	{
+		if ( GetThread()->IsPaused() )
+		{
+			GetThread()->Resume();
+		}
+		m_bRun = false;
+
+		m_dataInListConditionNotFull.Signal();
+		m_dataInListConditionNotEmpty.Signal();
+
+		wxMutexLocker locker(m_threadRunMutex);
+		
 		if ( GetThread() && GetThread()->IsRunning() )
 		{
 			GetThread()->Delete();
 		}
 	}
-
-//	virtual void FrameShow() = 0;
-//	virtual void MenuShow() = 0;
+	
+	virtual bool SetParam(GammaParam_e name, void* value);
 
 protected:
 	/**
@@ -189,31 +215,49 @@ protected:
 	 */
 	virtual wxThread::ExitCode Entry() = 0;
 
-public:
+//private:
+	/**
+	 * Bool to stop thread execution.
+	 */
+	bool m_bRun;
+
 	/**
 	 * List of attached blocks.
 	 */
-	std::list<GammaBlockBase*> m_blockList;
+	std::list<GammaBlockBase*> m_blockOutList;
 
 	/**
 	 * Mutex for list of attached blocks access.
 	 */
-	wxMutex m_blockListMutex;
+	wxMutex m_blockOutListMutex;
 
 	/**
 	 * In-queue.
 	 */
-	std::list<GammaBlockDataBase*> m_blockDataInList;
+	std::list<wxSharedPtr<GammaDataBase>> m_dataInList;
 
 	/**
 	 * Mutex for in-queue access.
 	 */
-	wxMutex m_blockDataInListMutex;
+	wxMutex m_dataInListMutex;
+
+	/**
+	 *
+	 */
+	wxCondition m_dataInListConditionNotEmpty;
+
+	/**
+	 *
+	 */
+	wxCondition m_dataInListConditionNotFull;
+
+	wxMutex m_threadRunMutex;
 	
 	/**
 	 * Priority parameter (0 - 100).
 	 */
-	unsigned int m_priority;
+	//unsigned int m_priority;
+
 };
 
 #endif //_GAMMA_VIEW_BLOCK_BASE_H_

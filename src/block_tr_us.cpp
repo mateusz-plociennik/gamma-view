@@ -10,53 +10,55 @@
 
 wxThread::ExitCode GammaBlockTransUS::Entry()
 {
+	wxMutexLocker locker(m_threadRunMutex);
+
 	{
 		wxConfigBase* config = wxFileConfig::Get();
 		wxConfigPathChanger changer(config, "/USBDevice/");
 		m_timeDiv = config->ReadLong("Tmarker", 10);
 		m_timeCounter = 0;
 	}
-	while (!GetThread()->TestDestroy())
+	while ( ShouldBeRunning() )
 	{
 		if (DataReady())
 		{
-			GammaDataUSB* blockDataIn = static_cast<GammaDataUSB*>(DataGet());
+			wxSharedPtr<GammaDataBase> dataIn(DataGet());
+			GammaDataUSB* pDataIn = static_cast<GammaDataUSB*>(dataIn.get());
 
-			GammaDataItems* blockDataOut = new GammaDataItems;
+			GammaDataItems* pDataOut = new GammaDataItems;
 
-			blockDataIn->Lock();
-			blockDataOut->datetime = blockDataIn->datetime;
+			pDataIn->Lock();
+			pDataOut->dateTime = pDataIn->dateTime;
 			for (unsigned int i = 0; i < 256; i++)
 			{
-				if ( (blockDataIn->data[2 * i + 0] == 0xFF) && 
-					(blockDataIn->data[2 * i + 1] == 0xFF) )
+				if ( (pDataIn->data[2 * i + 0] == 0xFF) && 
+					(pDataIn->data[2 * i + 1] == 0xFF) )
 				{
-					blockDataOut->data.at(i).type = GAMMA_ITEM_TMARKER;
-					blockDataOut->data.at(i).data.time = m_timeCounter;
+					pDataOut->data.at(i).type = GAMMA_ITEM_TMARKER;
+					pDataOut->data.at(i).data.time = m_timeCounter;
 					m_timeCounter += m_timeDiv;
 					continue;
 				}
-				else if ( (blockDataIn->data[2 * i + 0] == 0x00) && 
-					(blockDataIn->data[2 * i + 1] == 0x00) )
+				else if ( (pDataIn->data[2 * i + 0] == 0x00) && 
+					(pDataIn->data[2 * i + 1] == 0x00) )
 				{
-					blockDataOut->data.at(i).type = GAMMA_ITEM_TRIGGER;
-					blockDataOut->data.at(i).data.time = m_timeCounter;
+					pDataOut->data.at(i).type = GAMMA_ITEM_TRIGGER;
+					pDataOut->data.at(i).data.time = m_timeCounter;
 					continue;
 				}
 				else
 				{
-					blockDataOut->data.at(i).type = GAMMA_ITEM_POINT;
-					blockDataOut->data.at(i).data.point.x = 
-						blockDataIn->data[2 * i + 0];
-					blockDataOut->data.at(i).data.point.y = 
-						blockDataIn->data[2 * i + 1];
-					blockDataOut->data.at(i).data.point.z = 
+					pDataOut->data.at(i).type = GAMMA_ITEM_POINT;
+					pDataOut->data.at(i).data.point.x = 
+						pDataIn->data[2 * i + 0];
+					pDataOut->data.at(i).data.point.y = 
+						pDataIn->data[2 * i + 1];
+					pDataOut->data.at(i).data.point.z = 
 						(-1); //Not Available
 				}
 			}
-			blockDataIn->Unlock();
-			blockDataIn->Unsubscribe();
-			DataPush(blockDataOut);
+			pDataIn->Unlock();
+			DataPush(pDataOut);
 		}
 	}
 

@@ -15,7 +15,7 @@
 #include "block_usb.h"
 #include "block_usb_fake.h"
 
-void GammaBlockManager::SetMode(GammaBlockMode_e mode)
+void GammaManager::SetMode(GammaMode_e mode)
 {
 	switch(mode)
 	{
@@ -133,7 +133,7 @@ void GammaBlockManager::SetMode(GammaBlockMode_e mode)
 	case GAMMA_MODE_FILE_2_IMAGE:
 		{
 			GammaBlockBase* file = new GammaBlockFileRead;
-			GammaBlockBase* tr_sm = new GammaBlockTransSM(10000, true);
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(1000, false);
 			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
 			m_blockList.push_back(file);
 			m_blockList.push_back(tr_sm);
