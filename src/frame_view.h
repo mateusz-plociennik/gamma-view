@@ -13,29 +13,27 @@
 #include <wx/thread.h>
 #include "block_base.h"
 
-
-
-class GammaFrameView : 
-	public wxFrame
+// Define a new frame type
+class GammaFrame : public wxFrame
 {
 public:
-	GammaFrameView(	GammaBlockBase* block, 
-		wxWindow *parent, 
-		wxWindowID id, 
-		const wxString &title, 
-		const wxPoint &pos=wxDefaultPosition, 
-		const wxSize &size=wxDefaultSize, 
-		long style=wxDEFAULT_FRAME_STYLE, 
-		const wxString &name=wxFrameNameStr );
+	GammaFrame();
+	~GammaFrame();
 
-	void SetImage(wxImage& image);
-
-protected:
+	bool SetParam(GammaParam_e name, void* value);
 
 private:
 	void OnClose(wxCloseEvent& event);
 	void OnMouse(wxMouseEvent& event);
 	void OnPaint(wxPaintEvent& event);
+	void OnCloseWindow(wxCloseEvent& event);
+	void OnHelpAbout(wxCommandEvent& event);
+	void OnNewWindow(wxCommandEvent& event);
+	void OnResizeWindow(wxCommandEvent& event);
+
+	void SetImage(wxImage& image);
+
+	GammaManager* m_pManager;
 
 	int m_startX;
 	int m_startY;
@@ -55,8 +53,7 @@ private:
 
 	GammaBlockBase* m_block;
 
-	wxDECLARE_EVENT_TABLE();
-
+  DECLARE_EVENT_TABLE()
 };
 
 #endif //_GAMMA_VIEW_FRAME_VIEW_H_
