@@ -21,9 +21,9 @@ void GammaManager::SetMode(GammaMode_e mode)
 	{
 	case GAMMA_MODE_USB_2_FILE:
 		{
-			GammaBlockBase* usb = new GammaBlockUSB;
-			GammaBlockBase* trans = new GammaBlockTransUS;
-			GammaBlockBase* file = new GammaBlockFileWrite;
+			GammaBlockBase* usb = new GammaBlockUSB(this);
+			GammaBlockBase* trans = new GammaBlockTransUS(this);
+			GammaBlockBase* file = new GammaBlockFileWrite(this);
 			m_blockList.push_back(usb);
 			m_blockList.push_back(trans);
 			m_blockList.push_back(file);
@@ -38,9 +38,9 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_FAKE_2_FILE:
 		{
-			GammaBlockBase* usb = new GammaBlockUSBFake;
-			GammaBlockBase* trans = new GammaBlockTransUS;
-			GammaBlockBase* file = new GammaBlockFileWrite;
+			GammaBlockBase* usb = new GammaBlockUSBFake(this);
+			GammaBlockBase* trans = new GammaBlockTransUS(this);
+			GammaBlockBase* file = new GammaBlockFileWrite(this);
 			m_blockList.push_back(usb);
 			m_blockList.push_back(trans);
 			m_blockList.push_back(file);
@@ -55,10 +55,10 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_FAKE_2_IMAGE:
 		{
-			GammaBlockBase* usb = new GammaBlockUSBFake;
-			GammaBlockBase* tr_us = new GammaBlockTransUS;
-			GammaBlockBase* tr_sm = new GammaBlockTransSM(150, true);
-			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
+			GammaBlockBase* usb = new GammaBlockUSBFake(this);
+			GammaBlockBase* tr_us = new GammaBlockTransUS(this);
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(this);
+			GammaBlockBase* tr_mi = new GammaBlockTransMI(this);
 			m_blockList.push_back(usb);
 			m_blockList.push_back(tr_us);
 			m_blockList.push_back(tr_sm);
@@ -76,10 +76,10 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_USB_2_IMAGE:
 		{
-			GammaBlockBase* usb = new GammaBlockUSB;
-			GammaBlockBase* tr_us = new GammaBlockTransUS;
-			GammaBlockBase* tr_sm = new GammaBlockTransSM(100, true);
-			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
+			GammaBlockBase* usb = new GammaBlockUSB(this);
+			GammaBlockBase* tr_us = new GammaBlockTransUS(this);
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(this);
+			GammaBlockBase* tr_mi = new GammaBlockTransMI(this);
 			m_blockList.push_back(usb);
 			m_blockList.push_back(tr_us);
 			m_blockList.push_back(tr_sm);
@@ -97,13 +97,13 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_USB_FULL:
 		{
-			GammaBlockBase* usb = new GammaBlockUSB;
-			GammaBlockBase* tr_us = new GammaBlockTransUS;
-			GammaBlockBase* write = new GammaBlockFileWrite;
-			GammaBlockBase* tr_sm1 = new GammaBlockTransSM(100, false);
-			GammaBlockBase* tr_mi1 = new GammaBlockTransMI(NULL);
-			GammaBlockBase* tr_sm2 = new GammaBlockTransSM(150, true);
-			GammaBlockBase* tr_mi2 = new GammaBlockTransMI(NULL);
+			GammaBlockBase* usb = new GammaBlockUSB(this);
+			GammaBlockBase* tr_us = new GammaBlockTransUS(this);
+			GammaBlockBase* write = new GammaBlockFileWrite(this);
+			GammaBlockBase* tr_sm1 = new GammaBlockTransSM(this);
+			GammaBlockBase* tr_mi1 = new GammaBlockTransMI(this);
+			GammaBlockBase* tr_sm2 = new GammaBlockTransSM(this);
+			GammaBlockBase* tr_mi2 = new GammaBlockTransMI(this);
 
 
 			m_blockList.push_back(usb);
@@ -132,9 +132,9 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_FILE_2_IMAGE:
 		{
-			GammaBlockBase* file = new GammaBlockFileRead;
-			GammaBlockBase* tr_sm = new GammaBlockTransSM(1000, false);
-			GammaBlockBase* tr_mi = new GammaBlockTransMI(NULL);
+			GammaBlockBase* file = new GammaBlockFileRead(this);
+			GammaBlockBase* tr_sm = new GammaBlockTransSM(this);
+			GammaBlockBase* tr_mi = new GammaBlockTransMI(this);
 			m_blockList.push_back(file);
 			m_blockList.push_back(tr_sm);
 			m_blockList.push_back(tr_mi);
@@ -160,6 +160,31 @@ void GammaManager::SetMode(GammaMode_e mode)
 			break;
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int GammaManager::DataTierSetParam(GammaParam_e param, void* value)
+{
+	int ret = 0;
+
+	for ( std::list<GammaBlockBase*>::iterator iBlock = m_blockList.begin();
+		iBlock != m_blockList.end(); iBlock++ )
+	{
+		if ( (*iBlock)->SetParam(param, value) )
+		{
+			ret++;
+		}
+	}
+
+	return ret;
+}
+	
+////////////////////////////////////////////////////////////////////////////////
+
+bool GammaManager::PresentationTierSetParam(GammaParam_e param, void* value)
+{
+	return m_pFrame->SetParam(param, value);
 }
 
 /*

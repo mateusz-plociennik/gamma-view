@@ -24,7 +24,7 @@ public:
 	 * Default constructor.
 	 */
 	GammaDataBase() :
-		wxMutex(wxMUTEX_DEFAULT)
+			wxMutex(wxMUTEX_DEFAULT)
 	{
 	}
 

@@ -7,15 +7,16 @@
 
 #include "block_fread.h"
 
+#include <wx/file.h>
 #include <wx/filename.h>
 
-bool GammaBlockFileRead::SetParam(GammaParam_e name, void* value)
+bool GammaBlockFileRead::SetParam(GammaParam_e param, void* value)
 {
-	switch ( name )
+	switch(param)
 	{
-	case GAMMA_PARAM_FILE_READ_NAME:
+	case GAMMA_PARAM_FILE_NAME_READ:
 		{
-			m_fileName(*static_cast<wxFileName>(value));
+			m_fileName.Assign(*static_cast<wxString*>(value));
 			break;
 		}
 	default:
@@ -49,7 +50,7 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 		unsigned long int timeCounter = 0;
 		unsigned char loaded = 0;
 
-		while ( ShouldBeRunning() )
+		while ( ShouldBeRunning() && !file.Eof() )
 		{
 			GammaDataItems* dataOut(new GammaDataItems);
 			

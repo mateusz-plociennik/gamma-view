@@ -14,6 +14,11 @@ class GammaBlockTransUS :
 	public GammaBlockBase
 {
 public:
+	GammaBlockTransUS(GammaManager* pManager) : 
+			GammaBlockBase(pManager)
+	{
+		//
+	}
 
 protected:
 	wxThread::ExitCode Entry();

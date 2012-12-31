@@ -24,7 +24,6 @@
  */
 #define GAMMA_BLOCK_QUEUE_MAX 256
 
-//#include <wx/list.h>
 #include <list>
 #include <time.h>
 
@@ -32,6 +31,7 @@
 #include <wx/thread.h>
 #include <wx/wx.h>
 
+#include "block_mgmt.h"
 
 #include "data_types.h"
 #include "block_data.h"
@@ -39,16 +39,15 @@
 /**
  * GammaBlockBase class.
  */
-//template<typename GammaDataInType, typename GammaDataOutType>
-class GammaBlockBase : 
-	public wxThreadHelper
+class GammaBlockBase : public wxThreadHelper
 {
 public:
 
-	GammaBlockBase() : 
-		m_bRun(false),
-		m_dataInListConditionNotEmpty(m_dataInListMutex),
-		m_dataInListConditionNotFull(m_dataInListMutex)
+	GammaBlockBase(GammaManager* pManager) : 
+			m_pManager(pManager),
+			m_bRun(false),
+			m_dataInListConditionNotEmpty(m_dataInListMutex),
+			m_dataInListConditionNotFull(m_dataInListMutex)
 	{
 		wxLogStatus("%s - ctor", __FUNCTION__);
 	}
@@ -160,7 +159,20 @@ public:
 	
 		return m_dataInList.size();
 	}
+
+	/**
+	 * This function returns pointer to GammaManager
+	 * @return Pointer to GammaManager.
+	 */
+	GammaManager* GetManager()
+	{
+		return m_pManager;
+	}
 	
+	/**
+	 * This function returns count of items in in-queue.
+	 * @return Count of items in in-queue.
+	 */
 	bool ShouldBeRunning()
 	{
 		return m_bRun && !GetThread()->TestDestroy();
@@ -205,8 +217,16 @@ public:
 			GetThread()->Delete();
 		}
 	}
-	
-	virtual bool SetParam(GammaParam_e name, void* value);
+
+	/**
+	 * Middleware sets params in this layer.
+	 */
+	virtual bool SetParam(GammaParam_e param, void* value)
+	{
+		UNREFERENCED_PARAMETER(param);
+		UNREFERENCED_PARAMETER(value);
+		return false;
+	}
 
 protected:
 	/**
@@ -257,6 +277,7 @@ protected:
 	 * Priority parameter (0 - 100).
 	 */
 	//unsigned int m_priority;
+	GammaManager* m_pManager;
 
 };
 

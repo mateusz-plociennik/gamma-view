@@ -109,7 +109,8 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 	return 0;
 }
 
-GammaBlockUSB::GammaBlockUSB()
+GammaBlockUSB::GammaBlockUSB(GammaManager* pManager) :
+	GammaBlockBase(pManager)
 {
 #ifdef _WIN32
 	m_USBDevice = new CCyUSBDevice(NULL);

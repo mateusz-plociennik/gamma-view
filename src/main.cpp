@@ -20,13 +20,16 @@
 // Let's rock:
 
 #include "main.h"
+
 #include <wx/app.h>
+#include "frame_view.h"
+
 
 // ----------------------------------------------------------------------------
 // MyApp: the application object
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_APP(MyApp)
+IMPLEMENT_APP(GammaApp);
 
 bool GammaApp::OnInit()
 {

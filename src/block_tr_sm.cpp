@@ -81,3 +81,20 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 	wxLogStatus("%s - stoped", __FUNCTION__);
 	return 0;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool GammaBlockTransSM::SetParam(GammaParam_e param, void* value)
+{
+	switch(param)
+	{
+	case GAMMA_PARAM_IMG_INTEGRATE_TIME:
+		m_timeDiff = *static_cast<unsigned int*>(value); break;
+	case GAMMA_PARAM_IMG_INTEGRATE_ENABLED:
+		m_integrate = *static_cast<bool*>(value); break;
+	default:
+		return false;
+	}
+	
+	return true;
+}

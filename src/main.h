@@ -25,6 +25,7 @@ public:
 
 private:
 	wxFrame* m_pFrame;
+
 };
 
 #endif // _WX_MAIN_H_

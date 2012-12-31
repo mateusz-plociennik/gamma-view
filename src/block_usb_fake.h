@@ -15,6 +15,11 @@ class GammaBlockUSBFake :
 	public GammaBlockBase
 {
 public:
+	GammaBlockUSBFake(GammaManager* pManager) 
+			:
+			GammaBlockBase(pManager)
+	{
+	}
 
 protected:
 	wxThread::ExitCode Entry();

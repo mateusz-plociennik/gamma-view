@@ -10,22 +10,25 @@
 
 #include "block_base.h"
 
-class GammaBlockTransSM : 
-	public GammaBlockBase
+class GammaBlockTransSM : public GammaBlockBase
 {
 public:
-	GammaBlockTransSM(unsigned long int timeDiff = 100, bool integrate = false)
+	GammaBlockTransSM(GammaManager* pManager) 
+			:
+			GammaBlockBase(pManager),
+			m_timeDiff(1000),
+			m_integrate(false)
 	{
-		m_timeDiff = timeDiff;
-		m_integrate = integrate;
+		//
 	}
-//	~GammaBlockFileSave();
+
+	bool SetParam(GammaParam_e param, void* value);
 
 protected:
 	wxThread::ExitCode Entry();
 
 private:
-	unsigned long int m_timeDiff;
+	unsigned int m_timeDiff;
 	bool m_integrate;
 };
 

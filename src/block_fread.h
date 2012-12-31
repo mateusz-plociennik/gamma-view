@@ -9,13 +9,16 @@
 #define _GAMMA_VIEW_BLOCK_FREAD_H_
 
 #include "block_base.h"
+
 #include <wx/file.h>
+#include <wx/filename.h>
 
 class GammaBlockFileRead : 
 	public GammaBlockBase
 {
 public:
-	GammaBlockFileRead()
+	GammaBlockFileRead(GammaManager* pManager) :
+			GammaBlockBase(pManager)
 	{
 		wxLogStatus("%s", __FUNCTION__);
 	}
@@ -24,8 +27,12 @@ public:
 		wxLogStatus("%s", __FUNCTION__);
 	}
 
+	bool SetParam(GammaParam_e param, void* value);
+
 protected:
 	wxThread::ExitCode Entry();
+
+	wxFileName m_fileName;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_FREAD_H_

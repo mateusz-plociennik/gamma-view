@@ -19,7 +19,7 @@ class GammaBlockUSB :
 	public GammaBlockBase
 {
 public:
-	GammaBlockUSB();
+	GammaBlockUSB(GammaManager* pManager);
 	~GammaBlockUSB();
 
 	bool DeviceFind();
