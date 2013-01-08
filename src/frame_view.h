@@ -12,6 +12,14 @@
 #include <wx/image.h>
 #include <wx/thread.h>
 #include "block_mgmt.h"
+#include "canvas.h"
+
+#include <wx/window.h>
+#include <wx/panel.h>
+#include <wx/sizer.h>
+#include <wx/stattext.h>
+#include <wx/slider.h>
+
 
 // Define a new frame type
 class GammaFrame : public wxFrame
@@ -20,12 +28,18 @@ public:
 	GammaFrame();
 	~GammaFrame();
 
+	GammaManager* GetManager()
+	{
+		return m_pManager;
+	}
+
 	bool SetParam(GammaParam_e param, void* value);
+
 
 private:
 	void OnClose(wxCloseEvent& event);
-	void OnMouse(wxMouseEvent& event);
-	void OnPaint(wxPaintEvent& event);
+	void OnMaximize(wxMaximizeEvent& event);
+	void OnSize(wxSizeEvent& event);
 
 	void OnMenuNewWindow(wxCommandEvent& event);
 	void OnMenuCloseWindow(wxCommandEvent& event);
@@ -39,11 +53,6 @@ private:
 	void OnMenuHelpAbout(wxCommandEvent& event);
 
 	void SetImage(wxImage& image);
-
-	GammaManager* GetManager()
-	{
-		return m_pManager;
-	}
 
 	GammaManager* m_pManager;
 
@@ -59,8 +68,17 @@ private:
 	double m_brightness;
 	double m_contrast;
 
-	wxImage m_image;
-	wxMutex m_imageMutex;
+
+
+	GammaCanvas *m_canvas;
+	wxPanel *m_bottomPanel;
+
+	wxBoxSizer *m_mainSizer;
+	wxBoxSizer *m_bottomSizer;
+
+	wxStaticText *m_timeNowLabel;
+	wxSlider *m_bottomSlider;
+	wxStaticText *m_timeEndLabel;
 
   DECLARE_EVENT_TABLE();
 };

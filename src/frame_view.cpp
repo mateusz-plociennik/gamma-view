@@ -7,6 +7,8 @@
 
 #include "frame_view.h"
 
+#include "canvas.h"
+
 #include <algorithm>
 
 #include <wx/dcclient.h>
@@ -17,13 +19,18 @@
 #include <wx/config.h>
 #include <wx/fileconf.h>
 
+#include <wx/panel.h>
+#include <wx/sizer.h>
+#include <wx/stattext.h>
+#include <wx/slider.h>
+
 enum
 {
 	Menu_View_Zoom = 200,
-	Menu_View_Zoom_50,
 	Menu_View_Zoom_100,
 	Menu_View_Zoom_200,
 	Menu_View_Zoom_300,
+	Menu_View_Zoom_Max,
 
 	Menu_View_Colormap = 300,
 	Menu_View_Colormap_AUTUMN,
@@ -50,30 +57,26 @@ enum
 
 wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 	EVT_CLOSE(GammaFrame::OnClose)
-	EVT_PAINT(GammaFrame::OnPaint)
-
-	EVT_LEFT_DOWN(GammaFrame::OnMouse)
-	EVT_LEFT_UP(GammaFrame::OnMouse)
-	EVT_MOTION(GammaFrame::OnMouse)
+	EVT_MAXIMIZE(GammaFrame::OnMaximize)
+	EVT_SIZE(GammaFrame::OnSize)
 
 	//Menu events
 	EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
 	EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
 	
-	EVT_MENU_RANGE(Menu_View_Zoom_50, Menu_View_Zoom_300, GammaFrame::OnMenuResizeWindow)
+	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, GammaFrame::OnMenuResizeWindow)
 
 	EVT_MENU_RANGE(Menu_View_Colormap_AUTUMN, Menu_View_Colormap_INVERT, GammaFrame::OnMenuSetColormap)
 
 	EVT_MENU_RANGE(Menu_View_Integrate_Enabled, Menu_View_Integrate_Enabled, GammaFrame::OnMenuSetIntegrate)
 
-	EVT_MENU(Menu_Help_About, GammaFrame::OnMenuHelpAbout)
+	EVT_MENU(wxID_ABOUT, GammaFrame::OnMenuHelpAbout)
 wxEND_EVENT_TABLE()
 
 GammaFrame::GammaFrame() 
 		: 
 		wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
 		m_pManager(new GammaManager(this)),
-		m_image(256, 256, true),
 		m_fineScale(true),
 		m_brightness(0.0),
 		m_contrast(1.0)
@@ -84,7 +87,7 @@ GammaFrame::GammaFrame()
 	config->SetRecordDefaults();
 	wxConfigBase::Set(config);
 
-	SetBackgroundStyle(wxBG_STYLE_PAINT); // for wxAutoBufferedPaintDC
+	//SetBackgroundStyle(wxBG_STYLE_PAINT); // for wxAutoBufferedPaintDC
 
 	SetIcon(wxICON(gamma-view));
 
@@ -95,49 +98,47 @@ GammaFrame::GammaFrame()
 	fileMenu->Append(wxID_CLOSE);
 
 	wxMenu *viewZoomMenu = new wxMenu;
-	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_50, 
-		wxT("&50%\tAlt-1"), wxT("Resize window to 50%"));
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_100, 
-		wxT("&100%\tAlt-2"), wxT("Resize window to 100%"));
+		wxT("&100%\tAlt+1"), wxT("Resize window to 100%"));
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_200, 
-		wxT("&200%\tAlt-3"), wxT("Resize window to 200%"));
+		wxT("&200%\tAlt+2"), wxT("Resize window to 200%"));
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_300, 
-		wxT("&300%\tAlt-4"), wxT("Resize window to 300%"));
+		wxT("&300%\tAlt+3"), wxT("Resize window to 300%"));
 
 	wxMenu *viewColormapMenu = new wxMenu;
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_GRAY, 
-		wxT("&Gray\tCtrl-0"), wxT("Change colormap to Gray"));
+		wxT("&Gray\tCtrl+`"), wxT("Change colormap to Gray"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_AUTUMN, 
-		wxT("&Autumn\tCtrl-F1"), wxT("Change colormap to Autumn"));
+		wxT("&Autumn\tCtrl+1"), wxT("Change colormap to Autumn"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_BONE, 
-		wxT("&Bone\tCtrl-F2"), wxT("Change colormap to Bone"));
+		wxT("&Bone\tCtrl+2"), wxT("Change colormap to Bone"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_COOL, 
-		wxT("&Cool\tCtrl-F3"), wxT("Change colormap to Cool"));
+		wxT("&Cool\tCtrl+3"), wxT("Change colormap to Cool"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_HOT, 
-		wxT("&Hot\tCtrl-F4"), wxT("Change colormap to Hot"));
+		wxT("&Hot\tCtrl+4"), wxT("Change colormap to Hot"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_HSV, 
-		wxT("&HSV\tCtrl-F5"), wxT("Change colormap to HSV"));
+		wxT("&HSV\tCtrl+5"), wxT("Change colormap to HSV"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_JET, 
-		wxT("&Jet\tCtrl-F6"), wxT("Change colormap to Jet"));
+		wxT("&Jet\tCtrl+6"), wxT("Change colormap to Jet"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_OCEAN, 
-		wxT("&Ocean\tCtrl-F7"), wxT("Change colormap to Ocean"));
+		wxT("&Ocean\tCtrl+7"), wxT("Change colormap to Ocean"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_PINK, 
-		wxT("&Pink\tCtrl-F8"), wxT("Change colormap to Pink"));
+		wxT("&Pink\tCtrl+8"), wxT("Change colormap to Pink"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_RAINBOW, 
-		wxT("&Rainbow\tCtrl-F9"), wxT("Change colormap to Rainbow"));
+		wxT("&Rainbow\tCtrl+9"), wxT("Change colormap to Rainbow"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_SPRING, 
-		wxT("&Spring\tCtrl-F10"), wxT("Change colormap to Spring"));
+		wxT("&Spring\tCtrl+0"), wxT("Change colormap to Spring"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_SUMMER, 
-		wxT("&Summer\tCtrl-F11"), wxT("Change colormap to Summer"));
+		wxT("&Summer\tCtrl+-"), wxT("Change colormap to Summer"));
 	viewColormapMenu->AppendRadioItem(Menu_View_Colormap_WINTER, 
-		wxT("&Winter\tCtrl-F12"), wxT("Change colormap to Winter"));
+		wxT("&Winter\tCtrl+="), wxT("Change colormap to Winter"));
 	viewColormapMenu->AppendSeparator();
 	viewColormapMenu->AppendCheckItem(Menu_View_Colormap_INVERT,
-		wxT("&Invert\tCtrl-I"), wxT("Invert colormap"));
+		wxT("&Invert\tCtrl+I"), wxT("Invert colormap"));
 
 	wxMenu *viewIntegrateMenu = new wxMenu;
 	viewIntegrateMenu->AppendCheckItem(Menu_View_Integrate_Enabled, 
-		wxT("&Integrate\tSpace"), wxT("Image integrated"));
+		wxT("&Integrate\tSpace"), wxT("Image integrate"));
 	
 	wxMenu *viewMenu = new wxMenu;
 	viewMenu->Append(Menu_View_Zoom, wxT("Window Size"), viewZoomMenu);
@@ -145,8 +146,7 @@ GammaFrame::GammaFrame()
 	viewMenu->Append(Menu_View_Integrate, wxT("Integrate"), viewIntegrateMenu);
 
 	wxMenu *helpMenu = new wxMenu;
-	helpMenu->Append(Menu_Help_About, 
-		wxT("About..."), wxT("About the program"));
+	helpMenu->Append(wxID_ABOUT);
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(fileMenu, wxT("&File"));
@@ -162,12 +162,6 @@ GammaFrame::GammaFrame()
 	status.Printf("Brightness = %.3f, Contrast = %.3f", m_brightness, m_contrast);
 	GetStatusBar()->SetStatusText(status, 0);
 
-	viewZoomMenu->Check(Menu_View_Zoom_200, true);
-	SetClientSize(512, 512);
-	//Maximize(true);
-
-	Show();
-
 	wxLogWindow* log = new wxLogWindow(this, "Log Window");
 	log->GetFrame()->SetIcon(wxICON(gamma-view));
 	wxLog::SetTimestamp("%H:%M:%S,%l");
@@ -175,7 +169,31 @@ GammaFrame::GammaFrame()
 
 	m_pManager->SetMode(GAMMA_MODE_FILE_2_IMAGE);
 
+////////////////////////////////////////////////////////////////////////////////
+
+	m_mainSizer = new wxBoxSizer(wxVERTICAL);
+
+	m_canvas = new GammaCanvas(this, wxID_ANY);
+	m_mainSizer->Add(m_canvas, 1, /*wxEXPAND|*/wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
+
+	m_bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+	m_bottomPanel = new wxPanel(this, wxID_ANY);
+	m_timeNowLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
+	m_bottomSizer->Add(m_timeNowLabel, 0, wxALIGN_CENTER|wxALL, 2);
+	m_bottomSlider = new wxSlider(m_bottomPanel, wxID_ANY, 0, 0, 1000);
+	m_bottomSizer->Add(m_bottomSlider, 1, wxEXPAND|wxALIGN_CENTER);
+	m_timeEndLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
+	m_bottomSizer->Add(m_timeEndLabel, 0, wxALIGN_CENTER|wxALL, 2);
+	m_bottomPanel->SetSizerAndFit(m_bottomSizer);
+	m_mainSizer->Add(m_bottomPanel, 0, wxEXPAND);
+
+
+	//this->SetSizer();
+	this->SetSizerAndFit(m_mainSizer);
+
+	m_canvas->SetClientSize(512, 512);
 	
+	Show();
 }
 
 GammaFrame::~GammaFrame()
@@ -188,6 +206,16 @@ void GammaFrame::OnClose(wxCloseEvent& event)
 {
 	GetManager()->SetMode(GAMMA_MODE_NONE);
 
+	event.Skip();
+}
+
+void GammaFrame::OnMaximize(wxMaximizeEvent& event)
+{
+	event.Skip();
+}
+
+void GammaFrame::OnSize(wxSizeEvent& event)
+{
 	event.Skip();
 }
 
@@ -228,17 +256,25 @@ void GammaFrame::OnMenuNewWindow(wxCommandEvent& WXUNUSED(event))
 
 void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 {
+	if ( IsMaximized() )
+	{
+		Maximize(false);
+	}
+
 	switch( commandEvent.GetId() )
 	{
-		case Menu_View_Zoom_50:
-			SetClientSize(128, 128); break;
 		case Menu_View_Zoom_100:
-			SetClientSize(256, 256); break;
+			m_canvas->DoSetBestSize(wxSize(256,256));	break;
 		case Menu_View_Zoom_200:
-			SetClientSize(512, 512); break;
+			m_canvas->DoSetBestSize(wxSize(512,512)); break;
 		case Menu_View_Zoom_300:
-			SetClientSize(768, 768); break;
+			m_canvas->DoSetBestSize(wxSize(768,768)); break;
 	}
+
+	Fit();
+
+
+	
 /*		case Menu_View_Zoom_Other:
 		{
 			long res = wxGetNumberFromUser( 
@@ -312,72 +348,21 @@ void GammaFrame::OnMenuSetColormap(wxCommandEvent& commandEvent)
 	}
 }
 
-void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& commandEvent)
+void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 {
-		switch ( commandEvent.GetId() )
+		switch ( event.GetId() )
 		{
 			case Menu_View_Integrate_Enabled:
 				{
-					bool bIntegrate = commandEvent.IsChecked();
+					bool bIntegrate = event.IsChecked();
 					GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
 					break;
 				}
 			default:
-				break;
+				{
+					break;
+				}
 		}
-}
-
-void GammaFrame::OnMouse(wxMouseEvent& event)
-{
-	wxMutexLocker locker(m_mouseMutex);
-
-	if ( event.Dragging() )
-	{
-		m_brightness += ( 0.001 * (event.GetX() - m_startX) );
-		m_contrast *= pow( 1.001, -(event.GetY() - m_startY) );
-
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_contrast);
-
-		wxString status;
-		status.Printf("Brightness = %.3f, Contrast = %.3f", m_brightness, m_contrast);
-		GetStatusBar()->SetStatusText(status, 0);
-	}
-	if ( event.LeftDown() )
-	{
-		//status += "Ld";
-	}
-	if ( event.LeftUp() )
-	{
-		//status += "Lu";
-	}
-
-	m_startX = event.GetX();
-	m_startY = event.GetY();
-
-	{
-		wxString status;
-		status.Printf("(%.0f,%.0f)", (m_startX/m_imgScale), (m_startY/m_imgScale));
-		GetStatusBar()->SetStatusText(status, 1);
-	}
-
-	event.Skip();
-}
-
-void GammaFrame::OnPaint(wxPaintEvent& WXUNUSED(event))
-{
-	wxAutoBufferedPaintDC pdc(this);
-
-	{
-		wxMutexLocker locker(m_imageMutex);
-		
-		double scaleX = (double)GetClientSize().GetWidth()/m_image.GetWidth();
-		double scaleY = (double)GetClientSize().GetHeight()/m_image.GetHeight();
-		m_imgScale = std::min(scaleX, scaleY);
-		
-		pdc.SetUserScale(m_imgScale, m_imgScale);
-		pdc.DrawBitmap(wxBitmap(m_image), 0, 0);
-	}
 }
 
 bool GammaFrame::SetParam(GammaParam_e param, void* value)
@@ -386,10 +371,9 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 	{
 	case GAMMA_PARAM_IMG_DATA:
 		{
-			wxMutexLocker locker(m_imageMutex);
-			m_image = *static_cast<wxImage*>(value);
-
-			Refresh(false);
+			wxMutexLocker locker(m_canvas->m_paintMutex);
+			m_canvas->m_image = *static_cast<wxImage*>(value);
+			m_canvas->Refresh(false);
 			break;
 		}
 	default:

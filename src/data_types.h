@@ -53,7 +53,7 @@ enum GammaSetting_e
 	GAMMA_SET_SHIFT_Y,
 	GAMMA_SET_TMARKER,
 	GAMMA_SET_GATE,
-	GAMMA_SET_END, //end
+	GAMMA_SET_MAX, //end
 };
 
 enum GammaSettingTmarker_e

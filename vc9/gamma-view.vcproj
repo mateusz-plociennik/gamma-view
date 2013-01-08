@@ -805,6 +805,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\canvas.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\frame_view.cpp"
 				>
 			</File>
@@ -856,6 +860,10 @@
 			</File>
 			<File
 				RelativePath="..\src\block_usb_fake.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\canvas.h"
 				>
 			</File>
 			<File
