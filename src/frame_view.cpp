@@ -24,6 +24,8 @@
 #include <wx/stattext.h>
 #include <wx/slider.h>
 
+#include <wx/datetime.h>
+
 enum
 {
 	Menu_View_Zoom = 200,
@@ -50,9 +52,25 @@ enum
 	Menu_View_Colormap_INVERT,
 
 	Menu_View_Integrate = 400,
+	Menu_View_Integrate_Time_1_1000,
+	Menu_View_Integrate_Time_1_500,
+	Menu_View_Integrate_Time_1_250,
+	Menu_View_Integrate_Time_1_125,
+	Menu_View_Integrate_Time_1_60,
+	Menu_View_Integrate_Time_1_30,
+	Menu_View_Integrate_Time_1_15,
+	Menu_View_Integrate_Time_1_8,
+	Menu_View_Integrate_Time_1_4,
+	Menu_View_Integrate_Time_1_2,
+	Menu_View_Integrate_Time_1,
+	Menu_View_Integrate_Time_2,
+	Menu_View_Integrate_Time_4,
+	Menu_View_Integrate_Time_8,
+	Menu_View_Integrate_Time_16,
+	Menu_View_Integrate_Time_32,
 	Menu_View_Integrate_Enabled,
 	
-	Menu_Help_About = 500
+	Menu_Help_About = 1000
 };
 
 wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
@@ -64,11 +82,12 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 	EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
 	EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
 	
-	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, GammaFrame::OnMenuResizeWindow)
-
-	EVT_MENU_RANGE(Menu_View_Colormap_AUTUMN, Menu_View_Colormap_INVERT, GammaFrame::OnMenuSetColormap)
-
-	EVT_MENU_RANGE(Menu_View_Integrate_Enabled, Menu_View_Integrate_Enabled, GammaFrame::OnMenuSetIntegrate)
+	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, 
+		GammaFrame::OnMenuResizeWindow)
+	EVT_MENU_RANGE(Menu_View_Colormap_AUTUMN, Menu_View_Colormap_INVERT, 
+		GammaFrame::OnMenuSetColormap)
+	EVT_MENU_RANGE(Menu_View_Integrate_Time_1_1000, Menu_View_Integrate_Enabled, 
+		GammaFrame::OnMenuSetIntegrate)
 
 	EVT_MENU(wxID_ABOUT, GammaFrame::OnMenuHelpAbout)
 wxEND_EVENT_TABLE()
@@ -76,10 +95,7 @@ wxEND_EVENT_TABLE()
 GammaFrame::GammaFrame() 
 		: 
 		wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
-		m_pManager(new GammaManager(this)),
-		m_fineScale(true),
-		m_brightness(0.0),
-		m_contrast(1.0)
+		m_pManager(new GammaManager(this))
 {
 	wxConfigBase* config = new wxFileConfig( "gamma-view", "MP", 
 		"./gamma-view.ini", wxEmptyString, 
@@ -137,6 +153,40 @@ GammaFrame::GammaFrame()
 		wxT("&Invert\tCtrl+I"), wxT("Invert colormap"));
 
 	wxMenu *viewIntegrateMenu = new wxMenu;
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_1000, 
+		wxT("1/1000 s"), wxT("Change integrate time to 1/1000 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_500, 
+		wxT("1/500 s"), wxT("Change integrate time to 1/500 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_250,
+		wxT("1/250 s"), wxT("Change integrate time to 1/250 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_125,
+		wxT("1/125 s"), wxT("Change integrate time to 1/125 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_60,
+		wxT("1/60 s"), wxT("Change integrate time to 1/60 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_30,
+		wxT("1/30 s"), wxT("Change integrate time to 1/30 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_15,
+		wxT("1/15 s"), wxT("Change integrate time to 1/15 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_8,
+		wxT("1/8 s"), wxT("Change integrate time to 1/8 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_4,
+		wxT("1/4 s"), wxT("Change integrate time to 1/4 s"));
+	viewIntegrateMenu->Check(Menu_View_Integrate_Time_1_4, true);
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_2,
+		wxT("1/2 s"), wxT("Change integrate time to 1/2 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1,
+		wxT("1 s"), wxT("Change integrate time to 1 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_2,
+		wxT("2 s"), wxT("Change integrate time to 2 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_4,
+		wxT("4 s"), wxT("Change integrate time to 4 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_8,
+		wxT("8 s"), wxT("Change integrate time to 8 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_16,
+		wxT("16 s"), wxT("Change integrate time to 16 s"));
+	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_32,
+		wxT("32 s"), wxT("Change integrate time to 32 s"));
+	viewIntegrateMenu->AppendSeparator();
 	viewIntegrateMenu->AppendCheckItem(Menu_View_Integrate_Enabled, 
 		wxT("&Integrate\tSpace"), wxT("Image integrate"));
 	
@@ -156,10 +206,11 @@ GammaFrame::GammaFrame()
 	SetMenuBar(menuBar);
 
 	CreateStatusBar();
-	GetStatusBar()->SetFieldsCount(2);
+	int width_fields[] = {-1,66};
+	GetStatusBar()->SetFieldsCount(2, width_fields);
 
 	wxString status;
-	status.Printf("Brightness = %.3f, Contrast = %.3f", m_brightness, m_contrast);
+	status.Printf("B=0.00; C=1.00; G=1.00");
 	GetStatusBar()->SetStatusText(status, 0);
 
 	wxLogWindow* log = new wxLogWindow(this, "Log Window");
@@ -167,7 +218,7 @@ GammaFrame::GammaFrame()
 	wxLog::SetTimestamp("%H:%M:%S,%l");
 	wxLog::SetActiveTarget(log);
 
-	m_pManager->SetMode(GAMMA_MODE_FILE_2_IMAGE);
+	
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +231,8 @@ GammaFrame::GammaFrame()
 	m_bottomPanel = new wxPanel(this, wxID_ANY);
 	m_timeNowLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
 	m_bottomSizer->Add(m_timeNowLabel, 0, wxALIGN_CENTER|wxALL, 2);
-	m_bottomSlider = new wxSlider(m_bottomPanel, wxID_ANY, 0, 0, 1000);
+	m_bottomSlider = new wxSlider(m_bottomPanel, wxID_ANY, 0, 0, 100, 
+		wxDefaultPosition, wxDefaultSize, wxHORIZONTAL|wxSL_TOP);
 	m_bottomSizer->Add(m_bottomSlider, 1, wxEXPAND|wxALIGN_CENTER);
 	m_timeEndLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
 	m_bottomSizer->Add(m_timeEndLabel, 0, wxALIGN_CENTER|wxALL, 2);
@@ -194,6 +246,8 @@ GammaFrame::GammaFrame()
 	m_canvas->SetClientSize(512, 512);
 	
 	Show();
+
+	m_pManager->SetMode(GAMMA_MODE_FILE_2_IMAGE);
 }
 
 GammaFrame::~GammaFrame()
@@ -304,13 +358,11 @@ void GammaFrame::OnMenuSetColormap(wxCommandEvent& commandEvent)
 	if ( commandEvent.GetId() == Menu_View_Colormap_INVERT )
 	{
 		bool invert = commandEvent.IsChecked();
-
 		GetManager()->DataTierSetParam(GAMMA_PARAM_COLORMAP_INVERT, (void*)&invert);
 	}
 	else
 	{
 		GammaColormap_e colormap;
-
 		switch ( commandEvent.GetId() )
 		{
 			case Menu_View_Colormap_AUTUMN:
@@ -343,26 +395,58 @@ void GammaFrame::OnMenuSetColormap(wxCommandEvent& commandEvent)
 			case Menu_View_Colormap_WINTER:
 				colormap = GAMMA_COLORMAP_WINTER; break;
 		}
-
 		GetManager()->DataTierSetParam(GAMMA_PARAM_COLORMAP, (void*)&colormap);
 	}
 }
 
 void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 {
+	if ( event.GetId() == Menu_View_Integrate_Enabled )
+	{
+		bool bIntegrate = event.IsChecked();
+		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
+	}
+	else
+	{
+		unsigned int intgTime;
 		switch ( event.GetId() )
 		{
-			case Menu_View_Integrate_Enabled:
-				{
-					bool bIntegrate = event.IsChecked();
-					GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
-					break;
-				}
-			default:
-				{
-					break;
-				}
+		case Menu_View_Integrate_Time_1_1000:
+			intgTime = 1; break;
+		case Menu_View_Integrate_Time_1_500:
+			intgTime = 2; break;
+		case Menu_View_Integrate_Time_1_250:
+			intgTime = 4; break;
+		case Menu_View_Integrate_Time_1_125:
+			intgTime = 8; break;
+		case Menu_View_Integrate_Time_1_60:
+			intgTime = 17; break;
+		case Menu_View_Integrate_Time_1_30:
+			intgTime = 33; break;
+		case Menu_View_Integrate_Time_1_15:
+			intgTime = 66; break;
+		case Menu_View_Integrate_Time_1_8:
+			intgTime = 125; break;
+		default:
+		case Menu_View_Integrate_Time_1_4:
+			intgTime = 250; break;
+		case Menu_View_Integrate_Time_1_2:
+			intgTime = 500; break;
+		case Menu_View_Integrate_Time_1:
+			intgTime = 1000; break;
+		case Menu_View_Integrate_Time_2:
+			intgTime = 2000; break;
+		case Menu_View_Integrate_Time_4:
+			intgTime = 4000; break;
+		case Menu_View_Integrate_Time_8:
+			intgTime = 8000; break;
+		case Menu_View_Integrate_Time_16:
+			intgTime = 16000; break;
+		case Menu_View_Integrate_Time_32:
+			intgTime = 32000; break;
 		}
+		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_TIME, (void*)&intgTime);
+	}
 }
 
 bool GammaFrame::SetParam(GammaParam_e param, void* value)
@@ -376,10 +460,22 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 			m_canvas->Refresh(false);
 			break;
 		}
-	default:
+	case GAMMA_PARAM_TIME_NOW:
 		{
-			return false;
+			wxTimeSpan timeNow = *static_cast<wxTimeSpan*>(value);
+			m_timeNowLabel->SetLabel(timeNow.Format("%H:%M:%S,%l"));
+			m_bottomSlider->SetValue(timeNow.GetValue().GetLo());
+			break;
 		}
+	case GAMMA_PARAM_TIME_END:
+		{
+			wxTimeSpan timeEnd = *static_cast<wxTimeSpan*>(value);
+			m_timeEndLabel->SetLabel(timeEnd.Format("%H:%M:%S,%l"));
+			m_bottomSlider->SetMax(timeEnd.GetValue().GetLo());
+			break;
+		}
+	default:
+		return false;
 	}
 
 	return true;

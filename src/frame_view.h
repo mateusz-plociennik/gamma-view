@@ -56,20 +56,6 @@ private:
 
 	GammaManager* m_pManager;
 
-	int m_startX;
-	int m_startY;
-
-	double m_imgScale;
-
-	wxMutex m_mouseMutex;
-
-	bool m_fineScale;
-
-	double m_brightness;
-	double m_contrast;
-
-
-
 	GammaCanvas *m_canvas;
 	wxPanel *m_bottomPanel;
 

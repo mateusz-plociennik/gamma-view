@@ -28,6 +28,7 @@ private:
 
 	double m_brightness;
 	double m_contrast;
+	double m_gamma;
 	
 	wxColour m_colour;
 	GammaColormap_e m_colormap;

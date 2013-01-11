@@ -50,6 +50,7 @@ private:
 	wxMutex m_mouseMutex;
 	double m_brightness;
 	double m_contrast;
+	double m_gamma;
 	int m_startX;
 	int m_startY;
 

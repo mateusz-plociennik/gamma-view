@@ -15,6 +15,8 @@
 wxBEGIN_EVENT_TABLE(GammaCanvas, wxWindow)
 	EVT_PAINT(GammaCanvas::OnPaint)
 	EVT_SIZE(GammaCanvas::OnSize)
+
+	EVT_LEAVE_WINDOW(GammaCanvas::OnMouse)
 	EVT_LEFT_DOWN(GammaCanvas::OnMouse)
 	EVT_LEFT_UP(GammaCanvas::OnMouse)
 	EVT_MOTION(GammaCanvas::OnMouse)
@@ -32,6 +34,7 @@ GammaCanvas::GammaCanvas(GammaFrame *parent,
 		m_bestSize(256, 256),
 		m_brightness(0.0),
 		m_contrast(1.0),
+		m_gamma(1.0),
 		m_image(256, 256, true)
 {
 	SetBackgroundStyle(wxBG_STYLE_PAINT); // for wxAutoBufferedPaintDC
@@ -39,17 +42,11 @@ GammaCanvas::GammaCanvas(GammaFrame *parent,
 
 wxSize GammaCanvas::DoGetBestSize() const
 {
-	wxLogStatus("%s: (%d,%d)", __FUNCTION__, 
-		m_bestSize.GetWidth(), 
-		m_bestSize.GetHeight());
 	return m_bestSize;
 }
 
 wxSize GammaCanvas::DoGetBestClientSize() const
 {
-	wxLogStatus("%s: (%d,%d)", __FUNCTION__, 
-		m_bestSize.GetWidth(), 
-		m_bestSize.GetHeight());
 	return m_bestSize;
 }
 
@@ -70,16 +67,26 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 
 	if ( event.Dragging() )
 	{
-		m_brightness += ( 0.001 * (event.GetX() - m_startX) );
-		m_contrast *= pow( 1.001, -(event.GetY() - m_startY) );
+		if ( event.LeftIsDown() )
+		{
+			m_brightness += ( 0.001 * (event.GetX() - m_startX) );
+			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
 
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_contrast);
+			m_contrast *= pow( 1.001, -(event.GetY() - m_startY) );
+			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_contrast);
+		}
+		else
+		{
+			m_gamma *= pow( 1.001, -(event.GetY() - m_startY) );
+			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_gamma);
+		}
 
 		wxString status;
-		status.Printf("Brightness = %.3f, Contrast = %.3f", m_brightness, m_contrast);
+		status.Printf("B=%.2f; C=%.2f; G=%.2f", m_brightness, m_contrast, m_gamma);
 		m_frame->GetStatusBar()->SetStatusText(status, 0);
 	}
+
+	/*
 	if ( event.LeftDown() )
 	{
 		//status += "Ld";
@@ -88,14 +95,20 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	{
 		//status += "Lu";
 	}
+	*/
 
 	m_startX = event.GetX();
 	m_startY = event.GetY();
 
+	if ( !event.Leaving() )
 	{
 		wxString status;
 		status.Printf("(%.0f,%.0f)", (m_startX/m_scaleX), (m_startY/m_scaleY));
 		m_frame->GetStatusBar()->SetStatusText(status, 1);
+	}
+	else
+	{
+		m_frame->GetStatusBar()->SetStatusText("", 1);
 	}
 
 	event.Skip();
@@ -114,10 +127,6 @@ void GammaCanvas::OnPaint(wxPaintEvent& event)
 		pdc.SetUserScale(m_scaleX,m_scaleY);
 		pdc.DrawBitmap( wxBitmap(m_image), 0, 0 );
 	}
-
-	wxLogStatus("%s: (%d,%d)", __FUNCTION__, 
-		GetClientSize().GetWidth(), 
-		GetClientSize().GetHeight());
 
 	event.Skip();
 }

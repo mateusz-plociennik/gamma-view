@@ -7,13 +7,22 @@
 
 #include "block_tr_sm.h"
 
+GammaBlockTransSM::GammaBlockTransSM(GammaManager* pManager) 
+		:
+		GammaBlockBase(pManager),
+		m_intgTime(250),
+		m_intgEnabled(false)
+{
+	//
+}
+
 wxThread::ExitCode GammaBlockTransSM::Entry()
 {
 	wxLogStatus("%s - started", __FUNCTION__);
 	wxMutexLocker locker(m_threadRunMutex);
 
 	unsigned long int timeCounter = 0;
-	unsigned long int timeSend = m_timeDiff;
+	unsigned long int timeSend = m_intgTime;
 	unsigned short int* t_matrix = new unsigned short int[0x10000]();
 	unsigned short int t_max = 0;
 
@@ -46,21 +55,19 @@ wxThread::ExitCode GammaBlockTransSM::Entry()
 
 						if ( timeSend < timeCounter )
 						{
-							timeSend += m_timeDiff;
+							timeSend += m_intgTime;
 							
 							{
 								GammaDataMatrix* pDataOut(new GammaDataMatrix);
 								pDataOut->dateTime = pDataIn->dateTime;
-								memcpy(pDataOut->data, t_matrix, 
-									sizeof(unsigned short int) * 0x10000);
+								memcpy(pDataOut->data, t_matrix, 0x10000 * sizeof(unsigned short int));
 								pDataOut->max = t_max;
 								DataPush(pDataOut);
 							}
 
-							if (!m_integrate)
+							if (!m_intgEnabled)
 							{
-								memset(t_matrix, 0x00, 
-									sizeof(unsigned short int) * 0x10000);
+								memset(t_matrix, 0x00, 0x10000 * sizeof(unsigned short int));
 								t_max = 0;
 							}
 						}
@@ -89,9 +96,9 @@ bool GammaBlockTransSM::SetParam(GammaParam_e param, void* value)
 	switch(param)
 	{
 	case GAMMA_PARAM_IMG_INTEGRATE_TIME:
-		m_timeDiff = *static_cast<unsigned int*>(value); break;
+		m_intgTime = *static_cast<unsigned int*>(value); break;
 	case GAMMA_PARAM_IMG_INTEGRATE_ENABLED:
-		m_integrate = *static_cast<bool*>(value); break;
+		m_intgEnabled = *static_cast<bool*>(value); break;
 	default:
 		return false;
 	}

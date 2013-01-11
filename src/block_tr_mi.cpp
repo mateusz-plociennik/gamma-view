@@ -9,12 +9,14 @@
 #include "block_tr_mi.h"
 #include "wx/time.h"
 
-GammaBlockTransMI::GammaBlockTransMI(GammaManager* pManager) :
+GammaBlockTransMI::GammaBlockTransMI(GammaManager* pManager) 
+		:
 		GammaBlockBase(pManager), 
 		m_colormap(GAMMA_COLORMAP_GRAY),
 		m_bInvert(false),
 		m_brightness(0.0),
-		m_contrast(1.0)
+		m_contrast(1.0),
+		m_gamma(1.0)
 {
 	//
 }
@@ -91,7 +93,7 @@ void GammaBlockTransMI::SetColour(GammaColormap_e colormap, unsigned int index, 
 	double r = 0.0, g = 0.0, b = 0.0;
 	double x = (double)index / max;
 
-	x = m_contrast * x + m_brightness;
+	x = m_contrast * pow(x, m_gamma) + m_brightness;
 
 	if (m_bInvert)
 	{
@@ -249,6 +251,8 @@ bool GammaBlockTransMI::SetParam(GammaParam_e param, void* value)
 		m_brightness = *static_cast<double*>(value); break;
 	case GAMMA_PARAM_IMG_CONTRAST:
 		m_contrast = *static_cast<double*>(value); break;
+	case GAMMA_PARAM_IMG_GAMMA:
+		m_gamma = *static_cast<double*>(value); break;
 	case GAMMA_PARAM_COLORMAP:
 		m_colormap = *static_cast<GammaColormap_e*>(value); break;
 	case GAMMA_PARAM_COLORMAP_INVERT:

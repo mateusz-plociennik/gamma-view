@@ -32,7 +32,12 @@ public:
 protected:
 	wxThread::ExitCode Entry();
 
+private:
+	bool CheckHeader();
+	wxTimeSpan GetTimeEnd();
+
 	wxFileName m_fileName;
+	wxFile m_file;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_FREAD_H_
