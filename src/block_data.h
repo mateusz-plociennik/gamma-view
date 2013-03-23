@@ -8,6 +8,9 @@
 #ifndef _GAMMA_VIEW_BLOCK_DATA_H_
 #define _GAMMA_VIEW_BLOCK_DATA_H_
 
+#include <vector>
+#include <stdint.h>
+
 #include <wx/datetime.h>
 #include <wx/thread.h>
 #include <list>
@@ -75,7 +78,7 @@ public:
 		data.clear();
 	}
 
-	wxVector<GammaItem> data;
+	std::vector<GammaItem> data;
 };
 
 /**
@@ -86,8 +89,10 @@ class GammaDataMatrix :
 {
 public:
 	GammaDataMatrix()
+			: 
+			sum(0)
 	{
-		data = new unsigned short int[0x10000]();
+		data = new uint32_t[256*256]();
 		max = 0;
 	}
 
@@ -96,8 +101,9 @@ public:
 		delete[] data;
 	}
 
-	unsigned short int* data;
-	unsigned short int max;
+	uint32_t* data;
+	uint32_t max;
+	uint64_t sum;
 };
 
 /**

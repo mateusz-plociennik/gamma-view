@@ -12,18 +12,18 @@
 bool GammaBlockUSB::DeviceFind()
 {
 #ifdef _WIN32
-	for ( m_device = 0; m_device < m_USBDevice->DeviceCount(); m_device++ )
+	for( m_device = 0; m_device < m_USBDevice->DeviceCount(); m_device++ )
 	{
 		m_USBDevice->Open(m_device);
 		
-		if ( (m_USBDevice->VendorID == 0x04B4) && 
+		if( (m_USBDevice->VendorID == 0x04B4) && 
 			(m_USBDevice->ProductID == 0x8813) )
 		{
 			break;
 		}
 	}
 	
-	if (m_device < m_USBDevice->DeviceCount())
+	if(m_device < m_USBDevice->DeviceCount())
 	{
 		wxLogStatus("Device found (VID_%04X&PID_%04X).", 
 			m_USBDevice->VendorID, m_USBDevice->ProductID);
@@ -45,7 +45,7 @@ bool GammaBlockUSB::DeviceInit()
 	wxConfigPathChanger changer(config, "/USBDevice/");
 
 #ifdef _WIN32	
-	if ( DeviceReset() &&
+	if( DeviceReset() &&
 		DeviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 128)) &&
 		DeviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 128)) &&
 		DeviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 128)) &&
@@ -91,9 +91,9 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 	wxMutexLocker locker(m_threadRunMutex);
 
 #ifdef _WIN32
-	if ( DeviceFind() && DeviceInit() )
+	if( DeviceFind() && DeviceInit() )
 	{
-		while ( ShouldBeRunning() )
+		while( ShouldBeRunning() )
 		{
 			GammaDataUSB* pDataOut(new GammaDataUSB);
 			long int length = 0x200;
@@ -110,7 +110,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 }
 
 GammaBlockUSB::GammaBlockUSB(GammaManager* pManager) :
-	GammaBlockBase(pManager)
+	GammaBlockBase(pManager, 0)
 {
 #ifdef _WIN32
 	m_USBDevice = new CCyUSBDevice(NULL);

@@ -43,8 +43,10 @@ class GammaBlockBase : public wxThreadHelper
 {
 public:
 
-	GammaBlockBase(GammaManager* pManager) : 
+	GammaBlockBase(GammaManager* pManager, uint32_t queueSize) 
+			: 
 			m_pManager(pManager),
+			m_queueSize(queueSize),
 			m_bRun(false),
 			m_dataInListConditionNotEmpty(m_dataInListMutex),
 			m_dataInListConditionNotFull(m_dataInListMutex)
@@ -71,7 +73,7 @@ public:
 	/**
 	 * This function removes block_p from internal list of blocks to which 
 	 * will send data.
-	 * @param[in] block_p Pointer to GammaBlockBase to detach
+	 * @param[in] pBlock Pointer to GammaBlockBase to detach
 	 */
 	void BlockDetach(GammaBlockBase* pBlock)
 	{
@@ -102,11 +104,11 @@ public:
 	 * referenced by blockData_p to in-queue.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	void DataPop(wxSharedPtr<GammaDataBase> dataIn)
+	void DataPop(wxSharedPtr<GammaDataBase>& dataIn)
 	{
 		wxMutexLocker locker(m_dataInListMutex);
 
-		while ( ShouldBeRunning()	&& m_dataInList.size() >= GAMMA_BLOCK_QUEUE_MAX )
+		while(ShouldBeRunning() && m_dataInList.size() >= m_queueSize)
 		{
 			m_dataInListConditionNotFull.Wait();
 		}
@@ -125,7 +127,7 @@ public:
 		wxSharedPtr<GammaDataBase> dataOut(pDataOut);
 		wxMutexLocker locker(m_blockOutListMutex);
 
-		for ( std::list<GammaBlockBase*>::iterator iBlock = m_blockOutList.begin(); 
+		for( std::list<GammaBlockBase*>::iterator iBlock = m_blockOutList.begin(); 
 			iBlock != m_blockOutList.end(); iBlock++ )
 		{
 			(*iBlock)->DataPop(dataOut);
@@ -141,7 +143,7 @@ public:
 	{
 		wxMutexLocker locker(m_dataInListMutex);
 
-		while ( ShouldBeRunning() && m_dataInList.empty() )
+		while( ShouldBeRunning() && m_dataInList.empty() )
 		{
 			m_dataInListConditionNotEmpty.Wait();
 		}
@@ -201,21 +203,24 @@ public:
 	 */
 	void Stop()
 	{
-		if ( GetThread()->IsPaused() )
+		/*
+		if( GetThread()->IsPaused() )
 		{
 			GetThread()->Resume();
 		}
+		*/
 		m_bRun = false;
-
+		/*
 		m_dataInListConditionNotFull.Signal();
 		m_dataInListConditionNotEmpty.Signal();
 
 		wxMutexLocker locker(m_threadRunMutex);
 		
-		if ( GetThread() && GetThread()->IsRunning() )
+		if( GetThread() && GetThread()->IsRunning() )
 		{
 			GetThread()->Delete();
 		}
+		*/
 	}
 
 	/**
@@ -225,6 +230,7 @@ public:
 	{
 		UNREFERENCED_PARAMETER(param);
 		UNREFERENCED_PARAMETER(value);
+
 		return false;
 	}
 
@@ -235,7 +241,8 @@ protected:
 	 */
 	virtual wxThread::ExitCode Entry() = 0;
 
-//private:
+	uint32_t m_queueSize;
+
 	/**
 	 * Bool to stop thread execution.
 	 */

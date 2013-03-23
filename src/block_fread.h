@@ -17,15 +17,8 @@ class GammaBlockFileRead :
 	public GammaBlockBase
 {
 public:
-	GammaBlockFileRead(GammaManager* pManager) :
-			GammaBlockBase(pManager)
-	{
-		wxLogStatus("%s", __FUNCTION__);
-	}
-	~GammaBlockFileRead()
-	{
-		wxLogStatus("%s", __FUNCTION__);
-	}
+	GammaBlockFileRead(GammaManager* pManager);
+	~GammaBlockFileRead();
 
 	bool SetParam(GammaParam_e param, void* value);
 

@@ -33,7 +33,7 @@ IMPLEMENT_APP(GammaApp);
 
 bool GammaApp::OnInit()
 {
-	if ( !wxApp::OnInit() )
+	if( !wxApp::OnInit() )
 	{
 		return false;
 	}

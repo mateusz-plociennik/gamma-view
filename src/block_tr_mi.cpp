@@ -7,11 +7,12 @@
 
 #include "block_mgmt.h"
 #include "block_tr_mi.h"
-#include "wx/time.h"
+#include "config.h"
+#include <wx/time.h>
 
 GammaBlockTransMI::GammaBlockTransMI(GammaManager* pManager) 
 		:
-		GammaBlockBase(pManager), 
+		GammaBlockBase(pManager, GAMMA_QUEUE_BLOCK_TRANS_MI),
 		m_colormap(GAMMA_COLORMAP_GRAY),
 		m_bInvert(false),
 		m_brightness(0.0),
@@ -25,9 +26,9 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 {
 	wxMutexLocker locker(m_threadRunMutex);
 
-	while ( ShouldBeRunning() )
+	while(ShouldBeRunning())
 	{
-		if (DataReady())
+		if(DataReady())
 		{
 			wxSharedPtr<GammaDataBase> dataIn(DataGet());
 			GammaDataMatrix* pDataIn = static_cast<GammaDataMatrix*>(dataIn.get());
@@ -41,18 +42,18 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			pDataOut->data->SetRGB( wxRect(0, 0, 256, 256), 
 				m_colour.Red(), m_colour.Green(), m_colour.Blue() );
 
-			for ( unsigned int x = 0; x < 256; x++ )
+			for( unsigned int x = 0; x < 256; x++ )
 			{
-				for ( unsigned int y = 0; y < 256; y++ )
+				for( unsigned int y = 0; y < 256; y++ )
 				{
-					if (pDataIn->data[256 * x + y] != 0)
+					if(pDataIn->data[POINT(x,y)] != 0)
 					{
 						/*
 						unsigned char val = 
 							(255 * pDataIn->data[256 * x + y] / pDataIn->max);
 						*/
 						
-						SetColour(m_colormap, pDataIn->data[256 * x + y], pDataIn->max);
+						SetColour(m_colormap, pDataIn->data[POINT(x,y)], pDataIn->max);
 						pDataOut->data->SetRGB( x, y, 
 							m_colour.Red(), m_colour.Green(), m_colour.Blue() );
 						/*
@@ -71,7 +72,7 @@ wxThread::ExitCode GammaBlockTransMI::Entry()
 			}
 			wxDateTime tStop = wxDateTime::UNow();
 			wxTimeSpan tDiff = tStop.Subtract(tStart);
-			wxLogStatus("%s - Calculation time = %s", __FUNCTION__, tDiff.Format("%l").c_str());
+			//wxLogStatus("%s - Calculation time = %s", __FUNCTION__, tDiff.Format("%l").c_str());
 
 			pDataIn->Unlock();
 
@@ -93,19 +94,19 @@ void GammaBlockTransMI::SetColour(GammaColormap_e colormap, unsigned int index, 
 	double r = 0.0, g = 0.0, b = 0.0;
 	double x = (double)index / max;
 
-	x = m_contrast * pow(x, m_gamma) + m_brightness;
+	x = m_contrast * ( pow(x, 1.0 / m_gamma) + m_brightness );
 
-	if (m_bInvert)
+	if(m_bInvert)
 	{
 		x = 1.0 - x;
 	}
-	if (x < 0.0)
-	{
-		x = 0.0;
-	}
-	if (1.0 < x)
+	if(1.0 < x)
 	{
 		x = 1.0;
+	}
+	else if(x < 0.0)
+	{
+		x = 0.0;
 	}
 
 	switch(colormap)

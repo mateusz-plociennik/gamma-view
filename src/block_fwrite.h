@@ -15,11 +15,8 @@ class GammaBlockFileWrite :
 	public GammaBlockBase
 {
 public:
-	GammaBlockFileWrite(GammaManager* pManager) :
-			GammaBlockBase(pManager)
-	{
-	}
-//	~GammaBlockFileWrite();
+	GammaBlockFileWrite(GammaManager* pManager);
+	~GammaBlockFileWrite();
 
 protected:
 	wxThread::ExitCode Entry();

@@ -13,6 +13,7 @@
 #include <wx/thread.h>
 #include "block_mgmt.h"
 #include "canvas.h"
+#include "panel_player.h"
 
 #include <wx/window.h>
 #include <wx/panel.h>
@@ -45,26 +46,22 @@ private:
 	void OnMenuCloseWindow(wxCommandEvent& event);
 
 	void OnMenuResizeWindow(wxCommandEvent& event);
-
 	void OnMenuSetColormap(wxCommandEvent& event);
-
 	void OnMenuSetIntegrate(wxCommandEvent& event);
+	void OnMenuSetImgParams(wxCommandEvent& event);
 
 	void OnMenuHelpAbout(wxCommandEvent& event);
+
+	void OnSliderUpdate(wxCommandEvent &event);
 
 	void SetImage(wxImage& image);
 
 	GammaManager* m_pManager;
 
 	GammaCanvas *m_canvas;
-	wxPanel *m_bottomPanel;
+	GammaPlayerPanel *m_bottomPanel;
 
 	wxBoxSizer *m_mainSizer;
-	wxBoxSizer *m_bottomSizer;
-
-	wxStaticText *m_timeNowLabel;
-	wxSlider *m_bottomSlider;
-	wxStaticText *m_timeEndLabel;
 
   DECLARE_EVENT_TABLE();
 };

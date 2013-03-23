@@ -14,6 +14,8 @@
 #include "block_tr_mi.h"
 #include "block_usb.h"
 #include "block_usb_fake.h"
+#include "b_nemacalc.h"
+#include "b_uniform.h"
 
 void GammaManager::SetMode(GammaMode_e mode)
 {
@@ -133,24 +135,34 @@ void GammaManager::SetMode(GammaMode_e mode)
 	case GAMMA_MODE_FILE_2_IMAGE:
 		{
 			GammaBlockBase* file = new GammaBlockFileRead(this);
+			GammaBlockBase* unif = new GammaUniformity(this);
 			GammaBlockBase* tr_sm = new GammaBlockTransSM(this);
+			GammaBlockBase* nema = new GammaNemaCalc(this);
 			GammaBlockBase* tr_mi = new GammaBlockTransMI(this);
+			
 			m_blockList.push_back(file);
+			m_blockList.push_back(unif);
 			m_blockList.push_back(tr_sm);
+			m_blockList.push_back(nema);
 			m_blockList.push_back(tr_mi);
 
-			tr_sm->BlockAttach(tr_mi);
-			file->BlockAttach(tr_sm);
+			nema->BlockAttach(tr_mi);
+			tr_sm->BlockAttach(nema); //tr_mi
+			unif->BlockAttach(tr_sm);
+			file->BlockAttach(unif);
+
 
 			tr_mi->Run();
+			nema->Run();
 			tr_sm->Run();
+			unif->Run();
 			file->Run();
 			break;
 		}
 	case GAMMA_MODE_NONE:
 	default:
 		{
-			while (!m_blockList.empty())
+			while(!m_blockList.empty())
 			{
 				m_blockList.front()->Stop();
 				delete m_blockList.front();
@@ -168,10 +180,10 @@ int GammaManager::DataTierSetParam(GammaParam_e param, void* value)
 {
 	int ret = 0;
 
-	for ( std::list<GammaBlockBase*>::iterator iBlock = m_blockList.begin();
+	for( std::list<GammaBlockBase*>::iterator iBlock = m_blockList.begin();
 		iBlock != m_blockList.end(); iBlock++ )
 	{
-		if ( (*iBlock)->SetParam(param, value) )
+		if( (*iBlock)->SetParam(param, value) )
 		{
 			ret++;
 		}

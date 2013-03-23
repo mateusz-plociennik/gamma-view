@@ -8,6 +8,13 @@
 #ifndef _GAMMA_VIEW_DATA_TYPES_H_
 #define _GAMMA_VIEW_DATA_TYPES_H_
 
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+#include <inttypes.h>
+#include <wx/gdicmn.h>
+
+#define POINT(X,Y) (256*(Y)+(X))
+
 enum GammaParam_e
 {
 	GAMMA_PARAM_COLORMAP,
@@ -97,19 +104,38 @@ enum GammaMode_e
 
 struct GammaPoint 		// 6 bytes
 {
-	unsigned char x;	// 1 byte
-	unsigned char y; 	// 1 byte
+	uint8_t x;	// 1 byte
+	uint8_t y; 	// 1 byte
 	float z;			// 4 bytes
 };
 
 struct GammaItem				// 7 bytes
 {
-	unsigned char type;			// 1 byte
+	uint8_t type;			// 1 byte
 	union
 	{
 		unsigned long int time;		// 4 bytes
 		GammaPoint point;		// 6 bytes
 	} data;
+};
+
+struct GammaFieldOfView
+{
+	wxPoint center;
+	uint32_t radius;
+};
+
+enum GammaArea_e
+{
+	GAMMA_AREA_CFOV,
+	GAMMA_AREA_UFOV,
+	GAMMA_AREA_FOV
+};
+
+enum GammaDirection_e
+{
+	GAMMA_DIRECTION_X,
+	GAMMA_DIRECTION_Y,
 };
 
 #endif //_GAMMA_VIEW_DATA_TYPES_H_

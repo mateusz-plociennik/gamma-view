@@ -65,9 +65,9 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 {
 	wxMutexLocker locker(m_mouseMutex);
 
-	if ( event.Dragging() )
+	if( event.Dragging() )
 	{
-		if ( event.LeftIsDown() )
+		if( event.LeftIsDown() )
 		{
 			m_brightness += ( 0.001 * (event.GetX() - m_startX) );
 			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
@@ -87,11 +87,11 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	}
 
 	/*
-	if ( event.LeftDown() )
+	if( event.LeftDown() )
 	{
 		//status += "Ld";
 	}
-	if ( event.LeftUp() )
+	if( event.LeftUp() )
 	{
 		//status += "Lu";
 	}
@@ -100,7 +100,7 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	m_startX = event.GetX();
 	m_startY = event.GetY();
 
-	if ( !event.Leaving() )
+	if(!event.Leaving())
 	{
 		wxString status;
 		status.Printf("(%.0f,%.0f)", (m_startX/m_scaleX), (m_startY/m_scaleY));
@@ -121,11 +121,11 @@ void GammaCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxMutexLocker locker(m_paintMutex);
 		
-		m_scaleX = (double)GetClientSize().GetWidth()/m_image.GetWidth();
-		m_scaleY = (double)GetClientSize().GetHeight()/m_image.GetHeight();
+		m_scaleX = (double)GetClientSize().GetWidth() / m_image.GetWidth();
+		m_scaleY = (double)GetClientSize().GetHeight() / m_image.GetHeight();
 		
-		pdc.SetUserScale(m_scaleX,m_scaleY);
-		pdc.DrawBitmap( wxBitmap(m_image), 0, 0 );
+		pdc.SetUserScale(m_scaleX, m_scaleY);
+		pdc.DrawBitmap(wxBitmap(m_image), 0, 0);
 	}
 
 	event.Skip();

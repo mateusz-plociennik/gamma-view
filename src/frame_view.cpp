@@ -8,6 +8,7 @@
 #include "frame_view.h"
 
 #include "canvas.h"
+#include "panel_player.h"
 
 #include <algorithm>
 
@@ -69,8 +70,14 @@ enum
 	Menu_View_Integrate_Time_16,
 	Menu_View_Integrate_Time_32,
 	Menu_View_Integrate_Enabled,
-	
-	Menu_Help_About = 1000
+
+	Menu_View_ImgParams = 500,
+	Menu_View_ImgParams_Brightness,
+	Menu_View_ImgParams_Contrast,
+	Menu_View_ImgParams_Gamma,
+	Menu_View_ImgParams_All,
+
+	Menu_Help_About = 1000,
 };
 
 wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
@@ -88,8 +95,11 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 		GammaFrame::OnMenuSetColormap)
 	EVT_MENU_RANGE(Menu_View_Integrate_Time_1_1000, Menu_View_Integrate_Enabled, 
 		GammaFrame::OnMenuSetIntegrate)
+	EVT_MENU_RANGE(Menu_View_ImgParams_Brightness, Menu_View_ImgParams_All, 
+		GammaFrame::OnMenuSetImgParams)
 
 	EVT_MENU(wxID_ABOUT, GammaFrame::OnMenuHelpAbout)
+
 wxEND_EVENT_TABLE()
 
 GammaFrame::GammaFrame() 
@@ -189,11 +199,22 @@ GammaFrame::GammaFrame()
 	viewIntegrateMenu->AppendSeparator();
 	viewIntegrateMenu->AppendCheckItem(Menu_View_Integrate_Enabled, 
 		wxT("&Integrate\tSpace"), wxT("Image integrate"));
-	
+
+	wxMenu *viewImgParamsMenu = new wxMenu;
+	viewImgParamsMenu->Append(Menu_View_ImgParams_Brightness, 
+		wxT("Reset Brightness"), wxT("Reset Brightness to 0.00"));
+	viewImgParamsMenu->Append(Menu_View_ImgParams_Contrast, 
+		wxT("Reset Constrast"), wxT("Reset Contrast to 1.00"));
+	viewImgParamsMenu->Append(Menu_View_ImgParams_Gamma, 
+		wxT("Reset Gamma"), wxT("Reset Gamma to 1.00"));
+	viewImgParamsMenu->Append(Menu_View_ImgParams_All, 
+		wxT("Reset All"), wxT("Reset All to defaults"));
+
 	wxMenu *viewMenu = new wxMenu;
 	viewMenu->Append(Menu_View_Zoom, wxT("Window Size"), viewZoomMenu);
 	viewMenu->Append(Menu_View_Colormap, wxT("Colormap"), viewColormapMenu);
 	viewMenu->Append(Menu_View_Integrate, wxT("Integrate"), viewIntegrateMenu);
+	viewMenu->Append(Menu_View_ImgParams, wxT("Brightness/Contrast/Gamma"), viewImgParamsMenu);
 
 	wxMenu *helpMenu = new wxMenu;
 	helpMenu->Append(wxID_ABOUT);
@@ -218,32 +239,17 @@ GammaFrame::GammaFrame()
 	wxLog::SetTimestamp("%H:%M:%S,%l");
 	wxLog::SetActiveTarget(log);
 
-	
-
 ////////////////////////////////////////////////////////////////////////////////
 
 	m_mainSizer = new wxBoxSizer(wxVERTICAL);
 
 	m_canvas = new GammaCanvas(this, wxID_ANY);
-	m_mainSizer->Add(m_canvas, 1, /*wxEXPAND|*/wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
+	m_mainSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
 
-	m_bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-	m_bottomPanel = new wxPanel(this, wxID_ANY);
-	m_timeNowLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
-	m_bottomSizer->Add(m_timeNowLabel, 0, wxALIGN_CENTER|wxALL, 2);
-	m_bottomSlider = new wxSlider(m_bottomPanel, wxID_ANY, 0, 0, 100, 
-		wxDefaultPosition, wxDefaultSize, wxHORIZONTAL|wxSL_TOP);
-	m_bottomSizer->Add(m_bottomSlider, 1, wxEXPAND|wxALIGN_CENTER);
-	m_timeEndLabel = new wxStaticText(m_bottomPanel, wxID_ANY, "00:00:00,000");
-	m_bottomSizer->Add(m_timeEndLabel, 0, wxALIGN_CENTER|wxALL, 2);
-	m_bottomPanel->SetSizerAndFit(m_bottomSizer);
+	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
 	m_mainSizer->Add(m_bottomPanel, 0, wxEXPAND);
 
-
-	//this->SetSizer();
-	this->SetSizerAndFit(m_mainSizer);
-
-	m_canvas->SetClientSize(512, 512);
+	SetSizerAndFit(m_mainSizer);
 	
 	Show();
 
@@ -310,7 +316,7 @@ void GammaFrame::OnMenuNewWindow(wxCommandEvent& WXUNUSED(event))
 
 void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 {
-	if ( IsMaximized() )
+	if( IsMaximized() )
 	{
 		Maximize(false);
 	}
@@ -337,7 +343,7 @@ void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 				wxT("Window Resize"),
 				100, 50, 1000, this );
 
-			if ( res == -1 )
+			if( res == -1 )
 			{
 				wxMessageBox(wxT("Invalid number entered or dialog cancelled."), 
 					wxT("Window resize result"), wxOK | wxICON_HAND, this);
@@ -353,17 +359,17 @@ void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 
 }
 
-void GammaFrame::OnMenuSetColormap(wxCommandEvent& commandEvent)
+void GammaFrame::OnMenuSetColormap(wxCommandEvent& event)
 {
-	if ( commandEvent.GetId() == Menu_View_Colormap_INVERT )
+	if( event.GetId() == Menu_View_Colormap_INVERT )
 	{
-		bool invert = commandEvent.IsChecked();
+		bool invert = event.IsChecked();
 		GetManager()->DataTierSetParam(GAMMA_PARAM_COLORMAP_INVERT, (void*)&invert);
 	}
 	else
 	{
 		GammaColormap_e colormap;
-		switch ( commandEvent.GetId() )
+		switch ( event.GetId() )
 		{
 			case Menu_View_Colormap_AUTUMN:
 				colormap = GAMMA_COLORMAP_AUTUMN; break;
@@ -401,7 +407,7 @@ void GammaFrame::OnMenuSetColormap(wxCommandEvent& commandEvent)
 
 void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 {
-	if ( event.GetId() == Menu_View_Integrate_Enabled )
+	if( event.GetId() == Menu_View_Integrate_Enabled )
 	{
 		bool bIntegrate = event.IsChecked();
 		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
@@ -449,6 +455,32 @@ void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 	}
 }
 
+void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
+{
+	switch ( event.GetId() )
+	{
+	case 	Menu_View_ImgParams_Brightness:
+		m_canvas->m_brightness = 0.0; break;
+	case 	Menu_View_ImgParams_Contrast:
+		m_canvas->m_contrast = 1.0; break;
+	case 	Menu_View_ImgParams_Gamma:
+		m_canvas->m_gamma = 1.0; break;
+	case 	Menu_View_ImgParams_All:
+		m_canvas->m_brightness = 0.0;
+		m_canvas->m_contrast = 1.0;
+		m_canvas->m_gamma = 1.0; break;
+	}
+
+	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_canvas->m_brightness);
+	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_canvas->m_contrast);
+	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_canvas->m_gamma);
+
+	wxString status;
+	status.Printf("B=%.2f; C=%.2f; G=%.2f", 
+		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma);
+	GetStatusBar()->SetStatusText(status, 0);
+}
+
 bool GammaFrame::SetParam(GammaParam_e param, void* value)
 {
 	switch(param)
@@ -463,15 +495,15 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 	case GAMMA_PARAM_TIME_NOW:
 		{
 			wxTimeSpan timeNow = *static_cast<wxTimeSpan*>(value);
-			m_timeNowLabel->SetLabel(timeNow.Format("%H:%M:%S,%l"));
-			m_bottomSlider->SetValue(timeNow.GetValue().GetLo());
+			m_bottomPanel->m_timeNowLabel->SetLabel(timeNow.Format("%H:%M:%S,%l"));
+			m_bottomPanel->m_bottomSlider->SetValue(timeNow.GetValue().GetLo());
 			break;
 		}
 	case GAMMA_PARAM_TIME_END:
 		{
 			wxTimeSpan timeEnd = *static_cast<wxTimeSpan*>(value);
-			m_timeEndLabel->SetLabel(timeEnd.Format("%H:%M:%S,%l"));
-			m_bottomSlider->SetMax(timeEnd.GetValue().GetLo());
+			m_bottomPanel->m_timeEndLabel->SetLabel(timeEnd.Format("%H:%M:%S,%l"));
+			m_bottomPanel->m_bottomSlider->SetMax(timeEnd.GetValue().GetLo());
 			break;
 		}
 	default:
