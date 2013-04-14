@@ -88,12 +88,12 @@ bool GammaBlockUSB::DeviceSet(unsigned char setting, unsigned char value)
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
 #ifdef _WIN32
 	if( DeviceFind() && DeviceInit() )
 	{
-		while( ShouldBeRunning() )
+		while( shouldBeRunning() )
 		{
 			GammaDataUSB* pDataOut(new GammaDataUSB);
 			long int length = 0x200;
@@ -102,15 +102,15 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 			m_USBDevice->BulkInEndPt->XferData(pDataOut->data, length);
 			wxASSERT(0x200 == length);
 			
-			DataPush(pDataOut);
+			pushData(pDataOut);
+			delete pDataOut;
 		}
 	}
 #endif
 	return 0;
 }
 
-GammaBlockUSB::GammaBlockUSB(GammaManager* pManager) :
-	GammaBlockBase(pManager, 0)
+GammaBlockUSB::GammaBlockUSB(GammaManager* pManager) : GammaPipeHead(pManager)
 {
 #ifdef _WIN32
 	m_USBDevice = new CCyUSBDevice(NULL);

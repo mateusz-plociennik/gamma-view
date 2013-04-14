@@ -10,14 +10,12 @@
 
 #include "block_base.h"
 
-class GammaBlockTransUS : 
-	public GammaBlockBase
+class GammaBlockTransUS : public GammaPipeSegment
 {
 public:
 	GammaBlockTransUS(GammaManager* pManager);
 
-protected:
-	wxThread::ExitCode Entry();
+	void processData(GammaDataBase* pData);
 
 private:
 	unsigned long m_timeCounter;

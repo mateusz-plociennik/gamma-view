@@ -13,8 +13,7 @@
 #include "config.h"
 
 GammaUniformity::GammaUniformity(GammaManager* pManager) 
-		:
-		GammaBlockBase(pManager, GAMMA_QUEUE_BLOCK_UNIFORMITY)
+	: GammaPipeSegment(pManager)
 {
 	for(uint32_t i = 0; i < 256 * 256; i++)
 	{
@@ -22,48 +21,39 @@ GammaUniformity::GammaUniformity(GammaManager* pManager)
 	}
 }
 
-wxThread::ExitCode GammaUniformity::Entry()
+void GammaUniformity::processData(GammaDataBase* pData)
 {
-	wxLogStatus("%s - started", __FUNCTION__);
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
-	while(DataReady())
+	GammaDataItems* pDataIn = dynamic_cast<GammaDataItems*>(pData);
+	GammaDataItems* dataOut = new GammaDataItems();
+	
+	for(std::vector<GammaItem>::iterator it = pDataIn->data.begin();
+		it != pDataIn->data.end(); 
+		it++)
 	{
-		wxSharedPtr<GammaDataBase> dataIn(DataGet());
-		GammaDataItems* pDataIn = static_cast<GammaDataItems*>(dataIn.get());
-		wxMutexLocker locker(*pDataIn);
-
-		GammaDataItems* dataOut = new GammaDataItems();
-		
-		for(std::vector<GammaItem>::iterator it = pDataIn->data.begin();
-			it != pDataIn->data.end(); 
-			it++)
+		switch ((*it).type)
 		{
-			switch ((*it).type)
+		case GAMMA_ITEM_POINT:
+			for(int iCount = corrCount((*it).data.point.x,(*it).data.point.y); 
+				iCount != 0; iCount--)
 			{
-			case GAMMA_ITEM_POINT:
-				for(int iCount = CorrCount((*it).data.point.x,(*it).data.point.y); 
-					iCount != 0; iCount--)
-				{
-					dataOut->data.push_back((*it));
-				}
-				break;
-			default:
 				dataOut->data.push_back((*it));
-				break;
 			}
+			break;
+		default:
+			dataOut->data.push_back((*it));
+			break;
 		}
-
-		DataPush(dataOut);
 	}
 
-	wxLogStatus("%s - stoped", __FUNCTION__);
-	return 0;
+	pushData(dataOut);
+	delete dataOut;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GammaUniformity::SetParam(GammaParam_e param, void* value)
+bool GammaUniformity::setParam(GammaParam_e param, void* value)
 {
 	switch(param)
 	{
@@ -80,7 +70,7 @@ bool GammaUniformity::SetParam(GammaParam_e param, void* value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GammaUniformity::CorrCount(uint8_t x, uint8_t y)
+int GammaUniformity::corrCount(uint8_t x, uint8_t y)
 {
 	int32_t r = rand();
 
@@ -100,7 +90,7 @@ int GammaUniformity::CorrCount(uint8_t x, uint8_t y)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GammaUniformity::SetMatrix(uint32_t* matrix, uint32_t norm)
+void GammaUniformity::setMatrix(uint32_t* matrix, uint32_t norm)
 {
 	for(uint32_t i = 0; i < 256*256; i++)
 	{

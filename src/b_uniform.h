@@ -10,19 +10,18 @@
 
 #include "block_base.h"
 
-class GammaUniformity : public GammaBlockBase
+class GammaUniformity : public GammaPipeSegment
 {
 public:
 	GammaUniformity(GammaManager* pManager);
 
-	bool SetParam(GammaParam_e param, void* value);
-
-protected:
-	wxThread::ExitCode Entry();
+	void processData(GammaDataBase* pData);
+	bool setParam(GammaParam_e param, void* value);
 
 private:
-	int CorrCount(uint8_t x, uint8_t y);
-	void SetMatrix(uint32_t* matrix, uint32_t norm);
+	int corrCount(uint8_t x, uint8_t y);
+	void setMatrix(uint32_t* matrix, uint32_t norm);
+
 	int32_t m_matrix[256*256];
 
 };

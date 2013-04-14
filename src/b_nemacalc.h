@@ -14,23 +14,21 @@
 #include <wx/gdicmn.h>
 
 class GammaNemaCalc : 
-	public GammaBlockBase
+	public GammaPipeSegment
 {
 public:
 	GammaNemaCalc(GammaManager* pManager);
 	~GammaNemaCalc();
 
-	bool SetParam(GammaParam_e param, void* value);
-
-protected:
-	wxThread::ExitCode Entry();
+	void processData(GammaDataBase* pData);
+	bool setParam(GammaParam_e param, void* value);
 
 private:
-	void FloodFill(wxPoint start, uint32_t color);
-	void MarginalRemove();
-	void ConvolutionFilter(GammaDataMatrix* pDataOut);
-	double GammaNemaCalc::GetIntgUniformity(GammaArea_e area);
-	double GammaNemaCalc::GetDiffUniformity(GammaArea_e area, GammaDirection_e);
+	void floodFill(wxPoint start, uint32_t color);
+	void marginalRemove();
+	void convolutionFilter(GammaDataMatrix* pDataOut);
+	double getIntgUniformity(GammaArea_e area);
+	double getDiffUniformity(GammaArea_e area, GammaDirection_e);
 
 	GammaDataMatrix* m_pDataIn;
 

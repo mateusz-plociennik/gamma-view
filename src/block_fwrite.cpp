@@ -11,40 +11,26 @@
 #include "config.h"
 
 GammaBlockFileWrite::GammaBlockFileWrite(GammaManager* pManager) 
-		:
-		GammaBlockBase(pManager, GAMMA_QUEUE_BLOCK_FWRITE)
+	: GammaPipeSegment(pManager)
 {
+	m_file.Open(wxDateTime::Now().Format("%Y%m%d_%H%M%S.gvb"), wxFile::write);
+	m_file.Write("GVB", 3);
 }
 
 GammaBlockFileWrite::~GammaBlockFileWrite()
 {
-	//
+	m_file.Close();
 }
 
-wxThread::ExitCode GammaBlockFileWrite::Entry()
+void GammaBlockFileWrite::processData(GammaDataBase* pData)
 {
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
-	wxFile file;
+	GammaDataItems* pDataIn = dynamic_cast<GammaDataItems*>(pData);
 
-	file.Open(wxDateTime::Now().Format("%Y%m%d_%H%M%S.gvb"), wxFile::write);
-	file.Write("GVB", 3);
-	while( ShouldBeRunning() )
+	for( std::vector<GammaItem>::iterator iItem = pDataIn->data.begin();
+		iItem != pDataIn->data.end(); iItem++ )
 	{
-		if(DataReady())
-		{
-			wxSharedPtr<GammaDataBase> dataIn(DataGet());
-			GammaDataItems* pDataIn = static_cast<GammaDataItems*>(dataIn.get());
-			wxMutexLocker locker(*pDataIn);
-
-			for( std::vector<GammaItem>::iterator iItem = pDataIn->data.begin();
-				iItem != pDataIn->data.end(); iItem++ )
-			{
-				file.Write(&(*iItem), sizeof(GammaItem));
-			}
-		}
+		m_file.Write(&(*iItem), sizeof(GammaItem));
 	}
-	file.Close();
-
-	return 0;
 }

@@ -11,8 +11,7 @@
 #include "data_types.h"
 #include "block_base.h"
 
-class GammaBlockUSBFake : 
-	public GammaBlockBase
+class GammaBlockUSBFake : public GammaPipeHead
 {
 public:
 	GammaBlockUSBFake(GammaManager* pManager);

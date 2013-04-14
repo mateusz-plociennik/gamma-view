@@ -1,6 +1,6 @@
 /**
  * @file	block_base.h
- * @brief	The file contains GammaBlockBase class template.
+ * @brief	The file contains GammaPipeSegment class template.
  * @author	Mateusz Plociennik
  * @date	2012-07-16
  */
@@ -37,24 +37,19 @@
 #include "block_data.h"
 
 /**
- * GammaBlockBase class.
+ * GammaPipeSegment class.
  */
-class GammaBlockBase : public wxThreadHelper
+class GammaPipeSegment
 {
 public:
 
-	GammaBlockBase(GammaManager* pManager, uint32_t queueSize) 
-			: 
-			m_pManager(pManager),
-			m_queueSize(queueSize),
-			m_bRun(false),
-			m_dataInListConditionNotEmpty(m_dataInListMutex),
-			m_dataInListConditionNotFull(m_dataInListMutex)
+	GammaPipeSegment(GammaManager* pManager) 
+		: m_pManager(pManager)
 	{
 		wxLogStatus("%s - ctor", __FUNCTION__);
 	}
 
-	~GammaBlockBase()
+	~GammaPipeSegment()
 	{
 		wxLogStatus("%s - dtor", __FUNCTION__);
 	}
@@ -62,59 +57,31 @@ public:
 	/**
 	 * This function adds block_p to internal list of blocks to which will 
 	 * send data.
-	 * @param[in] block_p Pointer to GammaBlockBase to attach
+	 * @param[in] block_p Pointer to GammaPipeSegment to attach
 	 */
-	void BlockAttach(GammaBlockBase* pBlock)
+	void connectSegment(GammaPipeSegment* pSegment)
 	{
-		wxMutexLocker locker(m_blockOutListMutex);
-		m_blockOutList.push_back(pBlock);
+		wxMutexLocker locker(m_segmentListMutex);
+		m_segmentList.push_back(pSegment);
+	}
+
+	GammaPipeSegment* operator+=(GammaPipeSegment* pSegment)
+	{
+		wxMutexLocker locker(m_segmentListMutex);
+		m_segmentList.push_back(pSegment);
+
+		return this;
 	}
 
 	/**
 	 * This function removes block_p from internal list of blocks to which 
 	 * will send data.
-	 * @param[in] pBlock Pointer to GammaBlockBase to detach
+	 * @param[in] pBlock Pointer to GammaPipeSegment to detach
 	 */
-	void BlockDetach(GammaBlockBase* pBlock)
+	void disconnectSegment(GammaPipeSegment* pSegment)
 	{
-		wxMutexLocker locker(m_blockOutListMutex);
-		m_blockOutList.remove(pBlock);
-	}
-
-	/**
-	 * This function gets GammaBlockDataBase object from in-queue.
-	 * If in-queue is empty, it will put the calling thread to sleep 
-	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
-	 * @return Pointer to GammaBlockDataBase from in-queue
-	 */
-	wxSharedPtr<GammaDataBase> DataGet()
-	{
-		wxMutexLocker locker(m_dataInListMutex);
-
-		wxSharedPtr<GammaDataBase> dataIn(m_dataInList.front());
-		m_dataInList.pop_front();
-
-		m_dataInListConditionNotFull.Signal();
-
-		return dataIn;
-	}
-
-	/**
-	 * This function is called by other blocks to add GammaBlockDataBase 
-	 * referenced by blockData_p to in-queue.
-	 * @param[in] blockData_p Pointer to GammaBlockDataBase
-	 */
-	void DataPop(wxSharedPtr<GammaDataBase>& dataIn)
-	{
-		wxMutexLocker locker(m_dataInListMutex);
-
-		while(ShouldBeRunning() && m_dataInList.size() >= m_queueSize)
-		{
-			m_dataInListConditionNotFull.Wait();
-		}
-
-		m_dataInList.push_back(dataIn);
-		m_dataInListConditionNotEmpty.Signal();
+		wxMutexLocker locker(m_segmentListMutex);
+		m_segmentList.remove(pSegment);
 	}
 
 	/**
@@ -122,170 +89,106 @@ public:
 	 * to attached blocks.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	void DataPush(GammaDataBase* pDataOut)
+	inline void pushData(GammaDataBase* pDataOut)
 	{
-		wxSharedPtr<GammaDataBase> dataOut(pDataOut);
-		wxMutexLocker locker(m_blockOutListMutex);
+		wxMutexLocker locker(m_segmentListMutex);
 
-		for( std::list<GammaBlockBase*>::iterator iBlock = m_blockOutList.begin(); 
-			iBlock != m_blockOutList.end(); iBlock++ )
+		for(std::list<GammaPipeSegment*>::iterator iSegment = m_segmentList.begin(); 
+			iSegment != m_segmentList.end(); iSegment++ )
 		{
-			(*iBlock)->DataPop(dataOut);
+			(*iSegment)->processData(pDataOut);
 		}
-	}
-
-	/**
-	 * If there are no data in in-queue, than make the thread sleep 
-	 * for GAMMA_BLOCK_QUEUE_EMPTY_SLEEP_TIME miliseconds.
-	 * @return Bool if in-queue has data.
-	 */
-	bool DataReady()
-	{
-		wxMutexLocker locker(m_dataInListMutex);
-
-		while( ShouldBeRunning() && m_dataInList.empty() )
-		{
-			m_dataInListConditionNotEmpty.Wait();
-		}
-
-		return ShouldBeRunning();
-	}
-
-	/**
-	 * This function returns count of items in in-queue.
-	 * @return Count of items in in-queue.
-	 */
-	unsigned int DataWaitingCount()
-	{
-		wxMutexLocker locker(m_dataInListMutex);
-	
-		return m_dataInList.size();
 	}
 
 	/**
 	 * This function returns pointer to GammaManager
 	 * @return Pointer to GammaManager.
 	 */
-	GammaManager* GetManager()
+	GammaManager* getManager()
 	{
 		return m_pManager;
-	}
-	
-	/**
-	 * This function returns count of items in in-queue.
-	 * @return Count of items in in-queue.
-	 */
-	bool ShouldBeRunning()
-	{
-		return m_bRun && !GetThread()->TestDestroy();
-	}
-
-	/**
-	 * This function creates, sets priority and run block thread.
-	 */
-	void Run()
-	{
-		CreateThread();
-		m_bRun = true;
-		GetThread()->Run();
-	}
-
-	/**
-	 * This function pauses block thread.
-	 */
-	void Pause()
-	{
-		GetThread()->Pause();
-	}
-
-	/**
-	 * This function waits for thread end and deletes thread.
-	 */
-	void Stop()
-	{
-		/*
-		if( GetThread()->IsPaused() )
-		{
-			GetThread()->Resume();
-		}
-		*/
-		m_bRun = false;
-		/*
-		m_dataInListConditionNotFull.Signal();
-		m_dataInListConditionNotEmpty.Signal();
-
-		wxMutexLocker locker(m_threadRunMutex);
-		
-		if( GetThread() && GetThread()->IsRunning() )
-		{
-			GetThread()->Delete();
-		}
-		*/
 	}
 
 	/**
 	 * Middleware sets params in this layer.
 	 */
-	virtual bool SetParam(GammaParam_e param, void* value)
+	virtual bool setParam(GammaParam_e param, void* value)
 	{
 		UNREFERENCED_PARAMETER(param);
 		UNREFERENCED_PARAMETER(value);
-
 		return false;
 	}
 
-protected:
+
 	/**
 	 * In this function there is thread execute code. It must be defined 
 	 * in children classes.
 	 */
-	virtual wxThread::ExitCode Entry() = 0;
-
-	uint32_t m_queueSize;
+	virtual void processData(GammaDataBase* pData) = 0;
 
 	/**
-	 * Bool to stop thread execution.
+	 * Processing mutex
 	 */
-	bool m_bRun;
+	wxMutex m_processDataMutex;
 
+protected:
 	/**
 	 * List of attached blocks.
 	 */
-	std::list<GammaBlockBase*> m_blockOutList;
+	std::list<GammaPipeSegment*> m_segmentList;
 
 	/**
 	 * Mutex for list of attached blocks access.
 	 */
-	wxMutex m_blockOutListMutex;
+	wxMutex m_segmentListMutex;
 
-	/**
-	 * In-queue.
-	 */
-	std::list<wxSharedPtr<GammaDataBase>> m_dataInList;
-
-	/**
-	 * Mutex for in-queue access.
-	 */
-	wxMutex m_dataInListMutex;
-
-	/**
-	 *
-	 */
-	wxCondition m_dataInListConditionNotEmpty;
-
-	/**
-	 *
-	 */
-	wxCondition m_dataInListConditionNotFull;
-
-	wxMutex m_threadRunMutex;
-	
-	/**
-	 * Priority parameter (0 - 100).
-	 */
-	//unsigned int m_priority;
 	GammaManager* m_pManager;
 
+};
+
+class GammaPipeHead : public GammaPipeSegment, public wxThreadHelper
+{
+public:
+	GammaPipeHead(GammaManager* pManager) 
+		: GammaPipeSegment(pManager)
+	{
+		wxLogStatus("%s - ctor", __FUNCTION__);
+	}
+
+	~GammaPipeHead()
+	{
+		wxLogStatus("%s - dtor", __FUNCTION__);
+	}
+
+	void processData(GammaDataBase* pData)
+	{
+		UNREFERENCED_PARAMETER(pData);
+		wxASSERT_MSG(0, "It's pipeline head!");
+	}
+
+	bool shouldBeRunning()
+	{
+		return m_run && !GetThread()->TestDestroy();
+	}
+
+	void start()
+	{
+		CreateThread();
+		m_run = true;
+		GetThread()->Run();
+	}
+
+	void stop()
+	{
+		m_run = false;
+		GetThread()->Wait();
+	}
+
+protected: 
+	virtual wxThread::ExitCode Entry() = 0;
+
+private:
+	bool m_run;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_BASE_H_

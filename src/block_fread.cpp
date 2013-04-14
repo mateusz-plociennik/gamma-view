@@ -12,8 +12,7 @@
 #include <wx/datetime.h>
 
 GammaBlockFileRead::GammaBlockFileRead(GammaManager* pManager) 
-		:
-		GammaBlockBase(pManager, 0)
+	: GammaPipeHead(pManager)
 {
 	wxLogStatus("%s", __FUNCTION__);
 }
@@ -23,7 +22,7 @@ GammaBlockFileRead::~GammaBlockFileRead()
 	wxLogStatus("%s", __FUNCTION__);
 }
 
-bool GammaBlockFileRead::SetParam(GammaParam_e param, void* value)
+bool GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 {
 	switch(param)
 	{
@@ -40,7 +39,7 @@ bool GammaBlockFileRead::SetParam(GammaParam_e param, void* value)
 
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
 	m_fileName.Assign("D:\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
 	//m_fileName.Assign("20120813_200126.gvb"); //siatka
@@ -60,13 +59,13 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	unsigned char loaded = 0;
 
 	wxTimeSpan timeEnd = GetTimeEnd();
-	GetManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &timeEnd);
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &timeEnd);
 	
 	wxTimeSpan timeNow(0);
-	GetManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
 
 	wxTimeSpan timeTmp(0);
-	while( ShouldBeRunning() && !m_file.Eof() )
+	while( shouldBeRunning() && !m_file.Eof() )
 	{
 		GammaDataItems* dataOut(new GammaDataItems);
 		
@@ -79,12 +78,13 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 				if( timeTmp - timeNow > wxTimeSpan::Milliseconds(500) )
 				{
 					timeNow = timeTmp;
-					GetManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
+					getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
 				}
 			}
 		}
 
-		DataPush(dataOut);
+		pushData(dataOut);
+		delete dataOut;
 
 		if( loaded < (100 * m_file.Tell() / m_file.Length()) )
 		{

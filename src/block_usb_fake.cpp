@@ -8,16 +8,15 @@
 #include "block_usb_fake.h"
 
 GammaBlockUSBFake::GammaBlockUSBFake(GammaManager* pManager) 
-		:
-		GammaBlockBase(pManager, 0)
+	: GammaPipeHead(pManager)
 {
 }
 
 wxThread::ExitCode GammaBlockUSBFake::Entry()
 {
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
-	while( ShouldBeRunning() )
+	while( shouldBeRunning() )
 	{
 		GammaDataUSB* pDataOut(new GammaDataUSB);
 
@@ -29,9 +28,9 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 		}
 		pDataOut->data[0] = pDataOut->data[1] = 0xFF;
 		
-		DataPush(pDataOut);
-
-		GetThread()->Sleep(1);
+		pushData(pDataOut);
+		delete pDataOut;
+		//GetThread()->Sleep(1);
 	}
 
 	return 0;

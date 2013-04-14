@@ -10,63 +10,49 @@
 #include <wx/fileconf.h>
 
 GammaBlockTransUS::GammaBlockTransUS(GammaManager* pManager) 
-		: 
-		GammaBlockBase(pManager, GAMMA_QUEUE_BLOCK_TRANS_US)
+	: GammaPipeSegment(pManager)
 {
-	//
+	wxConfigBase* config = wxFileConfig::Get();
+	wxConfigPathChanger changer(config, "/USBDevice/");
+	m_timeDiv = config->ReadLong("Tmarker", 10);
+	m_timeCounter = 0;
 }
 
-wxThread::ExitCode GammaBlockTransUS::Entry()
+void GammaBlockTransUS::processData(GammaDataBase* pData)
 {
-	wxMutexLocker locker(m_threadRunMutex);
+	wxMutexLocker locker(m_processDataMutex);
 
+	GammaDataUSB* pDataIn = dynamic_cast<GammaDataUSB*>(pData);
+	GammaDataItems* pDataOut = new GammaDataItems;
+
+	//pDataOut->dateTime = pDataIn->dateTime;
+	for(wxUint32 i = 0; i < 256; i++)
 	{
-		wxConfigBase* config = wxFileConfig::Get();
-		wxConfigPathChanger changer(config, "/USBDevice/");
-		m_timeDiv = config->ReadLong("Tmarker", 10);
-		m_timeCounter = 0;
-	}
-	while( ShouldBeRunning() )
-	{
-		if(DataReady())
+		if( (pDataIn->data[2 * i + 0] == 0xFF) && 
+			(pDataIn->data[2 * i + 1] == 0xFF) )
 		{
-			wxSharedPtr<GammaDataBase> dataIn(DataGet());
-			GammaDataUSB* pDataIn = static_cast<GammaDataUSB*>(dataIn.get());
-
-			GammaDataItems* pDataOut = new GammaDataItems;
-
-			pDataIn->Lock();
-			pDataOut->dateTime = pDataIn->dateTime;
-			for(uint32_t i = 0; i < 256; i++)
-			{
-				if( (pDataIn->data[2 * i + 0] == 0xFF) && 
-					(pDataIn->data[2 * i + 1] == 0xFF) )
-				{
-					pDataOut->data.at(i).type = GAMMA_ITEM_TMARKER;
-					pDataOut->data.at(i).data.time = m_timeCounter;
-					m_timeCounter += m_timeDiv;
-				}
-				else if( (pDataIn->data[2 * i + 0] == 0x00) && 
-					(pDataIn->data[2 * i + 1] == 0x00) )
-				{
-					pDataOut->data.at(i).type = GAMMA_ITEM_TRIGGER;
-					pDataOut->data.at(i).data.time = m_timeCounter;
-				}
-				else
-				{
-					pDataOut->data.at(i).type = GAMMA_ITEM_POINT;
-					pDataOut->data.at(i).data.point.x = 
-						pDataIn->data[2 * i + 0];
-					pDataOut->data.at(i).data.point.y = 
-						pDataIn->data[2 * i + 1];
-					pDataOut->data.at(i).data.point.z = 
-						(-1); //Not Available
-				}
-			}
-			pDataIn->Unlock();
-			DataPush(pDataOut);
+			pDataOut->data.at(i).type = GAMMA_ITEM_TMARKER;
+			pDataOut->data.at(i).data.time = m_timeCounter;
+			m_timeCounter += m_timeDiv;
+		}
+		else if( (pDataIn->data[2 * i + 0] == 0x00) && 
+			(pDataIn->data[2 * i + 1] == 0x00) )
+		{
+			pDataOut->data.at(i).type = GAMMA_ITEM_TRIGGER;
+			pDataOut->data.at(i).data.time = m_timeCounter;
+		}
+		else
+		{
+			pDataOut->data.at(i).type = GAMMA_ITEM_POINT;
+			pDataOut->data.at(i).data.point.x = 
+				pDataIn->data[2 * i + 0];
+			pDataOut->data.at(i).data.point.y = 
+				pDataIn->data[2 * i + 1];
+			pDataOut->data.at(i).data.point.z = 
+				(-1); //Not Available
 		}
 	}
 
-	return 0;
+	pushData(pDataOut);
+	delete pDataOut;
 }

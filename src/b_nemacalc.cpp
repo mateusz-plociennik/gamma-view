@@ -18,13 +18,14 @@
 
 GammaNemaCalc::GammaNemaCalc(GammaManager* pManager) 
 		:
-		GammaBlockBase(pManager, GAMMA_QUEUE_B_NEMACALC)
+		GammaPipeSegment(pManager)
 {
 	m_fieldOfView.center = wxPoint(128, 128);
 	m_fieldOfView.radius = 120;
 
 	wxLogStatus("%s", __FUNCTION__);
 }
+
 GammaNemaCalc::~GammaNemaCalc()
 {
 	wxLogStatus("%s", __FUNCTION__);
@@ -32,7 +33,7 @@ GammaNemaCalc::~GammaNemaCalc()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GammaNemaCalc::SetParam(GammaParam_e param, void* value)
+bool GammaNemaCalc::setParam(GammaParam_e param, void* value)
 {
 	switch(param)
 	{
@@ -47,41 +48,28 @@ bool GammaNemaCalc::SetParam(GammaParam_e param, void* value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-wxThread::ExitCode GammaNemaCalc::Entry()
+void GammaNemaCalc::processData(GammaDataBase* pData)
 {
-	while(ShouldBeRunning())
-	{
-		if(DataReady())
-		{
-			wxSharedPtr<GammaDataBase> dataIn(DataGet());
-			m_pDataIn = static_cast<GammaDataMatrix*>(dataIn.get());
+	m_pDataIn = static_cast<GammaDataMatrix*>(pData);
+	GammaDataMatrix* pDataOut(new GammaDataMatrix);
 
-			GammaDataMatrix* pDataOut(new GammaDataMatrix);
+	floodFill(wxPoint(0,0), 0);
+	marginalRemove();
 
-			{
-				wxMutexLocker dataInLocker(*m_pDataIn);
+	convolutionFilter(pDataOut);
 
-				FloodFill(wxPoint(0,0), 0);
-				MarginalRemove();
+	memcpy(m_pDataIn->data, pDataOut->data, 256*256*sizeof(uint32_t));
 
-				ConvolutionFilter(pDataOut);
+	wxLogStatus("Intg = %f, Diff = %f", getIntgUniformity(GAMMA_AREA_CFOV), 
+		getDiffUniformity(GAMMA_AREA_CFOV, GAMMA_DIRECTION_X));
 
-				memcpy(m_pDataIn->data, pDataOut->data, 256*256*sizeof(uint32_t));
-
-				wxLogStatus("Intg = %f, Diff = %f", GetIntgUniformity(GAMMA_AREA_CFOV), 
-					GetDiffUniformity(GAMMA_AREA_CFOV, GAMMA_DIRECTION_X));
-			}
-
-			DataPush(pDataOut);
-		}
-	}
-
-	return 0;
+	pushData(pDataOut);
+	delete pDataOut;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GammaNemaCalc::FloodFill(wxPoint start, uint32_t color)
+void GammaNemaCalc::floodFill(wxPoint start, uint32_t color)
 {
 	uint32_t threshold = m_pDataIn->max * 0;//2/4;
 
@@ -138,7 +126,7 @@ void GammaNemaCalc::FloodFill(wxPoint start, uint32_t color)
 	}
 }
 
-void GammaNemaCalc::MarginalRemove()
+void GammaNemaCalc::marginalRemove()
 {
 	for(uint32_t y = 1; y <= 254; y++)
 	{
@@ -155,7 +143,7 @@ void GammaNemaCalc::MarginalRemove()
 	}
 }
 
-void GammaNemaCalc::ConvolutionFilter(GammaDataMatrix* pDataOut)
+void GammaNemaCalc::convolutionFilter(GammaDataMatrix* pDataOut)
 {
 	static uint32_t filter[] = {
 		1, 2, 1,
@@ -204,7 +192,7 @@ void GammaNemaCalc::ConvolutionFilter(GammaDataMatrix* pDataOut)
 	}
 }
 
-double GammaNemaCalc::GetIntgUniformity(GammaArea_e area)
+double GammaNemaCalc::getIntgUniformity(GammaArea_e area)
 {
 	uint32_t radius = 0;
 
@@ -247,7 +235,7 @@ double GammaNemaCalc::GetIntgUniformity(GammaArea_e area)
 	return 100.0 * (max - min) / (max + min);
 }
 
-double GammaNemaCalc::GetDiffUniformity(GammaArea_e area, GammaDirection_e direction)
+double GammaNemaCalc::getDiffUniformity(GammaArea_e area, GammaDirection_e direction)
 {
 	uint32_t radius = 0;
 

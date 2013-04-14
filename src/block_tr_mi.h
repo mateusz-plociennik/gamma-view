@@ -13,27 +13,24 @@
 #include "frame_view.h"
 #include <wx/image.h>
 
-class GammaBlockTransMI : 
-	public GammaBlockBase
+class GammaTransMI : public GammaPipeSegment
 {
 public:
-	GammaBlockTransMI(GammaManager* pManager);
-	bool SetParam(GammaParam_e param, void* value);
-
-protected:
-	wxThread::ExitCode Entry();
+	GammaTransMI(GammaManager* pManager);
+	
+	void processData(GammaDataBase* pDataIn);
+	bool setParam(GammaParam_e param, void* value);
 
 private:
-	void SetColour(GammaColormap_e colormap, unsigned int index, unsigned int max);
+	void setColor(wxUint32 index, wxUint32 max);
 
 	double m_brightness;
 	double m_contrast;
 	double m_gamma;
+	bool m_invert;
 	
-	wxColour m_colour;
 	GammaColormap_e m_colormap;
-	bool m_bInvert;
-
+	wxColour m_color;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_TRANS_MI_H_

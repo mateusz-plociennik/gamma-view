@@ -13,14 +13,13 @@
 #include <wx/file.h>
 #include <wx/filename.h>
 
-class GammaBlockFileRead : 
-	public GammaBlockBase
+class GammaBlockFileRead : public GammaPipeHead
 {
 public:
 	GammaBlockFileRead(GammaManager* pManager);
 	~GammaBlockFileRead();
 
-	bool SetParam(GammaParam_e param, void* value);
+	bool setParam(GammaParam_e param, void* value);
 
 protected:
 	wxThread::ExitCode Entry();

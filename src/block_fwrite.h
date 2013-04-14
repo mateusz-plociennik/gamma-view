@@ -12,14 +12,16 @@
 #include <wx/file.h>
 
 class GammaBlockFileWrite : 
-	public GammaBlockBase
+	public GammaPipeSegment
 {
 public:
 	GammaBlockFileWrite(GammaManager* pManager);
 	~GammaBlockFileWrite();
 
-protected:
-	wxThread::ExitCode Entry();
+	void processData(GammaDataBase* pData);
+
+private:
+	wxFile m_file;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_FWRITE_H_
