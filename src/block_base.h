@@ -54,7 +54,7 @@ public:
 		wxLogStatus("%s - ctor", __FUNCTION__);
 	}
 
-	virtual ~GammaBlockBase()
+	~GammaBlockBase()
 	{
 		wxLogStatus("%s - dtor", __FUNCTION__);
 	}
