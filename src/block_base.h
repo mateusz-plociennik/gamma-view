@@ -49,7 +49,7 @@ public:
 		wxLogStatus("%s - ctor", __FUNCTION__);
 	}
 
-	~GammaPipeSegment()
+	virtual ~GammaPipeSegment()
 	{
 		wxLogStatus("%s - dtor", __FUNCTION__);
 	}
@@ -65,12 +65,12 @@ public:
 		m_segmentList.push_back(pSegment);
 	}
 
-	GammaPipeSegment* operator+=(GammaPipeSegment* pSegment)
+	GammaPipeSegment& operator+=(GammaPipeSegment& segment)
 	{
 		wxMutexLocker locker(m_segmentListMutex);
-		m_segmentList.push_back(pSegment);
+		m_segmentList.push_back(&segment);
 
-		return this;
+		return *this;
 	}
 
 	/**
@@ -89,15 +89,18 @@ public:
 	 * to attached blocks.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	inline void pushData(GammaDataBase* pDataOut)
+	inline void pushData(GammaData* pDataOut)
 	{
-		wxMutexLocker locker(m_segmentListMutex);
+		m_processDataMutex.Unlock();
 
+		wxMutexLocker locker(m_segmentListMutex);
 		for(std::list<GammaPipeSegment*>::iterator iSegment = m_segmentList.begin(); 
 			iSegment != m_segmentList.end(); iSegment++ )
 		{
 			(*iSegment)->processData(pDataOut);
 		}
+
+		m_processDataMutex.Lock();
 	}
 
 	/**
@@ -124,7 +127,7 @@ public:
 	 * In this function there is thread execute code. It must be defined 
 	 * in children classes.
 	 */
-	virtual void processData(GammaDataBase* pData) = 0;
+	virtual void processData(GammaData* pData) = 0;
 
 	/**
 	 * Processing mutex
@@ -160,7 +163,7 @@ public:
 		wxLogStatus("%s - dtor", __FUNCTION__);
 	}
 
-	void processData(GammaDataBase* pData)
+	void processData(GammaData* pData)
 	{
 		UNREFERENCED_PARAMETER(pData);
 		wxASSERT_MSG(0, "It's pipeline head!");

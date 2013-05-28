@@ -22,14 +22,14 @@ GammaBlockFileWrite::~GammaBlockFileWrite()
 	m_file.Close();
 }
 
-void GammaBlockFileWrite::processData(GammaDataBase* pData)
+void GammaBlockFileWrite::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
-	GammaDataItems* pDataIn = dynamic_cast<GammaDataItems*>(pData);
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
 
-	for( std::vector<GammaItem>::iterator iItem = pDataIn->data.begin();
-		iItem != pDataIn->data.end(); iItem++ )
+	for( std::vector<GammaItem>::iterator iItem = pDataIn->items.begin();
+		iItem != pDataIn->items.end(); iItem++ )
 	{
 		m_file.Write(&(*iItem), sizeof(GammaItem));
 	}

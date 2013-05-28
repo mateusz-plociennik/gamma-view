@@ -15,14 +15,14 @@ class GammaUniformity : public GammaPipeSegment
 public:
 	GammaUniformity(GammaManager* pManager);
 
-	void processData(GammaDataBase* pData);
+	void processData(GammaData* pData);
 	bool setParam(GammaParam_e param, void* value);
 
 private:
-	int corrCount(uint8_t x, uint8_t y);
-	void setMatrix(uint32_t* matrix, uint32_t norm);
+	int corrCount(wxUint32 x, wxUint32 y);
+	void setMatrix(wxUint32* matrix);
 
-	int32_t m_matrix[256*256];
+	wxUint32 m_matrix[256*256];
 
 };
 

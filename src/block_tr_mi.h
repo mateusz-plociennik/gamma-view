@@ -12,25 +12,34 @@
 #include "block_mgmt.h"
 #include "frame_view.h"
 #include <wx/image.h>
+#include <deque>
+//#include <map>
 
 class GammaTransMI : public GammaPipeSegment
 {
 public:
 	GammaTransMI(GammaManager* pManager);
 	
-	void processData(GammaDataBase* pDataIn);
+	void processData(GammaData* pDataIn);
 	bool setParam(GammaParam_e param, void* value);
 
 private:
-	void setColor(wxUint32 index, wxUint32 max);
-
-	double m_brightness;
-	double m_contrast;
-	double m_gamma;
-	bool m_invert;
+	void calcColour(wxUint32 index, wxDouble max);
+	void calcMax(wxUint32 eventMax);
 	
-	GammaColormap_e m_colormap;
-	wxColour m_color;
+	wxDouble m_brightness;
+	wxDouble m_contrast;
+	wxDouble m_gamma;
+	wxDouble m_max;
+	bool m_invert;
+	bool m_bSetUniformMatrix;
+	
+	GammaColourmap_e m_colourmap;
+	wxColour m_colour;
+
+	std::deque<wxUint32> m_eventMaxTable;
+
+//	std::map<wxUint64, wxColour> m_colourLut;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_TRANS_MI_H_

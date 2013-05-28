@@ -18,7 +18,7 @@ public:
 	GammaBlockFileWrite(GammaManager* pManager);
 	~GammaBlockFileWrite();
 
-	void processData(GammaDataBase* pData);
+	void processData(GammaData* pData);
 
 private:
 	wxFile m_file;

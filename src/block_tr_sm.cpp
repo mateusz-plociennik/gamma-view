@@ -6,68 +6,79 @@
  */
 
 #include <vector>
+#include <wx/thread.h>
 
 #include "block_tr_sm.h"
 #include "config.h"
 
 GammaBlockTransSM::GammaBlockTransSM(GammaManager* pManager) 
 	: GammaPipeSegment(pManager)
-	, m_intgTime(32000)
-	, m_intgEnabled(false)
+	, m_throttle(wxTimeSpan::Milliseconds(250))
+	, m_intEnabled(false)
+	, m_eventMaxTrig(1)
+	, m_eventSumTrig(0)
+	, m_areaTrig(GAMMA_AREA_CFOV)
+	, m_timeTrig(0)
+	, m_intBeginTime(0)
+	, m_intEndTime(0)
 {
-	timeCounter = 0;
-	timeSend = m_intgTime;
-	t_matrix = new uint32_t[256*256]();
-	t_max = 0;
-	t_sum = 0;
 }
 
 GammaBlockTransSM::~GammaBlockTransSM()
 {
-	delete[] t_matrix;
 }
 
-void GammaBlockTransSM::processData(GammaDataBase* pData)
+void GammaBlockTransSM::processData(GammaData* pData)
 {
-	GammaDataItems* pDataIn = dynamic_cast<GammaDataItems*>(pData);
+	wxMutexLocker locker(m_processDataMutex);
+
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
 	
-	for(std::vector<GammaItem>::iterator it = pDataIn->data.begin();
-		it != pDataIn->data.end(); it++)
+	for(std::vector<GammaItem>::iterator it = pDataIn->items.begin();
+		it != pDataIn->items.end(); it++)
 	{
-		switch( (*it).type )
+		switch((*it).type)
 		{
 		case GAMMA_ITEM_POINT:
-			t_matrix[POINT((*it).data.point.x, (*it).data.point.y)] += 1;
-			t_sum += 1;
-
-			if( t_max < t_matrix[POINT((*it).data.point.x, (*it).data.point.y)] )
+			m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)] += 1;
+			if(POINT_INSIDE_FOV((*it).data.point.x, (*it).data.point.y))
 			{
-				t_max = t_matrix[POINT((*it).data.point.x, (*it).data.point.y)];
+				if(m_dataOut.eventMax < m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)])
+				{
+					m_dataOut.eventMax = m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)];
+
+					if(m_eventMaxTrig != 1 && m_eventMaxTrig < m_dataOut.eventMax)
+					{
+						pushData(&m_dataOut);
+					}
+				}
+			}
+
+			m_dataOut.eventSum += 1;
+			if(m_eventSumTrig != 0 && m_eventSumTrig < m_dataOut.eventSum)
+			{
+				pushData(&m_dataOut);
 			}
 			break;
 		case GAMMA_ITEM_TMARKER:
-			timeCounter = (*it).data.time;
-
-			if( timeSend < timeCounter )
+			m_markerTime = wxTimeSpan(0, 0, 0, (*it).data.time);
+			if(m_dataOut.time <= m_markerTime && m_markerTime <= m_dataOut.time + wxTimeSpan::Second())
 			{
-				timeSend += m_intgTime;
-				
+				m_dataOut.time = m_markerTime;
+				if(m_intEndTime + m_throttle.getIntTime() <= m_dataOut.time)
 				{
-					GammaDataMatrix* pDataOut(new GammaDataMatrix);
-					pDataOut->dateTime = pDataIn->dateTime;
-					memcpy(pDataOut->data, t_matrix, 256 * 256 * sizeof(uint32_t));
-					pDataOut->max = t_max;
-					pDataOut->sum = t_sum;
-					pushData(pDataOut);
-					delete pDataOut;
+					pushData(&m_dataOut);
+					m_throttle.throttle();
 				}
-
-				if(!m_intgEnabled)
-				{
-					memset(t_matrix, 0, 256 * 256 * sizeof(uint32_t));
-					t_max = 0;
-					t_sum = 0;
-				}
+			}
+			else
+			{
+				memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
+				m_dataOut.eventMax = 1;
+				m_dataOut.eventSum = 0;
+				m_dataOut.time = m_markerTime;
+				m_intBeginTime = m_markerTime;
+				m_intEndTime = m_markerTime;
 			}
 			break;
 		case GAMMA_ITEM_TRIGGER:
@@ -84,12 +95,105 @@ bool GammaBlockTransSM::setParam(GammaParam_e param, void* value)
 	switch(param)
 	{
 	case GAMMA_PARAM_IMG_INTEGRATE_TIME:
-		m_intgTime = *static_cast<unsigned int*>(value); break;
+		m_throttle.setIntTime(*static_cast<wxTimeSpan*>(value)); break;
+	case GAMMA_PARAM_IMG_SPEED:
+		m_throttle.setSpeed(*static_cast<wxDouble*>(value)); break;
 	case GAMMA_PARAM_IMG_INTEGRATE_ENABLED:
-		m_intgEnabled = *static_cast<bool*>(value); break;
+		m_intEnabled = *static_cast<bool*>(value); break;
 	default:
 		return false;
 	}
 	
 	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GammaBlockTransSM::pushData(GammaData* pDataOut)
+{
+	m_dataOut.span = m_dataOut.time - m_intBeginTime;
+	GammaPipeSegment::pushData(pDataOut);
+	if(!m_intEnabled || m_dataOut.time < m_intEndTime || 
+		m_intEndTime + 2 * m_throttle.getIntTime() <= m_dataOut.time)
+	{
+		memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
+		m_dataOut.eventMax = 1;
+		m_dataOut.eventSum = 0;
+		m_intBeginTime = m_dataOut.time;
+	}
+	m_intEndTime = m_dataOut.time;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GammaThrottle::GammaThrottle(wxTimeSpan intTime)
+	: m_bWait(true)
+	, m_condition(m_mutex)
+	, m_intTime(intTime)
+	, m_speed(-1)
+{
+	if(-1 != m_speed)
+	{
+		Start(m_intTime.GetMilliseconds().GetValue() / m_speed);
+	}
+}
+
+GammaThrottle::~GammaThrottle()
+{
+	Stop();
+
+	wxMutexLocker locker(m_mutex);
+	m_speed = -1;
+	m_bWait = false;
+	m_condition.Broadcast();
+}
+
+void GammaThrottle::Notify()
+{
+	wxMutexLocker locker(m_mutex);
+	if(-1 != m_speed)
+	{
+		m_bWait = false;
+		m_condition.Broadcast();
+	}
+}
+
+void GammaThrottle::throttle()
+{
+	wxMutexLocker locker(m_mutex);
+	if(-1 != m_speed)
+	{
+		while(m_bWait)
+		{	
+			m_condition.Wait();
+		}
+		m_bWait = true;
+	}
+}
+
+wxTimeSpan GammaThrottle::getIntTime() const
+{
+	return m_intTime;
+}
+
+void GammaThrottle::setIntTime(wxTimeSpan intTime)
+{
+	wxMutexLocker locker(m_mutex);
+	m_intTime = intTime;
+	Stop();
+	if(-1 != m_speed)
+	{
+		Start(m_intTime.GetMilliseconds().GetValue() / m_speed);
+	}
+}
+
+void GammaThrottle::setSpeed(wxDouble speed)
+{
+	wxMutexLocker locker(m_mutex);
+	m_speed = speed;
+	Stop();
+	if(-1 != m_speed)
+	{
+		Start(m_intTime.GetMilliseconds().GetValue() / m_speed);
+	}
 }

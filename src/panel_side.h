@@ -12,6 +12,7 @@
 #include <wx/window.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/button.h>
 
 #include "block_mgmt.h"
 
@@ -22,6 +23,9 @@ class GammaSidePanel : public wxPanel
 {
 	friend class GammaFrame;
 
+	friend class GammaCanvas;
+	friend class GammaPlayerPanel;
+
 public:
 	GammaSidePanel(GammaFrame *parent,
 		wxWindowID id,
@@ -31,15 +35,23 @@ public:
 		const wxString& name = wxPanelNameStr);
 
 protected:
+	void onPaint(wxPaintEvent& event);
+	void onButton(wxCommandEvent& event);
 	GammaManager* GetManager();
 
 private:
 	GammaFrame* m_frame;
 
-	wxBoxSizer *m_sideSizer;
+	wxFlexGridSizer *m_sideSizer;
 
-	wxStaticText *m_timeNowLabel;
-	wxStaticText *m_timeEndLabel;
+	wxDouble m_frequency;
+	wxStaticText *m_frequencyLabel;
+	wxStaticText *m_frequencyValue;
+
+	wxStaticText *m_positionLabel;
+	wxStaticText *m_positionValue;
+
+	wxButton* m_setButton;
 
 	DECLARE_EVENT_TABLE();
 };

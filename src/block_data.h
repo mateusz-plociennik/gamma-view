@@ -19,38 +19,31 @@
 /**
  * Base class to make GammaBlock able to send pointers without cast.
  */
-class GammaDataBase : 
-	public wxMutex
+class GammaData
 {
 public:
 	/**
 	 * Default constructor.
 	 */
-	GammaDataBase() :
-			wxMutex(wxMUTEX_DEFAULT)
+	GammaData()
 	{
 	}
 
-	virtual ~GammaDataBase()
+	virtual ~GammaData()
 	{
 	}
-
-	/**
-	 * Date and time of packet arrival.
-	 */
-	wxDateTime dateTime;
 };
 
 /**
  * GammaDataUSB class.
  */
 class GammaDataUSB :
-	public GammaDataBase
+	public GammaData
 {
 public:
 	GammaDataUSB()
 	{
-		data = new unsigned char[0x200]();
+		data = new wxUint8[256*256]();
 	}
 
 	~GammaDataUSB()
@@ -58,72 +51,80 @@ public:
 		delete[] data;
 	}
 
-	unsigned char* data;
+	wxUint8* data;
 };
 
 /**
- * GammaDataItems class.
+ * GammaItems class.
  */
-class GammaDataItems :
-	public GammaDataBase
+class GammaItems :
+	public GammaData
 {
 public:
-	GammaDataItems()
+	GammaItems()
 	{
-		data.resize(0x100);
+		items.resize(256);
 	}
 
-	~GammaDataItems()
+	~GammaItems()
 	{
-		data.clear();
+		items.clear();
 	}
 
-	std::vector<GammaItem> data;
+	std::vector<GammaItem> items;
 };
 
 /**
- * GammaDataImage class.
+ * GammaImage class.
  */
-class GammaDataMatrix :
-	public GammaDataBase
+class GammaMatrix :
+	public GammaData
 {
 public:
-	GammaDataMatrix()
-			: 
-			sum(0)
+	GammaMatrix()
+		: eventMax(1)
+		, eventSum(0)
 	{
-		data = new uint32_t[256*256]();
-		max = 0;
+		matrix = new wxUint32[256 * 256]();
 	}
 
-	~GammaDataMatrix()
+	GammaMatrix(const GammaMatrix& that)
 	{
-		delete[] data;
+		matrix = new wxUint32[256 * 256];
+		memcpy(matrix, that.matrix, sizeof(wxUint32) * 256 * 256);
 	}
 
-	uint32_t* data;
-	uint32_t max;
-	uint64_t sum;
+	~GammaMatrix()
+	{
+		delete[] matrix;
+	}
+
+	wxUint32* matrix;
+	wxUint32 eventMax;
+	wxUint64 eventSum;
+
+	wxTimeSpan time;
+	wxTimeSpan span;
 };
 
 /**
- * GammaDataImage class.
+ * GammaImage class.
  */
-class GammaDataImage :
-	public GammaDataBase
+class GammaImage :
+	public GammaData
 {
 public:
-	GammaDataImage()
+	GammaImage()
 	{
-		data = new wxImage(0x100, 0x100, true);
+		image = new wxImage(256, 256, true);
 	}
 
-	~GammaDataImage()
+	~GammaImage()
 	{
-		delete data;
+		delete image;
 	}
 
-	wxImage* data;
+	wxImage* image;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

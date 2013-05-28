@@ -11,6 +11,7 @@
 #include <wx/window.h>
 #include <wx/gdicmn.h> // for wxSize
 #include <wx/dcbuffer.h> // for wxAutoBufferedPaintDC
+#include <wx/cursor.h>
 
 wxBEGIN_EVENT_TABLE(GammaCanvas, wxWindow)
 	EVT_PAINT(GammaCanvas::OnPaint)
@@ -103,12 +104,16 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	if(!event.Leaving())
 	{
 		wxString status;
-		status.Printf("(%.0f,%.0f)", (m_startX/m_scaleX), (m_startY/m_scaleY));
-		m_frame->GetStatusBar()->SetStatusText(status, 1);
+		status.Printf("%.0f, %.0fpx", (m_startX/m_scaleX), (m_startY/m_scaleY));
+		m_frame->m_sidePanel->m_positionValue->SetLabel(status);
+
+		wxWindow::SetCursor(wxCursor(wxCURSOR_CROSS));
 	}
 	else
 	{
-		m_frame->GetStatusBar()->SetStatusText("", 1);
+		m_frame->m_sidePanel->m_positionValue->SetLabel(wxT(""));
+
+		wxWindow::SetCursor(wxNullCursor);
 	}
 
 	event.Skip();

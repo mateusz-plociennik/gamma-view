@@ -15,21 +15,21 @@
 GammaUniformity::GammaUniformity(GammaManager* pManager) 
 	: GammaPipeSegment(pManager)
 {
-	for(uint32_t i = 0; i < 256 * 256; i++)
+	for(wxUint32 i = 0; i < 256 * 256; i++)
 	{
-		m_matrix[i] = RAND_MAX * i / 32768 - RAND_MAX;
+		m_matrix[i] = RAND_MAX / 2;
 	}
 }
 
-void GammaUniformity::processData(GammaDataBase* pData)
+void GammaUniformity::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
-	GammaDataItems* pDataIn = dynamic_cast<GammaDataItems*>(pData);
-	GammaDataItems* dataOut = new GammaDataItems();
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
+	GammaItems* dataOut = new GammaItems();
 	
-	for(std::vector<GammaItem>::iterator it = pDataIn->data.begin();
-		it != pDataIn->data.end(); 
+	for(std::vector<GammaItem>::iterator it = pDataIn->items.begin();
+		it != pDataIn->items.end(); 
 		it++)
 	{
 		switch ((*it).type)
@@ -38,11 +38,11 @@ void GammaUniformity::processData(GammaDataBase* pData)
 			for(int iCount = corrCount((*it).data.point.x,(*it).data.point.y); 
 				iCount != 0; iCount--)
 			{
-				dataOut->data.push_back((*it));
+				dataOut->items.push_back((*it));
 			}
 			break;
 		default:
-			dataOut->data.push_back((*it));
+			dataOut->items.push_back((*it));
 			break;
 		}
 	}
@@ -57,11 +57,9 @@ bool GammaUniformity::setParam(GammaParam_e param, void* value)
 {
 	switch(param)
 	{
-/*	case GAMMA_PARAM_IMG_INTEGRATE_TIME:
-		m_intgTime = *static_cast<unsigned int*>(value); break;
-	case GAMMA_PARAM_IMG_INTEGRATE_ENABLED:
-		m_intgEnabled = *static_cast<bool*>(value); break;
-*/	default:
+	case GAMMA_PARAM_UNIFORM_MATRIX_SET:
+		setMatrix(static_cast<wxUint32*>(value)); break;
+	default:
 		return false;
 	}
 	
@@ -70,9 +68,9 @@ bool GammaUniformity::setParam(GammaParam_e param, void* value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GammaUniformity::corrCount(uint8_t x, uint8_t y)
+int GammaUniformity::corrCount(wxUint32 x, wxUint32 y)
 {
-	int32_t r = rand();
+	wxInt32 r = rand();
 
 	if(r < m_matrix[POINT(x,y)])
 	{
@@ -90,10 +88,22 @@ int GammaUniformity::corrCount(uint8_t x, uint8_t y)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GammaUniformity::setMatrix(uint32_t* matrix, uint32_t norm)
+void GammaUniformity::setMatrix(wxUint32* matrix)
 {
-	for(uint32_t i = 0; i < 256*256; i++)
+	wxUint32 max = 0;
+	for(wxUint32 i = 0; i < 256*256; i++)
 	{
-		m_matrix[i] = RAND_MAX - (RAND_MAX * norm / matrix[i]);
+		if(max < matrix[i])
+		{
+			max = matrix[i];
+		}
+	}
+
+	for(wxUint32 i = 0; i < 256*256; i++)
+	{
+		if(0 != matrix[i])
+		{
+			m_matrix[i] = RAND_MAX - (RAND_MAX * (max/2) / matrix[i]);
+		}
 	}
 }

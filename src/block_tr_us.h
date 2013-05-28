@@ -15,7 +15,7 @@ class GammaBlockTransUS : public GammaPipeSegment
 public:
 	GammaBlockTransUS(GammaManager* pManager);
 
-	void processData(GammaDataBase* pData);
+	void processData(GammaData* pData);
 
 private:
 	unsigned long m_timeCounter;

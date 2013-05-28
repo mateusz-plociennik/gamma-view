@@ -14,6 +14,7 @@
 #include "block_mgmt.h"
 #include "canvas.h"
 #include "panel_player.h"
+#include "panel_side.h"
 
 #include <wx/window.h>
 #include <wx/panel.h>
@@ -25,6 +26,10 @@
 // Define a new frame type
 class GammaFrame : public wxFrame
 {
+	friend class GammaCanvas;
+	friend class GammaPlayerPanel;
+	friend class GammaSidePanel;
+
 public:
 	GammaFrame();
 	~GammaFrame();
@@ -46,7 +51,7 @@ private:
 	void OnMenuCloseWindow(wxCommandEvent& event);
 
 	void OnMenuResizeWindow(wxCommandEvent& event);
-	void OnMenuSetColormap(wxCommandEvent& event);
+	void OnMenuSetColourmap(wxCommandEvent& event);
 	void OnMenuSetIntegrate(wxCommandEvent& event);
 	void OnMenuSetImgParams(wxCommandEvent& event);
 
@@ -56,12 +61,17 @@ private:
 
 	void SetImage(wxImage& image);
 
+protected:
 	GammaManager* m_pManager;
 
-	GammaCanvas *m_canvas;
-	GammaPlayerPanel *m_bottomPanel;
+	GammaCanvas* m_canvas;
+	GammaPlayerPanel* m_bottomPanel;
 
-	wxBoxSizer *m_mainSizer;
+	wxBoxSizer* m_centerSizer;
+
+	GammaSidePanel* m_sidePanel;
+
+	wxBoxSizer* m_horizontalSizer;
 
   DECLARE_EVENT_TABLE();
 };

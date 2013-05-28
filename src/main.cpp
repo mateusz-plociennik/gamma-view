@@ -7,6 +7,7 @@
 
 //Standard wxWidgets headers...
 // For compilers that support precompilation, includes "wx.h".
+
 #include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
@@ -33,10 +34,12 @@ IMPLEMENT_APP(GammaApp);
 
 bool GammaApp::OnInit()
 {
-	if( !wxApp::OnInit() )
+	if(!wxApp::OnInit())
 	{
 		return false;
 	}
+
+	//_CrtSetBreakAlloc(7892);
 
 	new GammaFrame();
 

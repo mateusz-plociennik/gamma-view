@@ -20,19 +20,17 @@ public:
 	GammaNemaCalc(GammaManager* pManager);
 	~GammaNemaCalc();
 
-	void processData(GammaDataBase* pData);
-	bool setParam(GammaParam_e param, void* value);
+	void processData(GammaData* pData);
+	//bool setParam(GammaParam_e param, void* value);
 
 private:
-	void floodFill(wxPoint start, uint32_t color);
+	void floodFill(wxPoint start, wxUint32 colour);
 	void marginalRemove();
-	void convolutionFilter(GammaDataMatrix* pDataOut);
-	double getIntgUniformity(GammaArea_e area);
-	double getDiffUniformity(GammaArea_e area, GammaDirection_e);
+	void convolutionFilter(GammaMatrix* pDataOut);
+	double getIntgUniformity();
+	double getDiffUniformity(GammaDirection_e);
 
-	GammaDataMatrix* m_pDataIn;
-
-	GammaFieldOfView m_fieldOfView;
+	GammaMatrix* m_pDataIn;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_FREAD_H_

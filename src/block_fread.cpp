@@ -24,10 +24,17 @@ GammaBlockFileRead::~GammaBlockFileRead()
 
 bool GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 {
+	//wxMutexLocker locker(m_processDataMutex);
+
 	switch(param)
 	{
 	case GAMMA_PARAM_FILE_NAME_READ:
 		m_fileName.Assign(*static_cast<wxString*>(value)); break;
+	case GAMMA_PARAM_FILE_SET_TIME:
+		{
+			wxTimeSpan reqTime = *static_cast<wxTimeSpan*>(value);
+			setTime(reqTime); break;
+		}
 	default:
 		return false;
 	}
@@ -39,7 +46,7 @@ bool GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
-	wxMutexLocker locker(m_processDataMutex);
+	
 
 	m_fileName.Assign("D:\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
 	//m_fileName.Assign("20120813_200126.gvb"); //siatka
@@ -51,47 +58,47 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 		+ m_fileName.GetModificationTime().Format());
 	m_file.Open(m_fileName.GetFullPath(), wxFile::read);
 	
-	if(!CheckHeader())
+	if(!checkHeader())
 	{
 		return (wxThread::ExitCode)1;
 	}
 
 	unsigned char loaded = 0;
 
-	wxTimeSpan timeEnd = GetTimeEnd();
-	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &timeEnd);
-	
-	wxTimeSpan timeNow(0);
-	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
+	wxTimeSpan endTime = getEndTime();
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &endTime);
 
-	wxTimeSpan timeTmp(0);
-	while( shouldBeRunning() && !m_file.Eof() )
+	wxDateTime startTime(wxDateTime::UNow());
+	while(shouldBeRunning())
 	{
-		GammaDataItems* dataOut(new GammaDataItems);
-		
-		for(unsigned int iPoint = 0; (iPoint < 256) /*&& (!m_file.Eof())*/; iPoint++)
 		{
-			m_file.Read(&(dataOut->data.at(iPoint)), sizeof(GammaItem));
-			if(dataOut->data.at(iPoint).type == GAMMA_ITEM_TMARKER)
+			wxMutexLocker locker(m_processDataMutex);
+			if(m_file.Eof())
 			{
-				timeTmp = wxTimeSpan(0, 0, 0, dataOut->data.at(iPoint).data.time);
-				if( timeTmp - timeNow > wxTimeSpan::Milliseconds(500) )
-				{
-					timeNow = timeTmp;
-					getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &timeNow);
-				}
+				break;
 			}
+
+			GammaItems* dataOut(new GammaItems);
+			
+			for(wxUint32 iItem = 0; iItem < 256; iItem++)
+			{
+				m_file.Read(&(dataOut->items[iItem]), sizeof(GammaItem));
+			}
+
+			pushData(dataOut);
+			delete dataOut;
 		}
 
-		pushData(dataOut);
-		delete dataOut;
-
-		if( loaded < (100 * m_file.Tell() / m_file.Length()) )
+/*		if( loaded < (100 * m_file.Tell() / m_file.Length()) )
 		{
 			loaded = (100 * m_file.Tell() / m_file.Length());
-			wxLogStatus("%s - loading (%u%%)", __FUNCTION__, loaded);
+			wxLogStatus("%s - loading (%u%%) offset = %"wxLongLongFmtSpec"d", __FUNCTION__, loaded, m_file.Tell() % 12);
 		}
-	}
+*/	}
+	wxDateTime stopTime(wxDateTime::UNow());
+
+	wxLogStatus("%s - diffTime = %s", __FUNCTION__, stopTime.Subtract(startTime).Format("%H:%M:%S,%l").c_str());
+
 	m_file.Close();
 
 	wxLogStatus("%s - stoped", __FUNCTION__);
@@ -101,7 +108,7 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GammaBlockFileRead::CheckHeader()
+bool GammaBlockFileRead::checkHeader()
 {
 	char tBuffer[3];
 
@@ -111,23 +118,85 @@ bool GammaBlockFileRead::CheckHeader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-wxTimeSpan GammaBlockFileRead::GetTimeEnd()
+wxTimeSpan GammaBlockFileRead::getEndTime()
 {
 	wxFileOffset oldOffset = m_file.Tell();
-	wxFileOffset fileOffset = 0;
-	GammaItem item;
+	wxTimeSpan endTime;
 
+	m_file.Seek(0, wxFromEnd);
+	endTime = getTime();
+	m_file.Seek(oldOffset, wxFromStart);
+
+	return endTime;
+}
+
+bool GammaBlockFileRead::setTime(wxTimeSpan reqTime)
+{
+	wxMutexLocker locker(m_processDataMutex);
+	//wxFileOffset reqOffset;
+
+	wxTimeSpan leftTime = wxTimeSpan(0);
+	wxFileOffset leftOffset = 3;
+
+	wxTimeSpan rightTime = getEndTime();
+	wxFileOffset rightOffset = m_file.Length();
+
+	wxTimeSpan tryTime = getTime();
+	wxFileOffset tryOffset = m_file.Tell();
+
+	while(!(reqTime - wxTimeSpan::Milliseconds(500) <= tryTime && tryTime <= reqTime + wxTimeSpan::Milliseconds(500)))
+	{
+		tryOffset = (leftOffset + rightOffset) / 2;
+		tryOffset -= (tryOffset % 12) - 3; // Alignment
+
+		m_file.Seek(tryOffset, wxFromStart);
+
+		tryTime = getTime();
+		tryOffset = m_file.Tell();
+
+		if(reqTime < tryTime)
+		{
+			rightTime = tryTime;
+			rightOffset = tryOffset;
+		}
+		else
+		{
+			leftTime = tryTime;
+			leftOffset = tryOffset;
+		}
+/*		wxLogStatus("%s: reqTime = %s tryTime = %s tryOffset = %"wxLongLongFmtSpec"d", __FUNCTION__, 
+			reqTime.Format("%H:%M:%S,%l").c_str(), tryTime.Format("%H:%M:%S,%l").c_str(), tryOffset);
+*/	}
+	
+	return true;
+}
+
+wxTimeSpan GammaBlockFileRead::getTime()
+{
+	wxFileOffset difOffset = sizeof(GammaItem);
+	wxFileOffset curOffset = m_file.Tell();
+	wxFileOffset endOffset = m_file.Length() - difOffset;
+	
+	if(endOffset/2 < curOffset)
+	{
+		difOffset = -difOffset;
+	}
+
+	GammaItem item;
 	do
 	{
-		fileOffset -= 12; // sizeof(GammaItem)
-		m_file.Seek(fileOffset, wxFromEnd);
+		curOffset += difOffset;
+		if(!(0 <= curOffset && curOffset <= endOffset))
+		{
+			return wxTimeSpan(-1);
+		}
+
+		m_file.Seek(curOffset, wxFromStart);
 		m_file.Read(&item, sizeof(GammaItem));
-		wxLogStatus("%s: fileOffset = %d, type = %c", 
-			__FUNCTION__, ((wxLongLong)fileOffset).GetLo(), item.type);
-	} 
-	while( GAMMA_ITEM_TMARKER != item.type && m_file.Tell() > 0 );
-	
-	m_file.Seek(oldOffset, wxFromStart);
+
+		//wxLogStatus("%s: offset = %"wxLongLongFmtSpec"d, type = %c", __FUNCTION__, curOffset, item.type);
+	}
+	while(GAMMA_ITEM_TMARKER != item.type);
 
 	return wxTimeSpan(0, 0, 0, item.data.time);
 }

@@ -23,12 +23,14 @@ class GammaPipeSegment;
 //#include "frame_view.h" Breaking cyclic dependency
 class GammaFrame;
 
+#include "config.h"
+
 class GammaManager
 {
 
 public:
-	GammaManager(GammaFrame* pFrame) :
-			m_pFrame(pFrame)
+	GammaManager(GammaFrame* pFrame)
+		: m_pFrame(pFrame)
 	{
 		//
 	}
@@ -41,7 +43,8 @@ public:
 	/**
 	 * Set mode for blocks under manager
 	 */
-	void SetMode(GammaMode_e mode);
+	void setMode(GammaMode_e mode);
+
 	/**
 	 * Sets parameters in low layer: GammaBlocks
 	 */
@@ -51,11 +54,15 @@ public:
 	 * Sets parameters in high layer: wxFrame
 	 */
 	bool PresentationTierSetParam(GammaParam_e param, void* value);
+
+	GammaConfig* getConfig();
 	
 private:
 	wxMutex m_mgrMutex;
 	GammaFrame* m_pFrame;
 	std::list<GammaPipeSegment*> m_blockList;
+
+	GammaConfig m_config;
 	
 };
 

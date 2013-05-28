@@ -18,7 +18,8 @@ enum
 };
 
 wxBEGIN_EVENT_TABLE(GammaPlayerPanel, wxPanel)
-	EVT_SLIDER(ID_SLIDER, GammaPlayerPanel::OnSliderUpdate)
+	EVT_PAINT(GammaPlayerPanel::onPaint)
+	EVT_SLIDER(ID_SLIDER, GammaPlayerPanel::onSliderUpdate)
 wxEND_EVENT_TABLE()
 
 GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
@@ -28,7 +29,7 @@ GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
 	long style,
 	const wxString& name)
 		:
-		wxPanel(parent, id, pos, size, style, name), 
+		wxPanel(parent, id, pos, size, wxBORDER_THEME, wxPanelNameStr), 
 		m_frame(parent)
 {
 	m_bottomSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -43,16 +44,26 @@ GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
 	SetSizerAndFit(m_bottomSizer);
 }
 
-GammaManager* GammaPlayerPanel::GetManager()
+GammaManager* GammaPlayerPanel::getManager()
 {
 	return m_frame->GetManager();
 }
 
-void GammaPlayerPanel::OnSliderUpdate(wxCommandEvent &WXUNUSED(event))
+void GammaPlayerPanel::onPaint(wxPaintEvent& WXUNUSED(event))
 {
-	wxString message;
-	message.Printf("Slider = %d", m_bottomSlider->GetValue());
-	wxLogStatus(message);
-	m_timeNowLabel->SetLabel( 
-		wxTimeSpan(0, 0, 0, m_bottomSlider->GetValue()).Format("%H:%M:%S,%l") );
+	m_timeNowLabel->SetLabel(m_timeNow.Format("%H:%M:%S,%l"));
+	m_bottomSlider->SetValue(m_timeNow.GetValue().GetLo());
+
+	m_timeEndLabel->SetLabel(m_timeEnd.Format("%H:%M:%S,%l"));
+	m_bottomSlider->SetMax(m_timeEnd.GetValue().GetLo());
+}
+
+void GammaPlayerPanel::onSliderUpdate(wxCommandEvent& WXUNUSED(event))
+{
+	wxTimeSpan reqTime(0, 0, 0, m_bottomSlider->GetValue());
+
+	//wxLogStatus("%s: bottomSlider = %d", __FUNCTION__, m_bottomSlider->GetValue());
+	m_timeNowLabel->SetLabel(reqTime.Format("%H:%M:%S,%l"));
+
+	getManager()->DataTierSetParam(GAMMA_PARAM_FILE_SET_TIME, &reqTime);
 }

@@ -31,8 +31,9 @@ public:
 		const wxString& name = wxPanelNameStr);
 
 protected:
-	GammaManager* GetManager();
-	void OnSliderUpdate(wxCommandEvent& event);
+	GammaManager* getManager();
+	void onPaint(wxPaintEvent& event);
+	void onSliderUpdate(wxCommandEvent& event);
 
 private:
 	GammaFrame* m_frame;
@@ -40,8 +41,12 @@ private:
 	wxBoxSizer *m_bottomSizer;
 
 	wxStaticText *m_timeNowLabel;
+	wxTimeSpan m_timeNow;
+
 	wxSlider *m_bottomSlider;
+
 	wxStaticText *m_timeEndLabel;
+	wxTimeSpan m_timeEnd;
 
   DECLARE_EVENT_TABLE();
 };

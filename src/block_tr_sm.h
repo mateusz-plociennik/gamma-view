@@ -10,24 +10,63 @@
 
 #include "block_base.h"
 
+#include <wx/timer.h>
+#include <wx/thread.h>
+
+class GammaBlockTransSM;
+
+class GammaThrottle : public wxTimer
+{
+	friend class GammaBlockTransSM;
+
+protected:
+	GammaThrottle(wxTimeSpan intTime);
+	~GammaThrottle();
+	void Notify();
+
+	inline void throttle();
+	wxTimeSpan getIntTime() const;
+	void setIntTime(wxTimeSpan intTime);
+	void setSpeed(wxDouble speed);
+
+	bool m_bWait;
+	wxMutex m_mutex;
+	wxCondition m_condition;
+
+private:
+	wxTimeSpan m_intTime;
+	wxDouble m_speed;
+};
+
 class GammaBlockTransSM : public GammaPipeSegment
 {
 public:
 	GammaBlockTransSM(GammaManager* pManager);
 	~GammaBlockTransSM();
 
-	void processData(GammaDataBase* pData);
+	void processData(GammaData* pData);
+	inline void GammaBlockTransSM::pushData(GammaData* pDataOut);
 	bool setParam(GammaParam_e param, void* value);
 
 private:
-	unsigned int m_intgTime;
-	bool m_intgEnabled;
+	wxUint32 m_intgTime;
+	bool m_intEnabled;
 
-	unsigned long int timeCounter;
-	unsigned long int timeSend;
-	uint32_t* t_matrix;
-	uint32_t t_max;
-	uint64_t t_sum;
+	GammaMatrix m_dataOut;
+	wxTimeSpan m_markerTime;
+
+	wxTimeSpan m_intBeginTime;
+	wxTimeSpan m_intEndTime;
+	//wxUint32* t_matrix;
+	//wxUint32 t_max;
+	//wxUint64 t_sum;
+	wxUint32 m_eventMaxTrig;
+	wxUint64 m_eventSumTrig;
+	GammaArea_e m_areaTrig;
+	wxTimeSpan m_timeTrig;
+
+	GammaThrottle m_throttle;
 };
+
 
 #endif //_GAMMA_VIEW_BLOCK_TRANS_SM_H_

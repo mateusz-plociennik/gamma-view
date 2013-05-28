@@ -25,11 +25,14 @@ protected:
 	wxThread::ExitCode Entry();
 
 private:
-	bool CheckHeader();
-	wxTimeSpan GetTimeEnd();
+	bool checkHeader();
+	wxTimeSpan getTime();
+	wxTimeSpan getEndTime();
+	bool setTime(wxTimeSpan reqTime);
 
 	wxFileName m_fileName;
 	wxFile m_file;
+	wxUint32 m_intgTime;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_FREAD_H_

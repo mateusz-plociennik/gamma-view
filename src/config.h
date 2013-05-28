@@ -8,11 +8,19 @@
 #ifndef _GAMMA_VIEW_CONFIG_H_
 #define _GAMMA_VIEW_CONFIG_H_
 
-#define GAMMA_QUEUE_BLOCK_TRANS_US		256
-#define GAMMA_QUEUE_BLOCK_TRANS_SM		256
-#define GAMMA_QUEUE_BLOCK_UNIFORMITY	256
-#define GAMMA_QUEUE_B_NEMACALC			256 //4
-#define GAMMA_QUEUE_BLOCK_TRANS_MI		256 //1
-#define GAMMA_QUEUE_BLOCK_FWRITE		256
+#include "data_types.h"
+
+class GammaConfig
+{
+public:
+	GammaConfig();
+	~GammaConfig();
+
+	GammaFieldOfView* getFieldOfView();
+
+private:
+	GammaFieldOfView m_fieldOfView;
+	
+};
 
 #endif //_GAMMA_VIEW_CONFIG_H_

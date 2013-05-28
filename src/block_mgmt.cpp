@@ -17,7 +17,7 @@
 #include "b_nemacalc.h"
 #include "b_uniform.h"
 
-void GammaManager::SetMode(GammaMode_e mode)
+void GammaManager::setMode(GammaMode_e mode)
 {
 	switch(mode)
 	{
@@ -57,12 +57,16 @@ void GammaManager::SetMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_FAKE_2_IMAGE:
 		{
-			GammaPipeSegment* usb = new GammaBlockUSBFake(this);
+			GammaPipeHead* usb = new GammaBlockUSBFake(this);
 			GammaPipeSegment* tr_us = new GammaBlockTransUS(this);
+			GammaPipeSegment* unif = new GammaUniformity(this);
 			GammaPipeSegment* tr_sm = new GammaBlockTransSM(this);
 			GammaPipeSegment* tr_mi = new GammaTransMI(this);
+			
 			m_blockList.push_back(usb);
+			
 			m_blockList.push_back(tr_us);
+			m_blockList.push_back(unif);
 			m_blockList.push_back(tr_sm);
 			m_blockList.push_back(tr_mi);
 
@@ -70,10 +74,9 @@ void GammaManager::SetMode(GammaMode_e mode)
 			tr_us->connectSegment(tr_sm);
 			usb->connectSegment(tr_us);
 
-			//tr_mi->Run();
-			//tr_sm->Run();
-			//tr_us->Run();
-			//usb->Run();
+			*usb += *tr_us += *unif += *tr_sm += /*nema += */*tr_mi;
+
+			usb->start();
 			break;
 		}
 	case GAMMA_MODE_USB_2_IMAGE:
@@ -123,13 +126,6 @@ void GammaManager::SetMode(GammaMode_e mode)
 			tr_us->connectSegment(write);
 			usb->connectSegment(tr_us);
 
-			//tr_mi1->Run();
-			//tr_sm1->Run();
-			//tr_mi2->Run();
-			//tr_sm2->Run();
-			//write->Run();
-			//tr_us->Run();
-			//usb->Run();
 			break;
 		}
 	case GAMMA_MODE_FILE_2_IMAGE:
@@ -146,16 +142,8 @@ void GammaManager::SetMode(GammaMode_e mode)
 			m_blockList.push_back(nema);
 			m_blockList.push_back(tr_mi);
 
-			nema->connectSegment(tr_mi);
-			tr_sm->connectSegment(nema); //tr_mi
-			unif->connectSegment(tr_sm);
-			file->connectSegment(unif);
+			*file += *unif += *tr_sm += /*nema += */*tr_mi;
 
-
-			//tr_mi->Run();
-			//nema->Run();
-			//tr_sm->Run();
-			//unif->Run();
 			file->start();
 			break;
 		}
@@ -181,10 +169,10 @@ int GammaManager::DataTierSetParam(GammaParam_e param, void* value)
 {
 	int ret = 0;
 
-	for( std::list<GammaPipeSegment*>::iterator iBlock = m_blockList.begin();
+	for(std::list<GammaPipeSegment*>::iterator iBlock = m_blockList.begin();
 		iBlock != m_blockList.end(); iBlock++ )
 	{
-		if( (*iBlock)->setParam(param, value) )
+		if((*iBlock)->setParam(param, value))
 		{
 			ret++;
 		}
@@ -200,9 +188,7 @@ bool GammaManager::PresentationTierSetParam(GammaParam_e param, void* value)
 	return m_pFrame->SetParam(param, value);
 }
 
-/*
-void GammaBlockManager::BlocksRun()
+GammaConfig* GammaManager::getConfig()
 {
-	
+	return &m_config;
 }
-*/
