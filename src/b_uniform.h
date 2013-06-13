@@ -22,7 +22,10 @@ private:
 	int corrCount(wxUint32 x, wxUint32 y);
 	void setMatrix(wxUint32* matrix);
 
-	wxUint32 m_matrix[256*256];
+	wxInt32 m_matrix[256*256];
+	wxInt32 m_r;
+
+	bool m_bInitalized;
 
 };
 

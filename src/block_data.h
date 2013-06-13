@@ -43,15 +43,13 @@ class GammaDataUSB :
 public:
 	GammaDataUSB()
 	{
-		data = new wxUint8[256*256]();
 	}
 
 	~GammaDataUSB()
 	{
-		delete[] data;
 	}
 
-	wxUint8* data;
+	wxUint8 data[256 * 256];
 };
 
 /**
@@ -62,13 +60,12 @@ class GammaItems :
 {
 public:
 	GammaItems()
+		: items(256)
 	{
-		items.resize(256);
 	}
 
 	~GammaItems()
 	{
-		items.clear();
 	}
 
 	std::vector<GammaItem> items;
@@ -84,27 +81,24 @@ public:
 	GammaMatrix()
 		: eventMax(1)
 		, eventSum(0)
+		, time(0)
+		, span(0)
+		, trig(GAMMA_TRIG_NONE)
 	{
-		matrix = new wxUint32[256 * 256]();
-	}
-
-	GammaMatrix(const GammaMatrix& that)
-	{
-		matrix = new wxUint32[256 * 256];
-		memcpy(matrix, that.matrix, sizeof(wxUint32) * 256 * 256);
 	}
 
 	~GammaMatrix()
 	{
-		delete[] matrix;
 	}
 
-	wxUint32* matrix;
+	wxUint32 matrix[256 * 256];
 	wxUint32 eventMax;
 	wxUint64 eventSum;
 
 	wxTimeSpan time;
 	wxTimeSpan span;
+
+	GammaTrig_e trig;
 };
 
 /**
@@ -115,16 +109,15 @@ class GammaImage :
 {
 public:
 	GammaImage()
+		: image(256, 256, true)
 	{
-		image = new wxImage(256, 256, true);
 	}
 
 	~GammaImage()
 	{
-		delete image;
 	}
 
-	wxImage* image;
+	wxImage image;
 };
 
 #endif //_GAMMA_VIEW_BLOCK_DATA_H_

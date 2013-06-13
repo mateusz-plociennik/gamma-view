@@ -13,11 +13,10 @@
 #include <inttypes.h>
 #include <wx/gdicmn.h>
 
-#include <crtdbg.h>
+#include <set>
 
-#define POINT(X,Y) (256*(Y)+(X))
-#define POINT_INSIDE_FOV(X,Y) (pow(getManager()->getConfig()->getFieldOfView()->getRadius(), 2) > \
-	pow(getManager()->getConfig()->getFieldOfView()->center.x - X, 2) + pow(getManager()->getConfig()->getFieldOfView()->center.y - Y, 2))
+#define POINT(X, Y) ( 256 * (Y) + (X) )
+#define POINT_INSIDE_FOV(P) getManager()->getConfig()->getFieldOfView()->isPointInside(P)
 
 enum GammaParam_e
 {
@@ -44,6 +43,22 @@ enum GammaParam_e
 	GAMMA_PARAM_MATRIX_DATA,
 	GAMMA_PARAM_FREQUENCY,
 	GAMMA_PARAM_BUTTON_SET,
+	GAMMA_PARAM_TRIG_AVG,
+	GAMMA_PARAM_TRIG_MAX,
+	GAMMA_PARAM_TRIG_SUM,
+	GAMMA_PARAM_TRIG_TIME,
+	GAMMA_PARAM_TRIG_GATE,
+	GAMMA_PARAM_TRIG_TYPE,
+};
+
+enum GammaTrig_e
+{
+	GAMMA_TRIG_NONE = 0,
+	GAMMA_TRIG_AVG, 
+	GAMMA_TRIG_MAX, 
+	GAMMA_TRIG_SUM, 
+	GAMMA_TRIG_TIME, 
+	GAMMA_TRIG_GATE,
 };
 
 enum GammaColourmap_e
@@ -107,9 +122,9 @@ enum GammaMode_e
 
 enum GammaArea_e
 {
-	GAMMA_AREA_CFOV,
-	GAMMA_AREA_UFOV,
 	GAMMA_AREA_FOV,
+	GAMMA_AREA_UFOV,
+	GAMMA_AREA_CFOV,
 	GAMMA_AREA_UNDEFINED,
 };
 
@@ -152,28 +167,96 @@ struct GammaItem2		// 8 bytes // Reduced size GammaItem (use in future?)
 	} extra;			// 4 bytes
 };
 
-
-struct GammaFieldOfView // 12 bytes
+class GammaFieldOfView // 12 bytes
 {
-	wxRealPoint center; // 2 * 4 bytes
-	wxDouble radius; // 4 bytes
-	GammaArea_e area;
-	
-	wxDouble getRadius(GammaArea_e iArea = GAMMA_AREA_UNDEFINED)
+public:
+	GammaFieldOfView(wxRealPoint center, wxDouble radius, GammaArea_e area)
+		: m_center(center)
+		, m_radius(radius)
+		, m_area(area)
 	{
-		if(GAMMA_AREA_UNDEFINED == iArea)
+		calcPoint();
+	}
+
+	GammaArea_e getArea()
+	{
+		return m_area;
+	}
+
+	void setArea(GammaArea_e area)
+	{
+		m_area = area;
+	}
+
+	wxRealPoint getCenter()
+	{
+		return m_center;
+	}
+
+	void setCenter(wxRealPoint center)
+	{
+		m_center = center;
+		calcPoint();
+	}
+
+	wxDouble getRadius(GammaArea_e area = GAMMA_AREA_UNDEFINED)
+	{
+		if(GAMMA_AREA_UNDEFINED == area)
 		{
-			iArea = area;
+			area = m_area;
 		}
-		switch(iArea)
+		switch(area)
 		{
 		default:
 		case GAMMA_AREA_FOV:
-			return radius;
+			return m_radius;
 		case GAMMA_AREA_UFOV:
-			return radius * 95 / 100;
+			return m_radius * 95 / 100;
 		case GAMMA_AREA_CFOV:
-			return radius * 95 * 75 / 10000;
+			return m_radius * 95 * 75 / 10000;
+		}
+	}
+
+	void setRadius(wxDouble radius)
+	{
+		m_radius = radius;
+		calcPoint();
+	}
+
+	bool isPointInside(wxUint32 point, GammaArea_e area = GAMMA_AREA_UNDEFINED)
+	{
+		return m_pointSet[GAMMA_AREA_UNDEFINED != area ? area : m_area].end() 
+			!= m_pointSet[GAMMA_AREA_UNDEFINED != area ? area : m_area].find(point);
+	}
+
+private:
+	GammaArea_e m_area;
+	wxRealPoint m_center;
+	wxDouble m_radius;
+
+	std::set<wxUint32> m_pointSet[GAMMA_AREA_UNDEFINED];
+
+	void calcPoint()
+	{
+		for(wxUint32 y = 0; y < 256; y++)
+		{
+			for(wxUint32 x = 0; x < 256; x++)
+			{
+				if(pow(getRadius(GAMMA_AREA_FOV), 2) > pow(m_center.x - x, 2) + pow(m_center.y - y, 2))
+				{
+					m_pointSet[GAMMA_AREA_FOV].insert(POINT(x, y));
+				}
+
+				if(pow(getRadius(GAMMA_AREA_UFOV), 2) > pow(m_center.x - x, 2) + pow(m_center.y - y, 2))
+				{
+					m_pointSet[GAMMA_AREA_UFOV].insert(POINT(x, y));
+				}
+
+				if(pow(getRadius(GAMMA_AREA_CFOV), 2) > pow(m_center.x - x, 2) + pow(m_center.y - y, 2))
+				{
+					m_pointSet[GAMMA_AREA_CFOV].insert(POINT(x, y));
+				}
+			}
 		}
 	}
 };

@@ -60,10 +60,13 @@ private:
 	//wxUint32* t_matrix;
 	//wxUint32 t_max;
 	//wxUint64 t_sum;
+	wxUint32 m_eventAvgTrig;
 	wxUint32 m_eventMaxTrig;
 	wxUint64 m_eventSumTrig;
 	GammaArea_e m_areaTrig;
 	wxTimeSpan m_timeTrig;
+	wxUint32 m_gateCounter;
+	wxUint32 m_gateTrig;
 
 	GammaThrottle m_throttle;
 };

@@ -16,7 +16,7 @@ GammaTransMI::GammaTransMI(GammaManager* pManager)
 	, m_brightness(0.0)
 	, m_contrast(1.0)
 	, m_gamma(1.0)
-	, m_invert(false)
+	, m_bInvert(false)
 	, m_colourmap(GAMMA_COLOURMAP_GRAY)
 	, m_eventMaxTable(1, 1)
 	, m_bSetUniformMatrix(false)
@@ -49,7 +49,7 @@ void GammaTransMI::calcMax(wxUint32 eventMax)
 
 	if(y / range < eventMax && eventMax < range * y)
 	{
-		if(30 <= m_eventMaxTable.size())
+		if(64 <= m_eventMaxTable.size())
 		{
 			m_eventMaxTable.pop_front();
 		}
@@ -76,8 +76,8 @@ void GammaTransMI::processData(GammaData* pData)
 
 	calcMax(pDataIn->eventMax);
 
-	calcColour(0, m_max);
-	pDataOut->image->SetRGB( wxRect(0, 0, 256, 256), 
+	calcColour(0);
+	pDataOut->image.SetRGB( wxRect(0, 0, 256, 256), 
 		m_colour.Red(), m_colour.Green(), m_colour.Blue() );
 
 	for(wxUint32 y = 0; y < 256; y++)
@@ -86,17 +86,17 @@ void GammaTransMI::processData(GammaData* pData)
 		{
 			if(pDataIn->matrix[POINT(x,y)])
 			{
-				calcColour(pDataIn->matrix[POINT(x,y)], m_max);
-				pDataOut->image->SetRGB( x, y, 
+				calcColour(pDataIn->matrix[POINT(x,y)]);
+				pDataOut->image.SetRGB( x, y, 
 					m_colour.Red(), m_colour.Green(), m_colour.Blue() );
 			}
 		}
 	}
 
-	if(m_bSetUniformMatrix)
+	if(GAMMA_TRIG_NONE != pDataIn->trig)
 	{
 		getManager()->DataTierSetParam(GAMMA_PARAM_UNIFORM_MATRIX_SET, pDataIn->matrix);
-		m_bSetUniformMatrix = false;
+		getManager()->PresentationTierSetParam(GAMMA_PARAM_TRIG_TYPE, &pDataIn->trig);
 	}
 
 /*	wxLogStatus("eventMax = %u, m_max = %f, eventSum = %"wxLongLongFmtSpec"d, span = %"wxLongLongFmtSpec"d freq = %f k/s", 
@@ -106,14 +106,14 @@ void GammaTransMI::processData(GammaData* pData)
 	wxDouble frequency = (double)1000 * pDataIn->eventSum / pDataIn->span.GetValue().GetValue();
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_FREQUENCY, (void*)&frequency);
 
-	getManager()->PresentationTierSetParam(GAMMA_PARAM_IMG_DATA, (void*)pDataOut->image);
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_IMG_DATA, (void*)&pDataOut->image);
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &pDataIn->time);
 	delete pDataOut;
 }
 
-void GammaTransMI::calcColour(wxUint32 index, wxDouble max)
+void GammaTransMI::calcColour(wxDouble index)
 {
-/*	wxUint64 key = wxUint64(index) | wxUint64(max) << 32;
+/*	wxUint64 key = wxUint64(index) | wxUint64(m_max) << 32;
 
 	std::map<wxUint64, wxColour>::iterator iColour = m_colourLut.find(key);
 	if(m_colourLut.end() != iColour)
@@ -126,12 +126,8 @@ void GammaTransMI::calcColour(wxUint32 index, wxDouble max)
 		m_colourLut.clear();
 	}
 */
-	double x = std::max( 0.0, std::min( 1.0, m_contrast * 
-		( pow( (double)index/max, 1.0/m_gamma ) + m_brightness ) ) );
-	if(m_invert)
-	{
-		x = 1.0 - x;
-	}
+	double x = std::max( 0.0, std::min( 1.0, m_contrast * ( pow( !m_bInvert ? 
+		index/m_max : 1.0 - index/m_max, 1.0/m_gamma ) + m_brightness ) ) );
 	
 	double r, g, b;
 	switch(m_colourmap)
@@ -257,7 +253,7 @@ bool GammaTransMI::setParam(GammaParam_e param, void* value)
 	case GAMMA_PARAM_COLOURMAP:
 		m_colourmap = *static_cast<GammaColourmap_e*>(value); break;
 	case GAMMA_PARAM_COLOURMAP_INVERT:
-		m_invert = *static_cast<bool*>(value); break;
+		m_bInvert = *static_cast<bool*>(value); break;
 	case GAMMA_PARAM_BUTTON_SET:
 		m_bSetUniformMatrix = true;
 	default:

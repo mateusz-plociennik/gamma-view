@@ -187,19 +187,19 @@ double GammaNemaCalc::getIntgUniformity()
 	{
 		for(wxUint32 x = 0; x <= 255; x++)
 		{
-			if(0 == m_pDataIn->matrix[POINT(x,y)] || !POINT_INSIDE_FOV(x,y))
+			if(0 == m_pDataIn->matrix[POINT(x, y)] || !POINT_INSIDE_FOV(POINT(x, y)))
 			{
 				continue;
 			}
 
-			if(m_pDataIn->matrix[POINT(x,y)] < min)
+			if(m_pDataIn->matrix[POINT(x, y)] < min)
 			{
-				min = m_pDataIn->matrix[POINT(x,y)];
+				min = m_pDataIn->matrix[POINT(x, y)];
 			}
 
-			if(max < m_pDataIn->matrix[POINT(x,y)])
+			if(max < m_pDataIn->matrix[POINT(x, y)])
 			{
-				max = m_pDataIn->matrix[POINT(x,y)];
+				max = m_pDataIn->matrix[POINT(x, y)];
 			}
 		}
 	}
@@ -221,42 +221,42 @@ double GammaNemaCalc::getDiffUniformity(GammaDirection_e direction)
 			switch(direction)
 			{
 			case GAMMA_DIRECTION_X:
-				if( 0 == m_pDataIn->matrix[POINT(x-2,y)] || !POINT_INSIDE_FOV(x-2,y) ||
-					0 == m_pDataIn->matrix[POINT(x+2,y)] || !POINT_INSIDE_FOV(x+2,y) )
+				if( 0 == m_pDataIn->matrix[POINT(x-2, y)] || !POINT_INSIDE_FOV(POINT(x-2, y)) ||
+					0 == m_pDataIn->matrix[POINT(x+2, y)] || !POINT_INSIDE_FOV(POINT(x+2, y)) )
 				{
 					continue;
 				}
 
 				for(wxInt32 i = -2; i <= 2; i++)
 				{
-					if(m_pDataIn->matrix[POINT(x+i,y)] < min)
+					if(m_pDataIn->matrix[POINT(x+i, y)] < min)
 					{
-						min = m_pDataIn->matrix[POINT(x+i,y)];
+						min = m_pDataIn->matrix[POINT(x+i, y)];
 					}
 
-					if(max < m_pDataIn->matrix[POINT(x+i,y)])
+					if(max < m_pDataIn->matrix[POINT(x+i, y)])
 					{
-						max = m_pDataIn->matrix[POINT(x+i,y)];
+						max = m_pDataIn->matrix[POINT(x+i, y)];
 					}
 				}
 				break;
 			case GAMMA_DIRECTION_Y:
-				if( 0 == m_pDataIn->matrix[POINT(x,y-2)] || !POINT_INSIDE_FOV(x,y-2) ||
-					0 == m_pDataIn->matrix[POINT(x,y+2)] || !POINT_INSIDE_FOV(x,y+2) )
+				if( 0 == m_pDataIn->matrix[POINT(x, y-2)] || !POINT_INSIDE_FOV(POINT(x, y-2)) ||
+					0 == m_pDataIn->matrix[POINT(x, y+2)] || !POINT_INSIDE_FOV(POINT(x, y+2)) )
 				{
 					continue;
 				}
 
 				for(wxInt32 i = -2; i <= 2; i++)
 				{
-					if(m_pDataIn->matrix[POINT(x,y+i)] < min)
+					if(m_pDataIn->matrix[POINT(x, y+i)] < min)
 					{
-						min = m_pDataIn->matrix[POINT(x,y+i)];
+						min = m_pDataIn->matrix[POINT(x, y+i)];
 					}
 
-					if(max < m_pDataIn->matrix[POINT(x,y+i)])
+					if(max < m_pDataIn->matrix[POINT(x, y+i)])
 					{
-						max = m_pDataIn->matrix[POINT(x,y+i)];
+						max = m_pDataIn->matrix[POINT(x, y+i)];
 					}
 				}
 				break;

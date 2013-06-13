@@ -50,6 +50,7 @@ private:
 	void OnMenuNewWindow(wxCommandEvent& event);
 	void OnMenuCloseWindow(wxCommandEvent& event);
 
+	void OnMenuMode(wxCommandEvent& event);
 	void OnMenuResizeWindow(wxCommandEvent& event);
 	void OnMenuSetColourmap(wxCommandEvent& event);
 	void OnMenuSetIntegrate(wxCommandEvent& event);
@@ -60,6 +61,10 @@ private:
 	void OnSliderUpdate(wxCommandEvent &event);
 
 	void SetImage(wxImage& image);
+
+	//
+	wxString openFile();
+	wxString saveFile();
 
 protected:
 	GammaManager* m_pManager;

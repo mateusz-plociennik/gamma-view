@@ -14,7 +14,7 @@ GammaBlockTransUS::GammaBlockTransUS(GammaManager* pManager)
 {
 	wxConfigBase* config = wxFileConfig::Get();
 	wxConfigPathChanger changer(config, "/USBDevice/");
-	m_timeDiv = config->ReadLong("Tmarker", 10);
+	m_timeDiv = 10;//config->ReadLong("Tmarker", 10);
 	m_timeCounter = 0;
 }
 

@@ -10,6 +10,8 @@
 #include "canvas.h"
 #include "panel_player.h"
 
+#include "f_end_cond.h"
+
 #include <algorithm>
 
 #include <wx/dcclient.h>
@@ -26,9 +28,17 @@
 #include <wx/slider.h>
 
 #include <wx/datetime.h>
+#include <wx/filedlg.h>
 
 enum
 {
+	MENU_MODE = 100,
+	MENU_MODE_LIVE,
+	MENU_MODE_LIVE_UNI,
+	MENU_MODE_PLAYBACK,
+	MENU_MODE_PLAYBACK_UNI,
+	MENU_MODE_UNIFORMITY,
+
 	Menu_View_Zoom = 200,
 	Menu_View_Zoom_100,
 	Menu_View_Zoom_200,
@@ -86,9 +96,11 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 	EVT_SIZE(GammaFrame::OnSize)
 
 	//Menu events
-	EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
-	EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
-	
+	//EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
+	//EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
+
+	EVT_MENU_RANGE(MENU_MODE, MENU_MODE_UNIFORMITY, 
+		GammaFrame::OnMenuMode)
 	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, 
 		GammaFrame::OnMenuResizeWindow)
 	EVT_MENU_RANGE(Menu_View_Colourmap_AUTUMN, Menu_View_Colourmap_INVERT, 
@@ -118,10 +130,19 @@ GammaFrame::GammaFrame()
 	SetIcon(wxICON(gamma-view));
 
 	// Make a menubar
-	wxMenu *fileMenu = new wxMenu;
-	fileMenu->Append(wxID_NEW);
-	fileMenu->AppendSeparator();
-	fileMenu->Append(wxID_CLOSE);
+
+	wxMenu *modeMenu = new wxMenu;
+	modeMenu->AppendRadioItem(MENU_MODE_LIVE, 
+		wxT("Live"), wxT("Live mode"));
+	modeMenu->Check(MENU_MODE_LIVE, true);
+	modeMenu->AppendRadioItem(MENU_MODE_LIVE_UNI, 
+		wxT("Live (uniform)"), wxT("Live mode with uniformity"));
+	modeMenu->AppendRadioItem(MENU_MODE_PLAYBACK, 
+		wxT("Playback"), wxT("Playback mode"));
+	modeMenu->AppendRadioItem(MENU_MODE_PLAYBACK_UNI, 
+		wxT("Playback (uniform)"), wxT("Playback mode with unformity"));
+	modeMenu->AppendRadioItem(MENU_MODE_UNIFORMITY, 
+		wxT("Uniform matrix"), wxT("Aquisition of uniformity matrix"));
 
 	wxMenu *viewZoomMenu = new wxMenu;
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_100, 
@@ -222,7 +243,7 @@ GammaFrame::GammaFrame()
 	helpMenu->Append(wxID_ABOUT);
 
 	wxMenuBar *menuBar = new wxMenuBar;
-	menuBar->Append(fileMenu, wxT("&File"));
+	menuBar->Append(modeMenu, wxT("&Mode"));
 	menuBar->Append(viewMenu, wxT("&View"));
 	menuBar->Append(helpMenu, wxT("&Help"));
 
@@ -262,8 +283,8 @@ GammaFrame::GammaFrame()
 
 	Show();
 
-	//m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);
-	m_pManager->setMode(GAMMA_MODE_FAKE_2_IMAGE);
+	m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);
+	//m_pManager->setMode(GAMMA_MODE_FAKE_2_IMAGE);
 }
 
 GammaFrame::~GammaFrame()
@@ -276,8 +297,6 @@ GammaFrame::~GammaFrame()
 
 void GammaFrame::OnClose(wxCloseEvent& event)
 {
-	
-
 	event.Skip();
 }
 
@@ -301,7 +320,7 @@ void GammaFrame::OnMenuHelpAbout(wxCommandEvent& WXUNUSED(event))
 	wxAboutDialogInfo info;
 		
 	info.SetName(wxT("gamma-view"));
-	info.SetVersion(wxT("0.1"));
+	info.SetVersion(wxT("1.0"));
 
 	wxDateTime dt;
 	wxString::const_iterator dEnd, tEnd;
@@ -309,16 +328,72 @@ void GammaFrame::OnMenuHelpAbout(wxCommandEvent& WXUNUSED(event))
 	dt.ParseTime(__TIME__, &tEnd);
 
 	info.SetDescription(
-		"\nMade with " + wxString(wxVERSION_STRING) + 
-		"\nDate: " + dt.FormatDate() +
-		"\nTime: " + dt.FormatTime() +
-		"\n");
-	info.SetCopyright(wxT("(C) 2012 Mateusz Plociennik"));
+		_("\nMade with ") + wxString(wxVERSION_STRING) + 
+		_("\nCompile time: ") + dt.FormatDate() + " " + dt.FormatTime() +
+		wxT("\n"));
+
+	info.SetCopyright(wxT("(C) ") 
+		+ wxString::Format(wxT("%d"), dt.GetYear()) 
+		+ wxT(" Mateusz Plociennik"));
 	//info.AddDeveloper(wxT("Mateusz Plociennik"));
 
-	info.SetWebSite(wxT("http://github.com/mateusz-plociennik/gamma-view"), wxT("Web Site"));
+	info.SetWebSite(wxT("http://github.com/mateusz-plociennik/gamma-view"), _("GitHub Web Site"));
 
 	wxAboutBox(info, this);
+}
+
+void GammaFrame::OnMenuMode(wxCommandEvent& commandEvent)
+{
+	switch(commandEvent.GetId())
+	{
+	default:
+	case MENU_MODE_LIVE:
+	case MENU_MODE_LIVE_UNI:
+	case MENU_MODE_PLAYBACK:
+		openFile(); break;
+	case MENU_MODE_PLAYBACK_UNI:
+	case MENU_MODE_UNIFORMITY:
+		{
+			new GammaEndCondDialog(m_pManager);
+		}
+		break;
+	}
+}
+
+wxString GammaFrame::openFile()
+{
+	if(true)
+	{
+		if(wxMessageBox(_("Current content has not been saved! Proceed?"), 
+			_("Please confirm"), wxICON_QUESTION | wxYES_NO, this) == wxNO)
+		{
+			return wxString("");
+			//else: proceed asking to the user the new file to open
+		}
+	}
+
+	wxFileDialog openFileDialog(this, _("Open GVB file"), "", "", 
+		_("GVB files (*.gvb)|*.gvb"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+
+	if(openFileDialog.ShowModal() == wxID_CANCEL)
+	{
+		return wxString(""); // the user changed idea...
+	}
+
+	return openFileDialog.GetPath();
+}
+
+wxString GammaFrame::saveFile()
+{
+	wxFileDialog saveFileDialog(this, _("Save GVB file"), "", "",
+		_("GVB files (*.gvb)|*.gvb"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+	
+	if(saveFileDialog.ShowModal() == wxID_CANCEL)
+	{
+		return wxString(""); // the user changed idea...
+	}
+	
+	return saveFileDialog.GetPath();
 }
 
 void GammaFrame::OnMenuNewWindow(wxCommandEvent& WXUNUSED(event))
@@ -333,42 +408,17 @@ void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 		Maximize(false);
 	}
 
-	switch( commandEvent.GetId() )
+	switch(commandEvent.GetId())
 	{
-		case Menu_View_Zoom_100:
-			m_canvas->DoSetBestSize(wxSize(256,256));	break;
-		case Menu_View_Zoom_200:
-			m_canvas->DoSetBestSize(wxSize(512,512)); break;
-		case Menu_View_Zoom_300:
-			m_canvas->DoSetBestSize(wxSize(768,768)); break;
+	case Menu_View_Zoom_100:
+		m_canvas->DoSetBestSize(wxSize(256,256)); break;
+	case Menu_View_Zoom_200:
+		m_canvas->DoSetBestSize(wxSize(512,512)); break;
+	case Menu_View_Zoom_300:
+		m_canvas->DoSetBestSize(wxSize(768,768)); break;
 	}
 
 	Fit();
-
-
-	
-/*		case Menu_View_Zoom_Other:
-		{
-			long res = wxGetNumberFromUser( 
-				wxT("Enter size in percent.\n"),
-				wxT("Enter a number:"), 
-				wxT("Window Resize"),
-				100, 50, 1000, this );
-
-			if( res == -1 )
-			{
-				wxMessageBox(wxT("Invalid number entered or dialog cancelled."), 
-					wxT("Window resize result"), wxOK | wxICON_HAND, this);
-			}
-			else
-			{
-				SetClientSize(256 * ((float)res/100), 256 * ((float)res/100));
-			}
-
-			break;
-		}
-*/
-
 }
 
 void GammaFrame::OnMenuSetColourmap(wxCommandEvent& event)
@@ -383,35 +433,35 @@ void GammaFrame::OnMenuSetColourmap(wxCommandEvent& event)
 		GammaColourmap_e colourmap;
 		switch ( event.GetId() )
 		{
-			case Menu_View_Colourmap_AUTUMN:
-				colourmap = GAMMA_COLOURMAP_AUTUMN; break;
-			case Menu_View_Colourmap_BONE:
-				colourmap = GAMMA_COLOURMAP_BONE; break;
-			case Menu_View_Colourmap_COOL:
-				colourmap = GAMMA_COLOURMAP_COOL; break;
-			case Menu_View_Colourmap_COPPER:
-				colourmap = GAMMA_COLOURMAP_COPPER; break;
-			default:
-			case Menu_View_Colourmap_GRAY:
-				colourmap = GAMMA_COLOURMAP_GRAY; break;
-			case Menu_View_Colourmap_HOT:
-				colourmap = GAMMA_COLOURMAP_HOT; break;
-			case Menu_View_Colourmap_HSV:
-				colourmap = GAMMA_COLOURMAP_HSV; break;
-			case Menu_View_Colourmap_JET:
-				colourmap = GAMMA_COLOURMAP_JET; break;
-			case Menu_View_Colourmap_OCEAN:
-				colourmap = GAMMA_COLOURMAP_OCEAN; break;
-			case Menu_View_Colourmap_PINK:
-				colourmap = GAMMA_COLOURMAP_PINK; break;
-			case Menu_View_Colourmap_RAINBOW:
-				colourmap = GAMMA_COLOURMAP_RAINBOW; break;
-			case Menu_View_Colourmap_SPRING:
-				colourmap = GAMMA_COLOURMAP_SPRING; break;
-			case Menu_View_Colourmap_SUMMER:
-				colourmap = GAMMA_COLOURMAP_SUMMER; break;
-			case Menu_View_Colourmap_WINTER:
-				colourmap = GAMMA_COLOURMAP_WINTER; break;
+		case Menu_View_Colourmap_AUTUMN:
+			colourmap = GAMMA_COLOURMAP_AUTUMN; break;
+		case Menu_View_Colourmap_BONE:
+			colourmap = GAMMA_COLOURMAP_BONE; break;
+		case Menu_View_Colourmap_COOL:
+			colourmap = GAMMA_COLOURMAP_COOL; break;
+		case Menu_View_Colourmap_COPPER:
+			colourmap = GAMMA_COLOURMAP_COPPER; break;
+		default:
+		case Menu_View_Colourmap_GRAY:
+			colourmap = GAMMA_COLOURMAP_GRAY; break;
+		case Menu_View_Colourmap_HOT:
+			colourmap = GAMMA_COLOURMAP_HOT; break;
+		case Menu_View_Colourmap_HSV:
+			colourmap = GAMMA_COLOURMAP_HSV; break;
+		case Menu_View_Colourmap_JET:
+			colourmap = GAMMA_COLOURMAP_JET; break;
+		case Menu_View_Colourmap_OCEAN:
+			colourmap = GAMMA_COLOURMAP_OCEAN; break;
+		case Menu_View_Colourmap_PINK:
+			colourmap = GAMMA_COLOURMAP_PINK; break;
+		case Menu_View_Colourmap_RAINBOW:
+			colourmap = GAMMA_COLOURMAP_RAINBOW; break;
+		case Menu_View_Colourmap_SPRING:
+			colourmap = GAMMA_COLOURMAP_SPRING; break;
+		case Menu_View_Colourmap_SUMMER:
+			colourmap = GAMMA_COLOURMAP_SUMMER; break;
+		case Menu_View_Colourmap_WINTER:
+			colourmap = GAMMA_COLOURMAP_WINTER; break;
 		}
 		GetManager()->DataTierSetParam(GAMMA_PARAM_COLOURMAP, (void*)&colourmap);
 	}
@@ -469,15 +519,15 @@ void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 
 void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 {
-	switch ( event.GetId() )
+	switch(event.GetId())
 	{
-	case 	Menu_View_ImgParams_Brightness:
+	case Menu_View_ImgParams_Brightness:
 		m_canvas->m_brightness = 0.0; break;
-	case 	Menu_View_ImgParams_Contrast:
+	case Menu_View_ImgParams_Contrast:
 		m_canvas->m_contrast = 1.0; break;
-	case 	Menu_View_ImgParams_Gamma:
+	case Menu_View_ImgParams_Gamma:
 		m_canvas->m_gamma = 1.0; break;
-	case 	Menu_View_ImgParams_All:
+	case Menu_View_ImgParams_All:
 		m_canvas->m_brightness = 0.0;
 		m_canvas->m_contrast = 1.0;
 		m_canvas->m_gamma = 1.0; break;
@@ -487,10 +537,8 @@ void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_canvas->m_contrast);
 	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_canvas->m_gamma);
 
-	wxString status;
-	status.Printf("B=%.2f; C=%.2f; G=%.2f", 
-		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma);
-	GetStatusBar()->SetStatusText(status, 0);
+	GetStatusBar()->SetStatusText(wxString::Format(wxT("B=%.2f; C=%.2f; G=%.2f"), 
+		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma), 0);
 }
 
 bool GammaFrame::SetParam(GammaParam_e param, void* value)
@@ -521,6 +569,12 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 		m_sidePanel->m_frequency = *static_cast<wxDouble*>(value);
 		m_sidePanel->Refresh(false);
 		break;
+	case GAMMA_PARAM_TRIG_TYPE:
+		{
+			GammaTrig_e trig = *static_cast<GammaTrig_e*>(value);
+			wxLogStatus("%s() trig = %d", __FUNCTION__, trig);
+			break;
+		}
 	default:
 		return false;
 	}

@@ -70,10 +70,6 @@ void GammaManager::setMode(GammaMode_e mode)
 			m_blockList.push_back(tr_sm);
 			m_blockList.push_back(tr_mi);
 
-			tr_sm->connectSegment(tr_mi);
-			tr_us->connectSegment(tr_sm);
-			usb->connectSegment(tr_us);
-
 			*usb += *tr_us += *unif += *tr_sm += /*nema += */*tr_mi;
 
 			usb->start();

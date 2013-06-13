@@ -24,14 +24,15 @@ public:
 	bool setParam(GammaParam_e param, void* value);
 
 private:
-	void calcColour(wxUint32 index, wxDouble max);
+	void calcColour(wxDouble index);
 	void calcMax(wxUint32 eventMax);
 	
 	wxDouble m_brightness;
 	wxDouble m_contrast;
 	wxDouble m_gamma;
 	wxDouble m_max;
-	bool m_invert;
+
+	bool m_bInvert;
 	bool m_bSetUniformMatrix;
 	
 	GammaColourmap_e m_colourmap;
