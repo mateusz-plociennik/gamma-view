@@ -71,6 +71,7 @@ void GammaTransMI::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
+	wxASSERT(GAMMA_DATA_TYPE_MATRIX == pData->type);
 	GammaMatrix* pDataIn = static_cast<GammaMatrix*>(pData);
 	GammaImage* pDataOut = new GammaImage;
 
@@ -103,8 +104,8 @@ void GammaTransMI::processData(GammaData* pData)
 		pDataIn->eventMax, m_max, pDataIn->eventSum, pDataIn->span.GetValue().GetValue(), 
 		(double)pDataIn->eventSum / pDataIn->span.GetValue().GetValue());
 */
-	wxDouble frequency = (double)1000 * pDataIn->eventSum / pDataIn->span.GetValue().GetValue();
-	getManager()->PresentationTierSetParam(GAMMA_PARAM_FREQUENCY, (void*)&frequency);
+
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_DATA_TYPE_MATRIX, (void*)pDataIn);
 
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_IMG_DATA, (void*)&pDataOut->image);
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &pDataIn->time);

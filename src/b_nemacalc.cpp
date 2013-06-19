@@ -31,7 +31,10 @@ GammaNemaCalc::~GammaNemaCalc()
 ////////////////////////////////////////////////////////////////////////////////
 
 void GammaNemaCalc::processData(GammaData* pData)
-{
+{	
+	wxMutexLocker locker(m_processDataMutex);
+
+	wxASSERT(GAMMA_DATA_TYPE_MATRIX == pData->type);
 	m_pDataIn = static_cast<GammaMatrix*>(pData);
 	GammaMatrix* pDataOut(new GammaMatrix);
 

@@ -26,6 +26,7 @@ void GammaUniformity::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
+	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
 	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
 
 	if(m_bInitalized)
@@ -38,7 +39,7 @@ void GammaUniformity::processData(GammaData* pData)
 		{
 			switch ((*it).type)
 			{
-			case GAMMA_ITEM_POINT:
+			case GAMMA_ITEM_TYPE_POINT:
 				for(int iCount = corrCount((*it).data.point.x,(*it).data.point.y); 
 					iCount != 0; iCount--)
 				{

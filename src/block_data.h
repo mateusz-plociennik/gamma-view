@@ -25,13 +25,16 @@ public:
 	/**
 	 * Default constructor.
 	 */
-	GammaData()
+	GammaData(GammaDataType_e i_type)
+		: type(i_type)
 	{
 	}
 
 	virtual ~GammaData()
 	{
 	}
+
+	const GammaDataType_e type;
 };
 
 /**
@@ -42,6 +45,7 @@ class GammaDataUSB :
 {
 public:
 	GammaDataUSB()
+		: GammaData(GAMMA_DATA_TYPE_USB)
 	{
 	}
 
@@ -60,7 +64,8 @@ class GammaItems :
 {
 public:
 	GammaItems()
-		: items(256)
+		: GammaData(GAMMA_DATA_TYPE_ITEMS)
+		, items(256)
 	{
 	}
 
@@ -79,7 +84,8 @@ class GammaMatrix :
 {
 public:
 	GammaMatrix()
-		: eventMax(1)
+		: GammaData(GAMMA_DATA_TYPE_MATRIX)
+		, eventMax(1)
 		, eventSum(0)
 		, time(0)
 		, span(0)
@@ -109,7 +115,8 @@ class GammaImage :
 {
 public:
 	GammaImage()
-		: image(256, 256, true)
+		: GammaData(GAMMA_DATA_TYPE_IMAGE)
+		, image(256, 256, true)
 	{
 	}
 

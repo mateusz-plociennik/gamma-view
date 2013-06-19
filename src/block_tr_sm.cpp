@@ -34,6 +34,7 @@ void GammaBlockTransSM::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
+	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
 	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
 	
 	for(std::vector<GammaItem>::iterator it = pDataIn->items.begin();
@@ -41,29 +42,31 @@ void GammaBlockTransSM::processData(GammaData* pData)
 	{
 		switch((*it).type)
 		{
-		case GAMMA_ITEM_POINT:
+		case GAMMA_ITEM_TYPE_POINT:
 			m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)]++;
 
-			if(m_dataOut.eventMax < m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)]
-				&& POINT_INSIDE_FOV(POINT((*it).data.point.x, (*it).data.point.y)))
+			if(POINT_INSIDE_FOV(POINT((*it).data.point.x, (*it).data.point.y)))
 			{
-				m_dataOut.eventMax = m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)];
-
-				if(m_eventMaxTrig != 1 && m_eventMaxTrig <= m_dataOut.eventMax)
+				if(m_dataOut.eventMax < m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)])
 				{
-					m_dataOut.trig = GAMMA_TRIG_MAX;
+					m_dataOut.eventMax = m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)];
+
+					if(m_eventMaxTrig != 1 && m_eventMaxTrig <= m_dataOut.eventMax)
+					{
+						m_dataOut.trig = GAMMA_TRIG_MAX;
+						pushData(&m_dataOut);
+					}
+				}
+
+				m_dataOut.eventSum++;
+				if(m_eventSumTrig != 0 && m_eventSumTrig <= m_dataOut.eventSum)
+				{
+					m_dataOut.trig = GAMMA_TRIG_SUM;
 					pushData(&m_dataOut);
 				}
 			}
-
-			m_dataOut.eventSum++;
-			if(m_eventSumTrig != 0 && m_eventSumTrig <= m_dataOut.eventSum)
-			{
-				m_dataOut.trig = GAMMA_TRIG_SUM;
-				pushData(&m_dataOut);
-			}
 			break;
-		case GAMMA_ITEM_TMARKER:
+		case GAMMA_ITEM_TYPE_TMARKER:
 			m_markerTime = wxTimeSpan(0, 0, 0, (*it).data.time);
 			//wxLogStatus("m_markerTime = %"wxLongLongFmtSpec"d", m_markerTime.GetValue().GetValue());
 			if(m_dataOut.time <= m_markerTime && m_markerTime <= m_dataOut.time + wxTimeSpan::Second())
@@ -92,7 +95,7 @@ void GammaBlockTransSM::processData(GammaData* pData)
 				m_intEndTime = m_markerTime;
 			}
 			break;
-		case GAMMA_ITEM_TRIGGER:
+		case GAMMA_ITEM_TYPE_TRIGGER:
 			m_gateCounter++;
 			if(m_gateTrig != 0 && m_gateTrig <= m_gateCounter)
 			{

@@ -36,22 +36,26 @@ public:
 
 protected:
 	void onPaint(wxPaintEvent& event);
-	void onButton(wxCommandEvent& event);
 	GammaManager* GetManager();
 
 private:
 	GammaFrame* m_frame;
 
-	wxFlexGridSizer *m_sideSizer;
-
 	wxDouble m_frequency;
-	wxStaticText *m_frequencyLabel;
-	wxStaticText *m_frequencyValue;
+	wxStaticText* m_frequencyValue;
 
-	wxStaticText *m_positionLabel;
+	wxDouble m_eventAvg;
+	wxStaticText* m_eventAvgValue;
+
+	wxUint32 m_eventMax;
+	wxStaticText* m_eventMaxValue;
+
+	wxUint64 m_eventSum;
+	wxStaticText* m_eventSumValue;
+	
+	GammaTrig_e m_trig;
+
 	wxStaticText *m_positionValue;
-
-	wxButton* m_setButton;
 
 	DECLARE_EVENT_TABLE();
 };

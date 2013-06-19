@@ -9,6 +9,7 @@
 #define _GAMMA_VIEW_CANVAS_H_
 
 #include <wx/window.h>
+#include <wx/panel.h>
 #include <wx/gdicmn.h> // for wxSize
 #include <wx/thread.h>
 #include <wx/image.h>
@@ -18,7 +19,7 @@
 //#include "frame_view.h" Breaking cyclic dependency
 class GammaFrame;
 
-class GammaCanvas : public wxWindow
+class GammaCanvas : public wxPanel //wxWindow
 {
 	friend class GammaFrame;
 

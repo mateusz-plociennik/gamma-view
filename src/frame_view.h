@@ -22,6 +22,8 @@
 #include <wx/stattext.h>
 #include <wx/slider.h>
 
+#include <wx/aui/framemanager.h>
+
 
 // Define a new frame type
 class GammaFrame : public wxFrame
@@ -77,6 +79,8 @@ protected:
 	GammaSidePanel* m_sidePanel;
 
 	wxBoxSizer* m_horizontalSizer;
+
+	wxAuiManager m_mgr;
 
   DECLARE_EVENT_TABLE();
 };

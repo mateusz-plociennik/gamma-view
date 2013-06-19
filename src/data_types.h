@@ -49,6 +49,10 @@ enum GammaParam_e
 	GAMMA_PARAM_TRIG_TIME,
 	GAMMA_PARAM_TRIG_GATE,
 	GAMMA_PARAM_TRIG_TYPE,
+	GAMMA_PARAM_DATA_TYPE_USB, 
+	GAMMA_PARAM_DATA_TYPE_ITEMS, 
+	GAMMA_PARAM_DATA_TYPE_MATRIX,
+	GAMMA_PARAM_DATA_TYPE_IMAGE,
 };
 
 enum GammaTrig_e
@@ -100,17 +104,26 @@ enum GammaSettingTmarker_e
 	GAMMA_TMARKER_1000MS,
 };
 
-enum GammaBlockDataItemType_e
+enum GammaDataType_e
 {
-	GAMMA_ITEM_POINT = 'P',
-	GAMMA_ITEM_TMARKER = 'T', 
-	GAMMA_ITEM_TRIGGER = 'G',
+	GAMMA_DATA_TYPE_USB, 
+	GAMMA_DATA_TYPE_ITEMS, 
+	GAMMA_DATA_TYPE_MATRIX,
+	GAMMA_DATA_TYPE_IMAGE,
+};
+
+enum GammaItemType_e
+{
+	GAMMA_ITEM_TYPE_POINT = 'P',
+	GAMMA_ITEM_TYPE_TMARKER = 'T', 
+	GAMMA_ITEM_TYPE_TRIGGER = 'G',
 };
 
 enum GammaMode_e
 {
 	GAMMA_MODE_USB_2_FILE = 0,
 	GAMMA_MODE_USB_2_IMAGE,
+	GAMMA_MODE_USB_2_IMAGE_UNI,
 	GAMMA_MODE_FAKE_2_FILE,
 	GAMMA_MODE_FAKE_2_IMAGE,
 	GAMMA_MODE_FILE_2_IMAGE,
@@ -134,24 +147,29 @@ enum GammaDirection_e
 	GAMMA_DIRECTION_Y,
 };
 
+//#pragma pack(push) /* push current alignment to stack */
+//#pragma pack(1) /* set alignment to 1 byte boundary */
+
 struct GammaPoint 		// 8 bytes
 {
 	wxUint8 x;			// 1 byte
 	wxUint8 y; 			// 1 byte
-	wxUint8 reserved[2];// 2 byte
+	//wxUint8 reserved[2];// 2 byte
 	wxFloat32 z;		// 4 bytes
 };
 
 struct GammaItem		// 12 bytes
 {
 	wxUint8 type;		// 1 byte
-	wxUint8 reserved[3];// 3 byte
+	//wxUint8 reserved[3];// 3 byte
 	union
 	{
 		wxUint32 time;	// 4 bytes
 		GammaPoint point;// 8 bytes
 	} data;
 };
+
+//#pragma pack(pop) /* restore original alignment from stack */
 
 struct GammaItem2		// 8 bytes // Reduced size GammaItem (use in future?)
 {
@@ -227,6 +245,11 @@ public:
 	{
 		return m_pointSet[GAMMA_AREA_UNDEFINED != area ? area : m_area].end() 
 			!= m_pointSet[GAMMA_AREA_UNDEFINED != area ? area : m_area].find(point);
+	}
+
+	wxUint32 getPointCount(GammaArea_e area = GAMMA_AREA_UNDEFINED)
+	{
+		return m_pointSet[GAMMA_AREA_UNDEFINED != area ? area : m_area].size();
 	}
 
 private:

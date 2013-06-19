@@ -26,6 +26,7 @@ void GammaBlockFileWrite::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
+	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
 	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
 
 	for( std::vector<GammaItem>::iterator iItem = pDataIn->items.begin();

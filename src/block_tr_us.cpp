@@ -22,6 +22,7 @@ void GammaBlockTransUS::processData(GammaData* pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
+	wxASSERT(GAMMA_DATA_TYPE_USB == pData->type);
 	GammaDataUSB* pDataIn = dynamic_cast<GammaDataUSB*>(pData);
 	GammaItems* pDataOut = new GammaItems;
 
@@ -31,19 +32,19 @@ void GammaBlockTransUS::processData(GammaData* pData)
 		if( (pDataIn->data[2 * i + 0] == 0xFF) && 
 			(pDataIn->data[2 * i + 1] == 0xFF) )
 		{
-			pDataOut->items[i].type = GAMMA_ITEM_TMARKER;
+			pDataOut->items[i].type = GAMMA_ITEM_TYPE_TMARKER;
 			pDataOut->items[i].data.time = m_timeCounter;
 			m_timeCounter += m_timeDiv;
 		}
 		else if( (pDataIn->data[2 * i + 0] == 0x00) && 
 			(pDataIn->data[2 * i + 1] == 0x00) )
 		{
-			pDataOut->items[i].type = GAMMA_ITEM_TRIGGER;
+			pDataOut->items[i].type = GAMMA_ITEM_TYPE_TRIGGER;
 			pDataOut->items[i].data.time = m_timeCounter;
 		}
 		else
 		{
-			pDataOut->items[i].type = GAMMA_ITEM_POINT;
+			pDataOut->items[i].type = GAMMA_ITEM_TYPE_POINT;
 			pDataOut->items[i].data.point.x = 
 				pDataIn->data[2 * i + 0];
 			pDataOut->items[i].data.point.y = 

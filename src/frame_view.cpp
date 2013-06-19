@@ -30,6 +30,8 @@
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
 
+#include <wx/aui/aui.h>
+
 enum
 {
 	MENU_MODE = 100,
@@ -119,6 +121,8 @@ GammaFrame::GammaFrame()
 		wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
 		m_pManager(new GammaManager(this))
 {
+	m_mgr.SetManagedWindow(this);
+
 	wxConfigBase* config = new wxFileConfig( "gamma-view", "MP", 
 		"./gamma-view.ini", wxEmptyString, 
 		wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_RELATIVE_PATH );
@@ -272,23 +276,29 @@ GammaFrame::GammaFrame()
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
 	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
 
-
 	m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
 	m_horizontalSizer->Add(m_centerSizer, 1, wxEXPAND);
 
 	m_sidePanel = new GammaSidePanel(this, wxID_ANY);
-	m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
-
+	//m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
+	m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
+                  Caption(_("Statistics")).Right());
+	
 	SetSizerAndFit(m_horizontalSizer);
+
+	m_mgr.Update();
 
 	Show();
 
+	//m_pManager->setMode(GAMMA_MODE_USB_2_IMAGE_UNI);
 	m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);
 	//m_pManager->setMode(GAMMA_MODE_FAKE_2_IMAGE);
 }
 
 GammaFrame::~GammaFrame()
 {
+	m_mgr.UnInit();
+
 	GetManager()->setMode(GAMMA_MODE_NONE);
 
 	delete wxConfigBase::Set(NULL);
@@ -565,9 +575,17 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 			m_bottomPanel->Refresh(false);
 			break;
 		}
-	case GAMMA_PARAM_FREQUENCY:
-		m_sidePanel->m_frequency = *static_cast<wxDouble*>(value);
-		m_sidePanel->Refresh(false);
+	case GAMMA_PARAM_DATA_TYPE_MATRIX:
+		{
+			GammaMatrix* pMatrix = static_cast<GammaMatrix*>(value);
+			m_sidePanel->m_frequency = (double)1000 * pMatrix->eventSum / pMatrix->span.GetValue().GetValue();
+			m_sidePanel->m_eventAvg = (double)pMatrix->eventSum / GetManager()->getConfig()->getFieldOfView()->getPointCount();
+			m_sidePanel->m_eventMax = pMatrix->eventMax;
+			m_sidePanel->m_eventSum = pMatrix->eventSum;
+			m_sidePanel->m_trig = pMatrix->trig;
+			
+			m_sidePanel->Refresh(false);
+		}
 		break;
 	case GAMMA_PARAM_TRIG_TYPE:
 		{

@@ -29,9 +29,12 @@ GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
 	long style,
 	const wxString& name)
 		:
-		wxPanel(parent, id, pos, size, wxBORDER_THEME, wxPanelNameStr), 
+		wxPanel(parent, id, pos, size, wxBORDER_THEME), 
 		m_frame(parent)
 {
+	UNREFERENCED_PARAMETER(style);
+	UNREFERENCED_PARAMETER(name);
+
 	m_bottomSizer = new wxBoxSizer(wxHORIZONTAL);
 	
 	m_timeNowLabel = new wxStaticText(this, wxID_ANY, "00:00:00,000");

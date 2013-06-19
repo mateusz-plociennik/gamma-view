@@ -23,7 +23,7 @@ void GammaManager::setMode(GammaMode_e mode)
 	{
 	case GAMMA_MODE_USB_2_FILE:
 		{
-			GammaPipeSegment* usb = new GammaBlockUSB(this);
+			GammaPipeHead* usb = new GammaBlockUSB(this);
 			GammaPipeSegment* trans = new GammaBlockTransUS(this);
 			GammaPipeSegment* file = new GammaBlockFileWrite(this);
 			m_blockList.push_back(usb);
@@ -40,19 +40,18 @@ void GammaManager::setMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_FAKE_2_FILE:
 		{
-			GammaPipeSegment* usb = new GammaBlockUSBFake(this);
+			GammaPipeHead* usb = new GammaBlockUSBFake(this);
 			GammaPipeSegment* trans = new GammaBlockTransUS(this);
 			GammaPipeSegment* file = new GammaBlockFileWrite(this);
+			
 			m_blockList.push_back(usb);
 			m_blockList.push_back(trans);
 			m_blockList.push_back(file);
 
-			trans->connectSegment(file);
-			usb->connectSegment(trans);
+			*usb += *trans += *file;
 			
-			//file->Run();
-			//trans->Run();
-			//usb->Run();
+			usb->start();
+
 			break;
 		}
 	case GAMMA_MODE_FAKE_2_IMAGE:
@@ -77,50 +76,60 @@ void GammaManager::setMode(GammaMode_e mode)
 		}
 	case GAMMA_MODE_USB_2_IMAGE:
 		{
-			GammaPipeSegment* usb = new GammaBlockUSB(this);
+			GammaPipeHead* usb = new GammaBlockUSB(this);
 			GammaPipeSegment* tr_us = new GammaBlockTransUS(this);
 			GammaPipeSegment* tr_sm = new GammaBlockTransSM(this);
 			GammaPipeSegment* tr_mi = new GammaTransMI(this);
+		
 			m_blockList.push_back(usb);
 			m_blockList.push_back(tr_us);
 			m_blockList.push_back(tr_sm);
 			m_blockList.push_back(tr_mi);
 
-			tr_sm->connectSegment(tr_mi);
-			tr_us->connectSegment(tr_sm);
-			usb->connectSegment(tr_us);
+			*usb += *tr_us += *tr_sm += *tr_mi;
 
-			//tr_mi->Run();
-			//tr_sm->Run();
-			//tr_us->Run();
-			//usb->Run();
+			usb->start();
+
+			break;
+		}
+	case GAMMA_MODE_USB_2_IMAGE_UNI:
+		{
+			GammaPipeHead* usb = new GammaBlockUSB(this);
+			GammaPipeSegment* tr_us = new GammaBlockTransUS(this);
+			GammaPipeSegment* unif = new GammaUniformity(this);
+			GammaPipeSegment* tr_sm = new GammaBlockTransSM(this);
+			GammaPipeSegment* tr_mi = new GammaTransMI(this);
+		
+			m_blockList.push_back(usb);
+			m_blockList.push_back(tr_us);
+			m_blockList.push_back(unif);
+			m_blockList.push_back(tr_sm);
+			m_blockList.push_back(tr_mi);
+
+			*usb += *tr_us += *unif += *tr_sm += *tr_mi;
+
+			usb->start();
+
 			break;
 		}
 	case GAMMA_MODE_USB_FULL:
 		{
-			GammaPipeSegment* usb = new GammaBlockUSB(this);
+			GammaPipeHead* usb = new GammaBlockUSB(this);
 			GammaPipeSegment* tr_us = new GammaBlockTransUS(this);
-			GammaPipeSegment* write = new GammaBlockFileWrite(this);
-			GammaPipeSegment* tr_sm1 = new GammaBlockTransSM(this);
-			GammaPipeSegment* tr_mi1 = new GammaTransMI(this);
-			GammaPipeSegment* tr_sm2 = new GammaBlockTransSM(this);
-			GammaPipeSegment* tr_mi2 = new GammaTransMI(this);
-
+			GammaPipeSegment* fwrite = new GammaBlockFileWrite(this);
+			GammaPipeSegment* tr_sm = new GammaBlockTransSM(this);
+			GammaPipeSegment* tr_mi = new GammaTransMI(this);
 
 			m_blockList.push_back(usb);
 			m_blockList.push_back(tr_us);
-			m_blockList.push_back(write);
-			m_blockList.push_back(tr_sm1);
-			m_blockList.push_back(tr_mi1);
-			m_blockList.push_back(tr_sm2);
-			m_blockList.push_back(tr_mi2);
+			m_blockList.push_back(fwrite);
+			m_blockList.push_back(tr_sm);
+			m_blockList.push_back(tr_mi);
 
-			tr_sm1->connectSegment(tr_mi1);
-			tr_us->connectSegment(tr_sm1);
-			tr_sm2->connectSegment(tr_mi2);
-			tr_us->connectSegment(tr_sm2);
-			tr_us->connectSegment(write);
-			usb->connectSegment(tr_us);
+			*usb += *tr_us += *fwrite;
+			*tr_us += *tr_sm += *tr_mi;
+
+			usb->start();
 
 			break;
 		}

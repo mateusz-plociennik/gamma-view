@@ -30,7 +30,7 @@ GammaCanvas::GammaCanvas(GammaFrame *parent,
 	long style,
 	const wxString& name)
 		:
-		wxWindow(parent, id, pos, size, style, name), 
+		wxPanel(parent, id, pos, size, style, name), 
 		m_frame(parent),
 		m_bestSize(256, 256),
 		m_brightness(0.0),
@@ -103,9 +103,8 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 
 	if(!event.Leaving())
 	{
-		wxString status;
-		status.Printf("%.0f, %.0fpx", (m_startX/m_scaleX), (m_startY/m_scaleY));
-		m_frame->m_sidePanel->m_positionValue->SetLabel(status);
+		m_frame->m_sidePanel->m_positionValue->SetLabel(
+			wxString::Format("%03.0f, %03.0f", (m_startX/m_scaleX), (m_startY/m_scaleY)));
 
 		wxWindow::SetCursor(wxCursor(wxCURSOR_CROSS));
 	}

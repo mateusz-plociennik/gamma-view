@@ -63,8 +63,6 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 		return (wxThread::ExitCode)1;
 	}
 
-	unsigned char loaded = 0;
-
 	wxTimeSpan endTime = getEndTime();
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &endTime);
 
@@ -196,7 +194,7 @@ wxTimeSpan GammaBlockFileRead::getTime()
 
 		//wxLogStatus("%s: offset = %"wxLongLongFmtSpec"d, type = %c", __FUNCTION__, curOffset, item.type);
 	}
-	while(GAMMA_ITEM_TMARKER != item.type);
+	while(GAMMA_ITEM_TYPE_TMARKER != item.type);
 
 	return wxTimeSpan(0, 0, 0, item.data.time);
 }
