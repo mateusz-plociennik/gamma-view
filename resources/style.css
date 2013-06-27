@@ -1,0 +1,28 @@
+polygon, rect, circle {
+  fill: #89AED6;
+  stroke: #3465A4;
+  vector-effect: non-scaling-stroke;
+  /*shape-rendering: crispEdges;*/
+  filter: url(filter.svg#shadow);
+}
+
+@media screen and (max-width: 20px) {
+  #shape_24 { display: none; }
+  #shape_32 { display: none; }
+  #shape_48 { display: none; }
+}
+@media screen and (min-width: 21px) and (max-width: 28px) {
+  #shape_16 { display: none; }
+  #shape_32 { display: none; }
+  #shape_48 { display: none; }
+}
+@media screen and (min-width: 29px) and (max-width: 40px) {
+  #shape_16 { display: none; }
+  #shape_24 { display: none; }
+  #shape_48 { display: none; }
+}
+@media screen and (min-width: 41px) {
+  #shape_16 { display: none; }
+  #shape_24 { display: none; }
+  #shape_32 { display: none; }
+}

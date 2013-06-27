@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+<?xml-stylesheet href="style.css" type="text/css"?>
+<svg width="100%" height="100%" viewBox="0 0 192 192" version="1.2" xmlns="http://www.w3.org/2000/svg">
+  <g id="shape_16">
+    <rect x="30" y="30" width="48" height="132" />
+    <rect x="114" y="30" width="48" height="132" />
+  </g>
+  <g id="shape_24">
+    <rect x="28" y="28" width="48" height="136" />
+    <rect x="116" y="28" width="48" height="136" />
+  </g>
+  <g id="shape_32">
+    <rect x="27" y="27" width="48" height="138" />
+    <rect x="117" y="27" width="48" height="138" />
+  </g>
+  <g id="shape_48">
+    <rect x="26" y="26" width="48" height="140" />
+    <rect x="118" y="26" width="48" height="140" />
+  </g>
+</svg>

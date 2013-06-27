@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="no"?>
+<?xml-stylesheet href="style.css" type="text/css"?>
+<svg width="100%" height="100%" viewBox="0 0 192 192" version="1.2" xmlns="http://www.w3.org/2000/svg">
+  <circle id="shape_16" cx="96" cy="96" r="66" />
+  <circle id="shape_24" cx="96" cy="96" r="68" />
+  <circle id="shape_32" cx="96" cy="96" r="69" />
+  <circle id="shape_48" cx="96" cy="96" r="70" />
+</svg>

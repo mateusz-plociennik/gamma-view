@@ -1,0 +1,13 @@
+<?xml version="1.0" standalone="no"?>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg">
+    <filter id="shadow" x="-50%" y="-50%" width="300%" height="300%">
+      <feOffset in="SourceAlpha" result="offOut" dx="10" dy="15" />
+      <feColorMatrix in="offOut" result="colOut" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.2 0"/>
+      <feGaussianBlur in="colOut" result="blurOut" stdDeviation="15" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+</svg>
