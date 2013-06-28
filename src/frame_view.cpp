@@ -271,7 +271,9 @@ GammaFrame::GammaFrame()
 	m_centerSizer = new wxBoxSizer(wxVERTICAL);
 
 	m_canvas = new GammaCanvas(this, wxID_ANY);
-	m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
+	//m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
+	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
+                  Caption(_("Statistics")).Left().MinSize(256,256).Resizable());
 
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
 	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
@@ -282,13 +284,15 @@ GammaFrame::GammaFrame()
 	m_sidePanel = new GammaSidePanel(this, wxID_ANY);
 	//m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
 	m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
-                  Caption(_("Statistics")).Right());
+                  Caption(_("Statistics")).Right().Resizable(false));
 	
 	SetSizerAndFit(m_horizontalSizer);
 
 	m_mgr.Update();
 
 	Show();
+
+	
 
 	//m_pManager->setMode(GAMMA_MODE_USB_2_IMAGE_UNI);
 	m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);

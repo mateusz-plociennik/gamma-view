@@ -110,7 +110,7 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	}
 	else
 	{
-		m_frame->m_sidePanel->m_positionValue->SetLabel(wxT(""));
+		m_frame->m_sidePanel->m_positionValue->SetLabel(wxT("888, 888"));
 
 		wxWindow::SetCursor(wxNullCursor);
 	}
