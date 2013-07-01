@@ -39,7 +39,7 @@ bool GammaApp::OnInit()
 		return false;
 	}
 
-	//_CrtSetBreakAlloc(131951);
+	//_CrtSetBreakAlloc(133015);
 
 	new GammaFrame();
 

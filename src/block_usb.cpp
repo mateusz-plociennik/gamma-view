@@ -88,7 +88,7 @@ bool GammaBlockUSB::DeviceSet(unsigned char setting, unsigned char value)
 
 wxThread::ExitCode GammaBlockUSB::Entry()
 {
-	wxMutexLocker locker(m_processDataMutex);
+	//wxMutexLocker locker(m_processDataMutex);
 
 #ifdef _WIN32
 	if( DeviceFind() && DeviceInit() )

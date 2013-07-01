@@ -46,7 +46,7 @@ public:
 
 	void processData(GammaData* pData);
 	inline void GammaBlockTransSM::pushData(GammaData* pDataOut);
-	bool setParam(GammaParam_e param, void* value);
+	wxInt32 setParam(GammaParam_e param, void* value);
 
 private:
 	wxUint32 m_intgTime;

@@ -17,8 +17,7 @@
 #include <math.h>
 
 GammaNemaCalc::GammaNemaCalc(GammaManager* pManager) 
-		:
-		GammaPipeSegment(pManager)
+	: GammaPipeSegment(pManager)
 {
 	wxLogStatus("%s", __FUNCTION__);
 }
@@ -88,7 +87,7 @@ void GammaNemaCalc::floodFill(wxPoint start, wxUint32 colour)
 		
 		for(wxPoint n(w); n.x <= e.x; n.x++)
 		{
-			m_pDataIn->matrix[POINT(n.x, n.y)] = UINT32_MAX;
+			m_pDataIn->matrix[POINT(n.x, n.y)] = wxUINT32_MAX;
 
 			if( (0 <= n.y-1) && (m_pDataIn->matrix[POINT(n.x, n.y-1)] < threshold) )
 			{
@@ -106,7 +105,7 @@ void GammaNemaCalc::floodFill(wxPoint start, wxUint32 colour)
 	{
 		for(wxUint32 x = 0; x <= 255; x++)
 		{
-			if(UINT32_MAX == m_pDataIn->matrix[POINT(x,y)])
+			if(wxUINT32_MAX == m_pDataIn->matrix[POINT(x,y)])
 			{
 				m_pDataIn->matrix[POINT(x,y)] = colour;
 			}
@@ -183,7 +182,7 @@ void GammaNemaCalc::convolutionFilter(GammaMatrix* pDataOut)
 
 double GammaNemaCalc::getIntgUniformity()
 {
-	wxUint32 min = UINT32_MAX;
+	wxUint32 min = wxUINT32_MAX;
 	wxUint32 max = 0;
 
 	for(wxUint32 y = 0; y <= 255; y++)
@@ -218,7 +217,7 @@ double GammaNemaCalc::getDiffUniformity(GammaDirection_e direction)
 	{
 		for(wxUint32 x = 2; x <= 253; x++)
 		{
-			wxUint32 min = UINT32_MAX;
+			wxUint32 min = wxUINT32_MAX;
 			wxUint32 max = 0;
 
 			switch(direction)

@@ -273,7 +273,7 @@ GammaFrame::GammaFrame()
 	m_canvas = new GammaCanvas(this, wxID_ANY);
 	//m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
-                  Caption(_("Statistics")).Left().MinSize(256,256).Resizable());
+                  Caption(_("Statistics")).Center().Dockable(false).BestSize(256,256));
 
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
 	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);

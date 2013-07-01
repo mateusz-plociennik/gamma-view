@@ -43,16 +43,19 @@ GammaCanvas::GammaCanvas(GammaFrame *parent,
 
 wxSize GammaCanvas::DoGetBestSize() const
 {
+	wxLogStatus(__FUNCTION__);
 	return m_bestSize;
 }
 
 wxSize GammaCanvas::DoGetBestClientSize() const
 {
+	wxLogStatus(__FUNCTION__);
 	return m_bestSize;
 }
 
 void GammaCanvas::DoSetBestSize(const wxSize& size)
 {
+	wxLogStatus(__FUNCTION__);
 	InvalidateBestSize();
 	m_bestSize = size;
 }

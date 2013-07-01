@@ -8,9 +8,6 @@
 #ifndef _GAMMA_VIEW_DATA_TYPES_H_
 #define _GAMMA_VIEW_DATA_TYPES_H_
 
-#define __STDC_FORMAT_MACROS
-#define __STDC_LIMIT_MACROS
-#include <inttypes.h>
 #include <wx/gdicmn.h>
 
 #include <set>

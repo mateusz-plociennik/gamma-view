@@ -55,7 +55,9 @@ private:
 	
 	GammaTrig_e m_trig;
 
-	wxStaticText *m_positionValue;
+	wxStaticText* m_positionValue;
+
+	wxStaticText* m_countValue;
 
 	DECLARE_EVENT_TABLE();
 };

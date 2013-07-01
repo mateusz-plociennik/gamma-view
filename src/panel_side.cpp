@@ -22,15 +22,22 @@ wxBEGIN_EVENT_TABLE(GammaSidePanel, wxPanel)
 	EVT_PAINT(GammaSidePanel::onPaint)
 wxEND_EVENT_TABLE()
 
-wxString formatReadableNumber(wxDouble value, wxInt32 digits = 4)
+wxString formatReadableNumber(wxDouble value, bool bInteger)
 {
 	static const char siPrefix[] = { '\0', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
+	static const wxInt32 digits = 4;
 
-	wxInt32 positon;
-	for(positon = 0; 1 <= value / pow(10.0, positon + 1); positon++);
+	wxInt32 position, precision = 0;
+
+	for(position = 0; 1 <= value / pow(10.0, position + 1); position++);
+
+	if(!bInteger || 2 < position)
+	{
+		precision = (digits - 1) - position % 3;
+	}
  
-	return wxString::Format("%.*f%c", (digits - 1) - positon % 3, 
-		value / pow(1000.0, positon / 3), siPrefix[positon / 3]);
+	return wxString::Format("%.*f%c", precision, 
+		value / pow(1000.0, position / 3), siPrefix[position / 3]);
 }
 
 GammaSidePanel::GammaSidePanel(GammaFrame *parent,
@@ -49,7 +56,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 	
 	wxStaticText* frequencyLabel = new wxStaticText(this, wxID_ANY, _("Frequency:"));
 	sideSizer->Add(frequencyLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_frequencyValue = new wxStaticText(this, wxID_ANY, wxT("0,000 M"), 
+	m_frequencyValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, false), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_frequencyValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* frequencyUnit = new wxStaticText(this, wxID_ANY, _("/ s"));
@@ -57,7 +64,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventAvgLabel = new wxStaticText(this, wxID_ANY, _("Average:"));
 	sideSizer->Add(eventAvgLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventAvgValue = new wxStaticText(this, wxID_ANY, wxT("0,000 M"), 
+	m_eventAvgValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, false), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventAvgValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventAvgUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -65,7 +72,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventMaxLabel = new wxStaticText(this, wxID_ANY, _("Maximum:"));
 	sideSizer->Add(eventMaxLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventMaxValue = new wxStaticText(this, wxID_ANY, wxT("0,000 M"), 
+	m_eventMaxValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventMaxValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventMaxUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -73,7 +80,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventSumLabel = new wxStaticText(this, wxID_ANY, _("Sum:"));
 	sideSizer->Add(eventSumLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventSumValue = new wxStaticText(this, wxID_ANY, wxT("0,000 M"), 
+	m_eventSumValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventSumValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventSumUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -87,16 +94,24 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 	wxStaticText* positionUnit = new wxStaticText(this, wxID_ANY, wxT("px"));
 	sideSizer->Add(positionUnit, 0, wxALIGN_LEFT|wxALL, 5);
 
+	wxStaticText* countLabel = new wxStaticText(this, wxID_ANY, _("Count:"));
+	sideSizer->Add(countLabel, 0, wxALIGN_RIGHT|wxALL, 5);
+	m_countValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
+		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+	sideSizer->Add(m_countValue, 0, wxALIGN_RIGHT|wxALL, 5);
+	wxStaticText* countUnit = new wxStaticText(this, wxID_ANY, wxT("events"));
+	sideSizer->Add(countUnit, 0, wxALIGN_LEFT|wxALL, 5);
+
 	SetSizerAndFit(sideSizer);
 }
 
 
 void GammaSidePanel::onPaint(wxPaintEvent& WXUNUSED(event))
 {
-	m_frequencyValue->SetLabel(formatReadableNumber(m_frequency));
-	m_eventAvgValue->SetLabel(formatReadableNumber(m_eventAvg));
-	m_eventMaxValue->SetLabel(formatReadableNumber(m_eventMax));
-	m_eventSumValue->SetLabel(formatReadableNumber(m_eventSum));
+	m_frequencyValue->SetLabel(formatReadableNumber(m_frequency, false));
+	m_eventAvgValue->SetLabel(formatReadableNumber(m_eventAvg, false));
+	m_eventMaxValue->SetLabel(formatReadableNumber(m_eventMax, true));
+	m_eventSumValue->SetLabel(formatReadableNumber(m_eventSum, true));
 }
 
 GammaManager* GammaSidePanel::GetManager()

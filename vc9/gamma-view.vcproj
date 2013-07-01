@@ -420,7 +420,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(WXWIN)\lib\vc90_dll\mswud;$(WXWIN)\include;C:\Cypress\Cypress Suite USB 3.4.7\CyAPI\inc;."
-				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS;_CRTDBG_MAP_ALLOC"
+				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;_UNICODE;WXUSINGDLL;_WINDOWS;NOPCH;_CRT_SECURE_NO_WARNINGS;_CRTDBG_MAP_ALLOC;wxMSVC_VERSION_AUTO"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -779,6 +779,10 @@
 			<Filter
 				Name="data"
 				>
+				<File
+					RelativePath="..\src\b_base.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\src\b_nemacalc.cpp"
 					>

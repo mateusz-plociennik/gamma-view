@@ -22,7 +22,7 @@ GammaBlockFileRead::~GammaBlockFileRead()
 	wxLogStatus("%s", __FUNCTION__);
 }
 
-bool GammaBlockFileRead::setParam(GammaParam_e param, void* value)
+wxInt32 GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 {
 	//wxMutexLocker locker(m_processDataMutex);
 
@@ -48,7 +48,7 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 {
 	
 
-	m_fileName.Assign("D:\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
+	m_fileName.Assign("D:\\data\\20120813_184157.gvb"); //jednorodnosc
 	//m_fileName.Assign("20120813_200126.gvb"); //siatka
 	//m_fileName.Assign("5066901116_002707.gif");
 	
@@ -70,7 +70,7 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	while(shouldBeRunning())
 	{
 		{
-			wxMutexLocker locker(m_processDataMutex);
+			//wxMutexLocker locker(m_processDataMutex);
 			if(m_file.Eof())
 			{
 				break;
@@ -130,7 +130,7 @@ wxTimeSpan GammaBlockFileRead::getEndTime()
 
 bool GammaBlockFileRead::setTime(wxTimeSpan reqTime)
 {
-	wxMutexLocker locker(m_processDataMutex);
+	//wxMutexLocker locker(m_processDataMutex);
 	//wxFileOffset reqOffset;
 
 	wxTimeSpan leftTime = wxTimeSpan(0);

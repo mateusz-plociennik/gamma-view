@@ -9,7 +9,6 @@
 #define _GAMMA_VIEW_BLOCK_DATA_H_
 
 #include <vector>
-#include <stdint.h>
 
 #include <wx/datetime.h>
 #include <wx/thread.h>
@@ -87,6 +86,7 @@ public:
 		: GammaData(GAMMA_DATA_TYPE_MATRIX)
 		, eventMax(1)
 		, eventSum(0)
+		, eventSumIn(0)
 		, time(0)
 		, span(0)
 		, trig(GAMMA_TRIG_NONE)
@@ -100,6 +100,7 @@ public:
 	wxUint32 matrix[256 * 256];
 	wxUint32 eventMax;
 	wxUint64 eventSum;
+	wxUint64 eventSumIn;
 
 	wxTimeSpan time;
 	wxTimeSpan span;

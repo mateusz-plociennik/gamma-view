@@ -21,7 +21,7 @@ public:
 	GammaTransMI(GammaManager* pManager);
 	
 	void processData(GammaData* pDataIn);
-	bool setParam(GammaParam_e param, void* value);
+	wxInt32 setParam(GammaParam_e param, void* value);
 
 private:
 	void calcColour(wxDouble index);

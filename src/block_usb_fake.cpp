@@ -14,7 +14,7 @@ GammaBlockUSBFake::GammaBlockUSBFake(GammaManager* pManager)
 
 wxThread::ExitCode GammaBlockUSBFake::Entry()
 {
-	wxMutexLocker locker(m_processDataMutex);
+	//wxMutexLocker locker(m_processDataMutex);
 
 	GammaDataUSB* pDataOut(new GammaDataUSB);
 	while( shouldBeRunning() )

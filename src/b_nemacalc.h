@@ -21,7 +21,7 @@ public:
 	~GammaNemaCalc();
 
 	void processData(GammaData* pData);
-	//bool setParam(GammaParam_e param, void* value);
+	//wxInt32 setParam((GammaParam_e param, void* value);
 
 private:
 	void floodFill(wxPoint start, wxUint32 colour);

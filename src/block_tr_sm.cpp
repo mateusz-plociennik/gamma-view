@@ -44,6 +44,7 @@ void GammaBlockTransSM::processData(GammaData* pData)
 		{
 		case GAMMA_ITEM_TYPE_POINT:
 			m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)]++;
+			m_dataOut.eventSum++;
 
 			if(POINT_INSIDE_FOV(POINT((*it).data.point.x, (*it).data.point.y)))
 			{
@@ -58,8 +59,8 @@ void GammaBlockTransSM::processData(GammaData* pData)
 					}
 				}
 
-				m_dataOut.eventSum++;
-				if(m_eventSumTrig != 0 && m_eventSumTrig <= m_dataOut.eventSum)
+				m_dataOut.eventSumIn++;
+				if(m_eventSumTrig != 0 && m_eventSumTrig <= m_dataOut.eventSumIn)
 				{
 					m_dataOut.trig = GAMMA_TRIG_SUM;
 					pushData(&m_dataOut);
@@ -89,6 +90,7 @@ void GammaBlockTransSM::processData(GammaData* pData)
 				memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
 				m_dataOut.eventMax = 1;
 				m_dataOut.eventSum = 0;
+				m_dataOut.eventSumIn = 0;
 				//m_dataOut.bTrig = false;
 				m_dataOut.time = m_markerTime;
 				m_intBeginTime = m_markerTime;
@@ -112,7 +114,7 @@ void GammaBlockTransSM::processData(GammaData* pData)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GammaBlockTransSM::setParam(GammaParam_e param, void* value)
+wxInt32 GammaBlockTransSM::setParam(GammaParam_e param, void* value)
 {
 	switch(param)
 	{
@@ -151,6 +153,7 @@ void GammaBlockTransSM::pushData(GammaData* pDataOut)
 		memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
 		m_dataOut.eventMax = 1;
 		m_dataOut.eventSum = 0;
+		m_dataOut.eventSumIn = 0;
 		m_intBeginTime = m_dataOut.time;
 	}
 	m_intEndTime = m_dataOut.time;

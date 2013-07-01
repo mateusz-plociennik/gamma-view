@@ -63,7 +63,7 @@ void GammaUniformity::processData(GammaData* pData)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GammaUniformity::setParam(GammaParam_e param, void* value)
+wxInt32 GammaUniformity::setParam(GammaParam_e param, void* value)
 {
 	wxMutexLocker locker(m_processDataMutex);
 

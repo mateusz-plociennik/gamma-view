@@ -239,7 +239,7 @@ void GammaTransMI::calcColour(wxDouble index)
 //	m_colourLut[key] = m_colour;
 }
 
-bool GammaTransMI::setParam(GammaParam_e param, void* value)
+wxInt32 GammaTransMI::setParam(GammaParam_e param, void* value)
 {
 	wxMutexLocker locker(m_processDataMutex);
 

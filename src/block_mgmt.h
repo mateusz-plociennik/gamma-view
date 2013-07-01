@@ -18,7 +18,7 @@
 //namespace LogicTier
 
 //#include "block_base.h" Breaking cyclic dependency
-class GammaPipeSegment;
+class GammaPipeHead;
 
 //#include "frame_view.h" Breaking cyclic dependency
 class GammaFrame;
@@ -29,11 +29,8 @@ class GammaManager
 {
 
 public:
-	GammaManager(GammaFrame* pFrame)
-		: m_pFrame(pFrame)
-	{
-		//
-	}
+	GammaManager(GammaFrame* pFrame);
+
 	
 	~GammaManager()
 	{
@@ -60,9 +57,10 @@ public:
 private:
 	wxMutex m_mgrMutex;
 	GammaFrame* m_pFrame;
-	std::list<GammaPipeSegment*> m_blockList;
+	//std::list<GammaPipeSegment*> m_blockList;
 
 	GammaConfig m_config;
+	GammaPipeHead* m_pPipeHead;
 	
 };
 
