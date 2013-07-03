@@ -58,6 +58,8 @@ private:
 	void OnMenuSetIntegrate(wxCommandEvent& event);
 	void OnMenuSetImgParams(wxCommandEvent& event);
 
+	void onMenuSettings(wxCommandEvent& event);
+
 	void OnMenuHelpAbout(wxCommandEvent& event);
 
 	void OnSliderUpdate(wxCommandEvent &event);

@@ -836,6 +836,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\d_settings.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\f_end_cond.cpp"
 					>
 				</File>
@@ -927,6 +931,10 @@
 				>
 				<File
 					RelativePath="..\src\canvas.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\d_settings.h"
 					>
 				</File>
 				<File

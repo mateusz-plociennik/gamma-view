@@ -16,6 +16,7 @@ public:
 	GammaBlockTransUS(GammaManager* pManager);
 
 	void processData(GammaData* pData);
+	wxInt32 setParam(GammaParam_e param, void* value);
 
 private:
 	unsigned long m_timeCounter;

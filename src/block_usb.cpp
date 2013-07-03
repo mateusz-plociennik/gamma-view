@@ -9,7 +9,7 @@
 #include "block_tr_us.h"
 #include <wx/fileconf.h>
 
-bool GammaBlockUSB::DeviceFind()
+bool GammaBlockUSB::deviceFind()
 {
 #ifdef _WIN32
 	for( m_device = 0; m_device < m_USBDevice->DeviceCount(); m_device++ )
@@ -39,18 +39,18 @@ bool GammaBlockUSB::DeviceFind()
 #endif
 }
 
-bool GammaBlockUSB::DeviceInit()
+bool GammaBlockUSB::deviceInit()
 {
 	wxConfigBase* config = wxFileConfig::Get();
 	wxConfigPathChanger changer(config, "/USBDevice/");
 
 #ifdef _WIN32	
-	if( DeviceReset() &&
-		DeviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 128)) &&
-		DeviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 128)) &&
-		DeviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 128)) &&
-		DeviceSet(GAMMA_SET_TMARKER, log10(config->ReadDouble("Tmarker", 10)) + 1) &&
-		DeviceSet(GAMMA_SET_GATE, config->ReadLong("GateOn", 0)) )
+	if( deviceReset() &&
+		deviceSet(GAMMA_SET_ZOOM, config->ReadLong("Zoom", 127)) &&
+		deviceSet(GAMMA_SET_SHIFT_X, config->ReadLong("ShiftX", 127)) &&
+		deviceSet(GAMMA_SET_SHIFT_Y, config->ReadLong("ShiftY", 127)) &&
+		deviceSet(GAMMA_SET_TMARKER, log10(config->ReadDouble("Tmarker", 10)) + 1) &&
+		deviceSet(GAMMA_SET_GATE, config->ReadLong("GateOn", 0)) )
 	{
 		wxLogStatus("Device init OK.");
 		return true;
@@ -65,22 +65,36 @@ bool GammaBlockUSB::DeviceInit()
 #endif
 }
 
-bool GammaBlockUSB::DeviceReset()
+bool GammaBlockUSB::deviceReset()
 {
 #ifdef _WIN32
-	return m_USBDevice->Reset();
+	if(m_USBDevice->IsOpen())
+	{
+		return m_USBDevice->Reset();
+	}
+	else
+	{
+		return false;
+	}
 #else
 	return true;
 #endif
 }
 
-bool GammaBlockUSB::DeviceSet(unsigned char setting, unsigned char value)
+bool GammaBlockUSB::deviceSet(GammaSetting_e setting, wxUint8 value)
 {
 #ifdef _WIN32
-	unsigned char buffer[] = {setting, value};
-	long int length = 2;
+	if(m_USBDevice->IsOpen())
+	{
+		UCHAR buffer[] = {static_cast<UCHAR>(setting), value};
+		LONG length = sizeof(buffer);
 
-	return m_USBDevice->BulkOutEndPt->XferData(buffer, length);
+		return m_USBDevice->BulkOutEndPt->XferData(buffer, length);
+	}
+	else
+	{
+		return false;
+	}
 #else
 	return true;
 #endif
@@ -91,14 +105,13 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 	//wxMutexLocker locker(m_processDataMutex);
 
 #ifdef _WIN32
-	if( DeviceFind() && DeviceInit() )
+	if(deviceFind() && deviceInit() && m_USBDevice->IsOpen())
 	{
 		while( shouldBeRunning() )
 		{
 			GammaDataUSB* pDataOut(new GammaDataUSB);
 			long int length = 0x200;
 
-			//pDataOut->dateTime = wxDateTime::UNow();
 			m_USBDevice->BulkInEndPt->XferData(pDataOut->data, length);
 			wxASSERT(0x200 == length);
 			
@@ -122,4 +135,34 @@ GammaBlockUSB::~GammaBlockUSB()
 #ifdef _WIN32
 	delete m_USBDevice;
 #endif
+}
+
+wxInt32 GammaBlockUSB::setParam(GammaParam_e param, void* value)
+{
+	wxUint8 value8 = *static_cast<wxUint8*>(value);
+	GammaSetting_e setting = GAMMA_SET_MAX;
+
+	switch(param)
+	{
+	case GAMMA_PARAM_SET_ZOOM: 
+		setting = GAMMA_SET_ZOOM; break;
+	case GAMMA_PARAM_SET_SHIFT_X:
+		setting = GAMMA_SET_SHIFT_X; break;
+	case GAMMA_PARAM_SET_SHIFT_Y:
+		setting = GAMMA_SET_SHIFT_Y; break;
+	case GAMMA_PARAM_SET_TMARKER:
+		{
+			setting = GAMMA_SET_TMARKER;
+			GammaSettingTmarker_e tMarker = *static_cast<GammaSettingTmarker_e*>(value);
+			deviceSet(setting, tMarker);
+			return 1;
+		}
+	case GAMMA_PARAM_SET_GATE:
+		setting = GAMMA_SET_GATE; break;
+	default:
+		return 0;
+	}
+
+	deviceSet(setting, value8);
+	return 1;
 }

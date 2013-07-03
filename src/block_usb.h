@@ -9,6 +9,7 @@
 #define _GAMMA_VIEW_BLOCK_USB_H_
 
 #ifdef _WIN32
+#include <windows.h>
 #include "CyAPI.h"
 #endif
 
@@ -21,11 +22,12 @@ public:
 	GammaBlockUSB(GammaManager* pManager);
 	~GammaBlockUSB();
 
-	bool DeviceFind();
-	bool DeviceInit();
-	bool DeviceOpen();
-	bool DeviceReset();
-	bool DeviceSet(unsigned char setting, unsigned char value);
+	bool deviceFind();
+	bool deviceInit();
+	bool deviceOpen();
+	bool deviceReset();
+	bool deviceSet(GammaSetting_e setting, wxUint8 value);
+	wxInt32 setParam(GammaParam_e param, void* value);
 
 protected:
 	wxThread::ExitCode Entry();

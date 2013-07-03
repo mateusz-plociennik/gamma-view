@@ -11,6 +11,7 @@
 #include "panel_player.h"
 
 #include "f_end_cond.h"
+#include "d_settings.h"
 
 #include <algorithm>
 
@@ -89,6 +90,8 @@ enum
 	Menu_View_ImgParams_Gamma,
 	Menu_View_ImgParams_All,
 
+	ID_MENU_SETTINGS = 600, 
+
 	Menu_Help_About = 1000,
 };
 
@@ -111,6 +114,8 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 		GammaFrame::OnMenuSetIntegrate)
 	EVT_MENU_RANGE(Menu_View_ImgParams_Brightness, Menu_View_ImgParams_All, 
 		GammaFrame::OnMenuSetImgParams)
+
+	EVT_MENU(ID_MENU_SETTINGS, GammaFrame::onMenuSettings)
 
 	EVT_MENU(wxID_ABOUT, GammaFrame::OnMenuHelpAbout)
 
@@ -243,12 +248,16 @@ GammaFrame::GammaFrame()
 	viewMenu->Append(Menu_View_Integrate, wxT("Integrate"), viewIntegrateMenu);
 	viewMenu->Append(Menu_View_ImgParams, wxT("Brightness/Contrast/Gamma"), viewImgParamsMenu);
 
+	wxMenu *settingsMenu = new wxMenu;
+	settingsMenu->Append(ID_MENU_SETTINGS, _("Settings..."), wxT("USB Settings etc."));
+
 	wxMenu *helpMenu = new wxMenu;
 	helpMenu->Append(wxID_ABOUT);
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(modeMenu, wxT("&Mode"));
 	menuBar->Append(viewMenu, wxT("&View"));
+	menuBar->Append(settingsMenu, wxT("&Settings"));
 	menuBar->Append(helpMenu, wxT("&Help"));
 
 	SetMenuBar(menuBar);
@@ -553,6 +562,11 @@ void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 
 	GetStatusBar()->SetStatusText(wxString::Format(wxT("B=%.2f; C=%.2f; G=%.2f"), 
 		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma), 0);
+}
+
+void GammaFrame::onMenuSettings(wxCommandEvent& event)
+{
+	new GammaUsbSettingsDialog(this->GetManager());
 }
 
 bool GammaFrame::SetParam(GammaParam_e param, void* value)

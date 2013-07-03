@@ -57,3 +57,32 @@ void GammaBlockTransUS::processData(GammaData* pData)
 	pushData(pDataOut);
 	delete pDataOut;
 }
+
+wxInt32 GammaBlockTransUS::setParam(GammaParam_e param, void* value)
+{
+	switch(param)
+	{
+	case GAMMA_PARAM_SET_TMARKER: 
+		switch(*static_cast<GammaSettingTmarker_e*>(value))
+		{
+		case GAMMA_TMARKER_OFF:
+			m_timeDiv = 0; break;
+		case GAMMA_TMARKER_1MS:
+			m_timeDiv = 1; break;
+		case GAMMA_TMARKER_10MS:
+			m_timeDiv = 10; break;
+		case GAMMA_TMARKER_100MS:
+			m_timeDiv = 100; break;
+		case GAMMA_TMARKER_240MS:
+			m_timeDiv = 240; break;
+		default:
+			break;
+		}
+
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
+}
