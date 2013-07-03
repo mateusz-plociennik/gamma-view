@@ -564,7 +564,7 @@ void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma), 0);
 }
 
-void GammaFrame::onMenuSettings(wxCommandEvent& event)
+void GammaFrame::onMenuSettings(wxCommandEvent& WXUNUSED(event))
 {
 	new GammaUsbSettingsDialog(this->GetManager());
 }

@@ -260,7 +260,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions=""
-				AdditionalDependencies="wxmswuniv29ud_gl.lib opengl32.lib glu32.lib wxmswuniv29ud_core.lib  wxbase29ud.lib   wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib wxmswuniv29ud_adv.lib CyAPI.lib"
+				AdditionalDependencies="wxmswuniv29ud_gl.lib opengl32.lib glu32.lib wxmswuniv29ud_core.lib  wxbase29ud.lib  wxtiffd.lib wxjpegd.lib wxpngd.lib  wxzlibd.lib wxregexud.lib wxexpatd.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib wxmswuniv29ud_adv.lib CyAPI.lib"
 				OutputFile=".\..\build\vc_mswunivud\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -446,7 +446,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw29ud_aui.lib wxmsw29ud_adv.lib wxmsw29ud_core.lib wxbase29ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib CyAPI.lib"
+				AdditionalDependencies="wxbase29ud.lib wxmsw29ud_adv.lib wxmsw29ud_aui.lib wxmsw29ud_core.lib wxmsw29ud_gl.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib CyAPI.lib"
 				OutputFile=".\..\build\vc_mswuddll\gamma-view.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -539,7 +539,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions=""
-				AdditionalDependencies="wxmsw29u_gl.lib opengl32.lib glu32.lib wxmsw29u_core.lib  wxbase29u.lib   wxtiff.lib wxjpeg.lib wxpng.lib  wxzlib.lib wxregexu.lib wxexpat.lib    kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib wxmsw29u_adv.lib CyAPI.lib"
+				AdditionalDependencies="wxbase29u.lib wxmsw29u_adv.lib wxmsw29u_aui.lib wxmsw29u_core.lib wxmsw29u_gl.lib opengl32.lib glu32.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib CyAPI.lib"
 				OutputFile=".\..\build\vc_mswudll\gamma-view.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
