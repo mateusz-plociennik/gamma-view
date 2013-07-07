@@ -67,12 +67,12 @@ void GammaTransMI::calcMax(wxUint32 eventMax)
 	m_eventMaxTable.push_back(eventMax);
 }
 
-void GammaTransMI::processData(GammaData* pData)
+void GammaTransMI::processData(wxSharedPtr<GammaData> pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
 	wxASSERT(GAMMA_DATA_TYPE_MATRIX == pData->type);
-	GammaMatrix* pDataIn = static_cast<GammaMatrix*>(pData);
+	GammaMatrix* pDataIn = dynamic_cast<GammaMatrix*>(pData.get());
 	GammaImage* pDataOut = new GammaImage;
 
 	calcMax(pDataIn->eventMax);
@@ -109,7 +109,8 @@ void GammaTransMI::processData(GammaData* pData)
 
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_IMG_DATA, (void*)&pDataOut->image);
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &pDataIn->time);
-	delete pDataOut;
+
+	pushData(wxSharedPtr<GammaData>(pDataOut));
 }
 
 void GammaTransMI::calcColour(wxDouble index)

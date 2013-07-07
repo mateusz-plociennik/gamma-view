@@ -18,12 +18,12 @@ GammaBlockTransUS::GammaBlockTransUS(GammaManager* pManager)
 	m_timeCounter = 0;
 }
 
-void GammaBlockTransUS::processData(GammaData* pData)
+void GammaBlockTransUS::processData(wxSharedPtr<GammaData> pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
 	wxASSERT(GAMMA_DATA_TYPE_USB == pData->type);
-	GammaDataUSB* pDataIn = dynamic_cast<GammaDataUSB*>(pData);
+	GammaDataUSB* pDataIn = dynamic_cast<GammaDataUSB*>(pData.get());
 	GammaItems* pDataOut = new GammaItems;
 
 	//pDataOut->dateTime = pDataIn->dateTime;
@@ -54,8 +54,7 @@ void GammaBlockTransUS::processData(GammaData* pData)
 		}
 	}
 
-	pushData(pDataOut);
-	delete pDataOut;
+	pushData(wxSharedPtr<GammaData>(pDataOut));
 }
 
 wxInt32 GammaBlockTransUS::setParam(GammaParam_e param, void* value)

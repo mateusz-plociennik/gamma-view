@@ -20,7 +20,7 @@ public:
 	GammaNemaCalc(GammaManager* pManager);
 	~GammaNemaCalc();
 
-	void processData(GammaData* pData);
+	void processData(wxSharedPtr<GammaData> pData);
 	//wxInt32 setParam((GammaParam_e param, void* value);
 
 private:

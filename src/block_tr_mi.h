@@ -20,7 +20,7 @@ class GammaTransMI : public GammaPipeSegment
 public:
 	GammaTransMI(GammaManager* pManager);
 	
-	void processData(GammaData* pDataIn);
+	void processData(wxSharedPtr<GammaData> pData);
 	wxInt32 setParam(GammaParam_e param, void* value);
 
 private:

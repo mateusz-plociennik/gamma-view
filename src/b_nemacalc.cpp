@@ -29,12 +29,12 @@ GammaNemaCalc::~GammaNemaCalc()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GammaNemaCalc::processData(GammaData* pData)
+void GammaNemaCalc::processData(wxSharedPtr<GammaData> pData)
 {	
 	wxMutexLocker locker(m_processDataMutex);
 
 	wxASSERT(GAMMA_DATA_TYPE_MATRIX == pData->type);
-	m_pDataIn = static_cast<GammaMatrix*>(pData);
+	m_pDataIn = dynamic_cast<GammaMatrix*>(pData.get());
 	GammaMatrix* pDataOut(new GammaMatrix);
 
 	floodFill(wxPoint(0,0), 0);
@@ -50,8 +50,7 @@ void GammaNemaCalc::processData(GammaData* pData)
 		getDiffUniformity(GAMMA_DIRECTION_X), 
 		getDiffUniformity(GAMMA_DIRECTION_Y));
 
-	pushData(pDataOut);
-	delete pDataOut;
+	pushData(wxSharedPtr<GammaData>(pDataOut));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

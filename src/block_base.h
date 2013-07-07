@@ -20,12 +20,13 @@
 
 /**
  * Maximum size of in-queue. 
- * It is used by BlockDataPush() function to determine whether in-queue is full.                   
+ * It is used by pushData() function to determine whether in-queue is full.                   
  */
-#define GAMMA_BLOCK_QUEUE_MAX 256
+#define GAMMA_BUFFER_QUEUE_MAX 1024
 
 #include <list>
 #include <set>
+#include <queue>
 #include <time.h>
 
 #include <wx/sharedptr.h>
@@ -38,6 +39,8 @@
 #include "data_types.h"
 #include "block_data.h"
 
+#pragma warning(disable : 4250) // inherits via dominance
+
 class GammaPipeFrontEnd;
 class GammaPipeBackEnd;
 
@@ -47,7 +50,6 @@ class GammaPipeBackEnd;
 class GammaPipeBase
 {
 public:
-
 	GammaPipeBase()
 		: m_bStarted(false)
 		, m_bPaused(false)
@@ -118,7 +120,7 @@ private:
 };
 
 
-class GammaPipeFrontEnd : public GammaPipeBase
+class GammaPipeFrontEnd : public virtual GammaPipeBase
 {
 public:
 
@@ -126,7 +128,7 @@ public:
 	 * In this function there is thread execute code. It must be defined 
 	 * in children classes.
 	 */
-	virtual void processData(GammaData* pData) = 0;
+	virtual void processData(wxSharedPtr<GammaData> pData) = 0;
 
 	GammaPipeFrontEnd& operator+=(GammaPipeFrontEnd& second);
 
@@ -137,7 +139,7 @@ protected:
 	wxMutex m_processDataMutex;
 };
 
-class GammaPipeBackEnd : public GammaPipeBase
+class GammaPipeBackEnd : public virtual GammaPipeBase
 {
 public:
 	virtual ~GammaPipeBackEnd()
@@ -179,15 +181,15 @@ public:
 	 * to attached blocks.
 	 * @param[in] blockData_p Pointer to GammaBlockDataBase
 	 */
-	inline void pushData(GammaData* pDataOut)
+	inline void pushData(wxSharedPtr<GammaData> pData)
 	{
 		//m_processDataMutex.Unlock();
 
-		wxMutexLocker locker(m_segmentSetMutex);
+		//wxMutexLocker locker(m_segmentSetMutex);
 		for(std::set<GammaPipeFrontEnd*>::iterator iSegment = m_segmentSet.begin(); 
 			iSegment != m_segmentSet.end(); iSegment++)
 		{
-			(*iSegment)->processData(pDataOut);
+			(*iSegment)->processData(pData);
 		}
 
 		//m_processDataMutex.Lock();
@@ -229,7 +231,7 @@ public:
 		
 		r += setParam(param, value);
 
-		wxMutexLocker locker(m_segmentSetMutex);
+		//wxMutexLocker locker(m_segmentSetMutex);
 		for(std::set<GammaPipeFrontEnd*>::iterator iSegment = m_segmentSet.begin(); 
 			iSegment != m_segmentSet.end(); iSegment++)
 		{
@@ -285,7 +287,55 @@ public:
 	}
 };
 
-class GammaPipeHead : public GammaPipeMgmt, public wxThreadHelper,
+class GammaPipeThread : public virtual GammaPipeBase, public wxThreadHelper
+{
+public:
+	GammaPipeThread() 
+		: wxThreadHelper()
+	{
+		CreateThread();
+	}
+
+	virtual ~GammaPipeThread()
+	{
+	}
+
+	virtual void start()
+	{
+		GetThread()->Run();
+		GammaPipeBase::start();
+	}
+
+	virtual void onStop()
+	{
+	}
+
+	virtual void stop()
+	{
+		GammaPipeBase::stop();
+		onStop();
+		GetThread()->Delete();
+	}
+
+	virtual void pause()
+	{
+		GetThread()->Pause();
+		GammaPipeBase::pause();
+	}
+
+	virtual void resume()
+	{
+		GammaPipeBase::resume();
+		GetThread()->Resume();
+	}
+
+/*
+protected: 
+	virtual wxThread::ExitCode Entry() = 0;
+*/
+};
+
+class GammaPipeHead : public GammaPipeThread, public GammaPipeMgmt, 
 	public GammaPipeBackEnd
 {
 public:
@@ -293,35 +343,85 @@ public:
 		: GammaPipeMgmt(pManager)
 	{
 	}
+};
 
-	virtual ~GammaPipeHead()
+class GammaPipeBuffer : public GammaPipeThread,	public GammaPipeSegment
+{
+public:
+	GammaPipeBuffer(GammaManager* pManager, wxUint32 sizeMax = GAMMA_BUFFER_QUEUE_MAX) 
+		: GammaPipeSegment(pManager)
+		, m_sizeMax(sizeMax)
+		, m_notFullCondition(m_dataQueueMutex)
+		, m_notEmptyCondition(m_dataQueueMutex)
 	{
 	}
 
-	bool shouldBeRunning()
+	virtual void processData(wxSharedPtr<GammaData> pData)
 	{
-		return m_run && !GetThread()->TestDestroy();
-	}
+		wxMutexLocker locker(m_dataQueueMutex);
+		while(m_sizeMax < m_dataQueue.size() && m_bStarted)
+		{
+			m_notFullCondition.Wait();
+		}
 
-	void start()
-	{
-		CreateThread();
-		m_run = true;
-		GetThread()->Run();
+		if(!m_bStarted) return ;
+
+		m_dataQueue.push(pData);
+		m_notEmptyCondition.Signal();
 	}
 
 	void stop()
 	{
-		m_run = false;
-		GetThread()->Wait();
+		{
+			wxMutexLocker locker(m_dataQueueMutex);
+			while(!m_dataQueue.empty())
+			{
+				m_dataQueue.pop();
+			}
+			m_notEmptyCondition.Signal();
+		}
+		GammaPipeThread::stop();
 	}
-/*
-protected: 
-	virtual wxThread::ExitCode Entry() = 0;
-*/
 
-private:
-	bool m_run;
+	virtual void onStop()
+	{
+		m_notFullCondition.Signal();
+		m_notEmptyCondition.Signal();
+	}
+
+	virtual wxThread::ExitCode Entry()
+	{
+		while(!GetThread()->TestDestroy())
+		{
+			m_dataQueueMutex.Lock();
+
+			while(m_dataQueue.empty() && m_bStarted)
+			{
+				m_notEmptyCondition.Wait();
+			}
+
+			if(!m_bStarted) return 0;
+
+			wxSharedPtr<GammaData> data(m_dataQueue.front());
+			m_dataQueue.pop();
+			m_notFullCondition.Signal();
+
+			m_dataQueueMutex.Unlock();
+
+			pushData(data);
+		}
+
+		return 0;
+	}
+
+	std::queue<wxSharedPtr<GammaData>> m_dataQueue;
+	wxUint32 m_sizeMax;
+
+	wxMutex m_dataQueueMutex;
+	wxCondition m_notFullCondition;
+	wxCondition m_notEmptyCondition;
 };
+
+//#pragma warning(default : 4250) // inherits via dominance
 
 #endif //_GAMMA_VIEW_BLOCK_BASE_H_

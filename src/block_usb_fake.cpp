@@ -17,7 +17,7 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 	//wxMutexLocker locker(m_processDataMutex);
 
 	GammaDataUSB* pDataOut(new GammaDataUSB);
-	while( shouldBeRunning() )
+	while(!GetThread()->TestDestroy())
 	{
 		for(int i = 0; i < 256; i++)
 		{
@@ -28,9 +28,8 @@ wxThread::ExitCode GammaBlockUSBFake::Entry()
 		int pos = rand() % 256;
 		pDataOut->data[2 * pos] = pDataOut->data[2 * pos + 1] = 0xFF;
 		
-		pushData(pDataOut);
+		pushData(wxSharedPtr<GammaData>(pDataOut));
 	}
-	delete pDataOut;
 
 	return 0;
 }

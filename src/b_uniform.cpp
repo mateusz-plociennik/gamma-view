@@ -22,12 +22,12 @@ GammaUniformity::GammaUniformity(GammaManager* pManager)
 	}
 }
 
-void GammaUniformity::processData(GammaData* pData)
+void GammaUniformity::processData(wxSharedPtr<GammaData> pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
 	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
-	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData.get());
 
 	if(m_bInitalized)
 	{
@@ -52,12 +52,11 @@ void GammaUniformity::processData(GammaData* pData)
 			}
 		}
 
-		pushData(dataOut);
-		delete dataOut;
+		pushData(wxSharedPtr<GammaData>(dataOut));
 	}
 	else
 	{
-		pushData(pDataIn);
+		pushData(pData);
 	}
 }
 

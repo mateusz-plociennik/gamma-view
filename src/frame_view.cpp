@@ -306,6 +306,8 @@ GammaFrame::GammaFrame()
 	//m_pManager->setMode(GAMMA_MODE_USB_2_IMAGE_UNI);
 	m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);
 	//m_pManager->setMode(GAMMA_MODE_FAKE_2_IMAGE);
+
+	wxLogStatus("wxThread::GetCPUCount() = %d", wxThread::GetCPUCount());
 }
 
 GammaFrame::~GammaFrame()

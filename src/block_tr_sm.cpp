@@ -23,6 +23,8 @@ GammaBlockTransSM::GammaBlockTransSM(GammaManager* pManager)
 	, m_intEndTime(0)
 	, m_gateTrig(0)
 	, m_gateCounter(0)
+	, m_pDataOut(new GammaMatrix())
+	, m_pDataOutShared(m_pDataOut)
 {
 }
 
@@ -30,12 +32,12 @@ GammaBlockTransSM::~GammaBlockTransSM()
 {
 }
 
-void GammaBlockTransSM::processData(GammaData* pData)
+void GammaBlockTransSM::processData(wxSharedPtr<GammaData> pData)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
 	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
-	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData);
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData.get());
 	
 	for(std::vector<GammaItem>::iterator it = pDataIn->items.begin();
 		it != pDataIn->items.end(); it++)
@@ -43,56 +45,56 @@ void GammaBlockTransSM::processData(GammaData* pData)
 		switch((*it).type)
 		{
 		case GAMMA_ITEM_TYPE_POINT:
-			m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)]++;
-			m_dataOut.eventSum++;
+			m_pDataOut->matrix[POINT((*it).data.point.x, (*it).data.point.y)]++;
+			m_pDataOut->eventSum++;
 
 			if(POINT_INSIDE_FOV(POINT((*it).data.point.x, (*it).data.point.y)))
 			{
-				if(m_dataOut.eventMax < m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)])
+				if(m_pDataOut->eventMax < m_pDataOut->matrix[POINT((*it).data.point.x, (*it).data.point.y)])
 				{
-					m_dataOut.eventMax = m_dataOut.matrix[POINT((*it).data.point.x, (*it).data.point.y)];
+					m_pDataOut->eventMax = m_pDataOut->matrix[POINT((*it).data.point.x, (*it).data.point.y)];
 
-					if(m_eventMaxTrig != 1 && m_eventMaxTrig <= m_dataOut.eventMax)
+					if(m_eventMaxTrig != 1 && m_eventMaxTrig <= m_pDataOut->eventMax)
 					{
-						m_dataOut.trig = GAMMA_TRIG_MAX;
-						pushData(&m_dataOut);
+						m_pDataOut->trig = GAMMA_TRIG_MAX;
+						pushData(m_pDataOut);
 					}
 				}
 
-				m_dataOut.eventSumIn++;
-				if(m_eventSumTrig != 0 && m_eventSumTrig <= m_dataOut.eventSumIn)
+				m_pDataOut->eventSumIn++;
+				if(m_eventSumTrig != 0 && m_eventSumTrig <= m_pDataOut->eventSumIn)
 				{
-					m_dataOut.trig = GAMMA_TRIG_SUM;
-					pushData(&m_dataOut);
+					m_pDataOut->trig = GAMMA_TRIG_SUM;
+					pushData(m_pDataOut);
 				}
 			}
 			break;
 		case GAMMA_ITEM_TYPE_TMARKER:
 			m_markerTime = wxTimeSpan(0, 0, 0, (*it).data.time);
 			//wxLogStatus("m_markerTime = %"wxLongLongFmtSpec"d", m_markerTime.GetValue().GetValue());
-			if(m_dataOut.time <= m_markerTime && m_markerTime <= m_dataOut.time + wxTimeSpan::Second())
+			if(m_pDataOut->time <= m_markerTime && m_markerTime <= m_pDataOut->time + wxTimeSpan::Second())
 			{
-				m_dataOut.time = m_markerTime;
-				if(m_intEndTime + m_throttle.getIntTime() <= m_dataOut.time)
+				m_pDataOut->time = m_markerTime;
+				if(m_intEndTime + m_throttle.getIntTime() <= m_pDataOut->time)
 				{
-					pushData(&m_dataOut);
+					pushData(m_pDataOut);
 					m_throttle.throttle();
 				}
 
 				if(m_timeTrig != 0 && m_timeTrig <= m_markerTime)
 				{
-					m_dataOut.trig = GAMMA_TRIG_TIME;
-					pushData(&m_dataOut);
+					m_pDataOut->trig = GAMMA_TRIG_TIME;
+					pushData(m_pDataOut);
 				}
 			}
 			else
 			{
-				memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
-				m_dataOut.eventMax = 1;
-				m_dataOut.eventSum = 0;
-				m_dataOut.eventSumIn = 0;
-				//m_dataOut.bTrig = false;
-				m_dataOut.time = m_markerTime;
+				memset(m_pDataOut->matrix, 0, sizeof(wxUint32) * 256 * 256);
+				m_pDataOut->eventMax = 1;
+				m_pDataOut->eventSum = 0;
+				m_pDataOut->eventSumIn = 0;
+				//m_pDataOut->bTrig = false;
+				m_pDataOut->time = m_markerTime;
 				m_intBeginTime = m_markerTime;
 				m_intEndTime = m_markerTime;
 			}
@@ -101,8 +103,8 @@ void GammaBlockTransSM::processData(GammaData* pData)
 			m_gateCounter++;
 			if(m_gateTrig != 0 && m_gateTrig <= m_gateCounter)
 			{
-				m_dataOut.trig = GAMMA_TRIG_GATE;
-				pushData(&m_dataOut);
+				m_pDataOut->trig = GAMMA_TRIG_GATE;
+				pushData(m_pDataOut);
 				m_gateCounter = 0;
 			}
 			break;
@@ -145,19 +147,20 @@ wxInt32 GammaBlockTransSM::setParam(GammaParam_e param, void* value)
 
 void GammaBlockTransSM::pushData(GammaData* pDataOut)
 {
-	m_dataOut.span = m_dataOut.time - m_intBeginTime;
-	GammaPipeSegment::pushData(pDataOut);
-	if(!m_intEnabled || m_dataOut.time < m_intEndTime || 
-		m_intEndTime + 2 * m_throttle.getIntTime() <= m_dataOut.time)
+	m_pDataOut->span = m_pDataOut->time - m_intBeginTime;
+	GammaPipeSegment::pushData(m_pDataOutShared);
+
+	if(!m_intEnabled || m_pDataOut->time < m_intEndTime || 
+		m_intEndTime + 2 * m_throttle.getIntTime() <= m_pDataOut->time)
 	{
-		memset(m_dataOut.matrix, 0, sizeof(wxUint32) * 256 * 256);
-		m_dataOut.eventMax = 1;
-		m_dataOut.eventSum = 0;
-		m_dataOut.eventSumIn = 0;
-		m_intBeginTime = m_dataOut.time;
+		memset(m_pDataOut->matrix, 0, sizeof(wxUint32) * 256 * 256);
+		m_pDataOut->eventMax = 1;
+		m_pDataOut->eventSum = 0;
+		m_pDataOut->eventSumIn = 0;
+		m_intBeginTime = m_pDataOut->time;
 	}
-	m_intEndTime = m_dataOut.time;
-	m_dataOut.trig = GAMMA_TRIG_NONE;
+	m_intEndTime = m_pDataOut->time;
+	m_pDataOut->trig = GAMMA_TRIG_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

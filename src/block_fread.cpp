@@ -46,7 +46,7 @@ wxInt32 GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
-	m_fileName.Assign("D:\\git\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
+	m_fileName.Assign("C:\\Users\\RF-710\\Dropbox\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
 	//m_fileName.Assign("20120813_200126.gvb"); //siatka
 	//m_fileName.Assign("5066901116_002707.gif");
 	
@@ -65,7 +65,7 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_END, &endTime);
 
 	wxDateTime startTime(wxDateTime::UNow());
-	while(shouldBeRunning())
+	while(!GetThread()->TestDestroy())
 	{
 		{
 			//wxMutexLocker locker(m_processDataMutex);
@@ -74,15 +74,14 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 				break;
 			}
 
-			GammaItems* dataOut(new GammaItems);
+			GammaItems* pDataOut(new GammaItems);
 			
 			for(wxUint32 iItem = 0; iItem < 256; iItem++)
 			{
-				m_file.Read(&(dataOut->items[iItem]), sizeof(GammaItem));
+				m_file.Read(&(pDataOut->items[iItem]), sizeof(GammaItem));
 			}
 
-			pushData(dataOut);
-			delete dataOut;
+			pushData(wxSharedPtr<GammaData>(pDataOut));
 		}
 
 /*		if( loaded < (100 * m_file.Tell() / m_file.Length()) )

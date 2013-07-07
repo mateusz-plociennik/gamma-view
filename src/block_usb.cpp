@@ -107,7 +107,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 #ifdef _WIN32
 	if(deviceFind() && deviceInit() && m_USBDevice->IsOpen())
 	{
-		while( shouldBeRunning() )
+		while(!GetThread()->TestDestroy())
 		{
 			GammaDataUSB* pDataOut(new GammaDataUSB);
 			long int length = 0x200;
@@ -115,8 +115,7 @@ wxThread::ExitCode GammaBlockUSB::Entry()
 			m_USBDevice->BulkInEndPt->XferData(pDataOut->data, length);
 			wxASSERT(0x200 == length);
 			
-			pushData(pDataOut);
-			delete pDataOut;
+			pushData(wxSharedPtr<GammaData>(pDataOut));
 		}
 	}
 #endif
