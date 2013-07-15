@@ -65,24 +65,6 @@ enum
 	Menu_View_Colourmap_WINTER,
 	Menu_View_Colourmap_INVERT,
 
-	Menu_View_Integrate = 400,
-	Menu_View_Integrate_Time_1_1000,
-	Menu_View_Integrate_Time_1_500,
-	Menu_View_Integrate_Time_1_250,
-	Menu_View_Integrate_Time_1_125,
-	Menu_View_Integrate_Time_1_60,
-	Menu_View_Integrate_Time_1_30,
-	Menu_View_Integrate_Time_1_15,
-	Menu_View_Integrate_Time_1_8,
-	Menu_View_Integrate_Time_1_4,
-	Menu_View_Integrate_Time_1_2,
-	Menu_View_Integrate_Time_1,
-	Menu_View_Integrate_Time_2,
-	Menu_View_Integrate_Time_4,
-	Menu_View_Integrate_Time_8,
-	Menu_View_Integrate_Time_16,
-	Menu_View_Integrate_Time_32,
-	Menu_View_Integrate_Enabled,
 
 	Menu_View_ImgParams = 500,
 	Menu_View_ImgParams_Brightness,
@@ -110,14 +92,16 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 		GammaFrame::OnMenuResizeWindow)
 	EVT_MENU_RANGE(Menu_View_Colourmap_AUTUMN, Menu_View_Colourmap_INVERT, 
 		GammaFrame::OnMenuSetColourmap)
-	EVT_MENU_RANGE(Menu_View_Integrate_Time_1_1000, Menu_View_Integrate_Enabled, 
-		GammaFrame::OnMenuSetIntegrate)
+	//EVT_MENU_RANGE(ID_MENU_INTEGRATE_TIME_1_1000, ID_MENU_INTEGRATE_ENABLED, 
+		//GammaFrame::OnMenuSetIntegrate)
 	EVT_MENU_RANGE(Menu_View_ImgParams_Brightness, Menu_View_ImgParams_All, 
 		GammaFrame::OnMenuSetImgParams)
 
 	EVT_MENU(ID_MENU_SETTINGS, GammaFrame::onMenuSettings)
 
 	EVT_MENU(wxID_ABOUT, GammaFrame::OnMenuHelpAbout)
+
+	EVT_THREAD(ID_GATE_TRIGGER, GammaFrame::onTrigger)
 
 wxEND_EVENT_TABLE()
 
@@ -194,43 +178,81 @@ GammaFrame::GammaFrame()
 	viewColourmapMenu->AppendCheckItem(Menu_View_Colourmap_INVERT,
 		wxT("&Invert\tCtrl+I"), wxT("Invert colourmap"));
 
-	wxMenu *viewIntegrateMenu = new wxMenu;
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_1000, 
+	wxMenu *integrateMenu = new wxMenu;
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_1000, 
 		wxT("1/1000 s"), wxT("Change integrate time to 1/1000 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_500, 
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_500, 
 		wxT("1/500 s"), wxT("Change integrate time to 1/500 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_250,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_250,
 		wxT("1/250 s"), wxT("Change integrate time to 1/250 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_125,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_125,
 		wxT("1/125 s"), wxT("Change integrate time to 1/125 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_60,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_60,
 		wxT("1/60 s"), wxT("Change integrate time to 1/60 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_30,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_30,
 		wxT("1/30 s"), wxT("Change integrate time to 1/30 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_15,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_15,
 		wxT("1/15 s"), wxT("Change integrate time to 1/15 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_8,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_8,
 		wxT("1/8 s"), wxT("Change integrate time to 1/8 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_4,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_4,
 		wxT("1/4 s"), wxT("Change integrate time to 1/4 s"));
-	viewIntegrateMenu->Check(Menu_View_Integrate_Time_1_4, true);
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1_2,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1_2,
 		wxT("1/2 s"), wxT("Change integrate time to 1/2 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_1,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_1,
 		wxT("1 s"), wxT("Change integrate time to 1 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_2,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_2,
 		wxT("2 s"), wxT("Change integrate time to 2 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_4,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_4,
 		wxT("4 s"), wxT("Change integrate time to 4 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_8,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_8,
 		wxT("8 s"), wxT("Change integrate time to 8 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_16,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_16,
 		wxT("16 s"), wxT("Change integrate time to 16 s"));
-	viewIntegrateMenu->AppendRadioItem(Menu_View_Integrate_Time_32,
+	integrateMenu->AppendRadioItem(ID_MENU_INTEGRATE_TIME_32,
 		wxT("32 s"), wxT("Change integrate time to 32 s"));
-	viewIntegrateMenu->AppendSeparator();
-	viewIntegrateMenu->AppendCheckItem(Menu_View_Integrate_Enabled, 
-		wxT("&Integrate\tSpace"), wxT("Image integrate"));
+	integrateMenu->AppendSeparator();
+	integrateMenu->AppendCheckItem(ID_MENU_INTEGRATE_ENABLED, 
+		wxT("&Integrate\tEnter"), wxT("Image integrate"));
+	integrateMenu->Check(ID_MENU_INTEGRATE_TIME_1_4, true);
+
+	wxMenu *glowMenu = new wxMenu;
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_1000, 
+		wxT("1/1000 s"), wxT("Change glow time to 1/1000 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_500, 
+		wxT("1/500 s"), wxT("Change glow time to 1/500 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_250,
+		wxT("1/250 s"), wxT("Change glow time to 1/250 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_125,
+		wxT("1/125 s"), wxT("Change glow time to 1/125 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_60,
+		wxT("1/60 s"), wxT("Change glow time to 1/60 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_30,
+		wxT("1/30 s"), wxT("Change glow time to 1/30 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_15,
+		wxT("1/15 s"), wxT("Change glow time to 1/15 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_8,
+		wxT("1/8 s"), wxT("Change glow time to 1/8 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_4,
+		wxT("1/4 s"), wxT("Change glow time to 1/4 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1_2,
+		wxT("1/2 s"), wxT("Change glow time to 1/2 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_1,
+		wxT("1 s"), wxT("Change glow time to 1 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_2,
+		wxT("2 s"), wxT("Change glow time to 2 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_4,
+		wxT("4 s"), wxT("Change glow time to 4 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_8,
+		wxT("8 s"), wxT("Change glow time to 8 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_16,
+		wxT("16 s"), wxT("Change glow time to 16 s"));
+	glowMenu->AppendRadioItem(ID_MENU_GLOW_TIME_32,
+		wxT("32 s"), wxT("Change glow time to 32 s"));
+	glowMenu->AppendSeparator();
+	glowMenu->AppendCheckItem(ID_MENU_GLOW_ENABLED, 
+		wxT("&Glow\tSpace"), wxT("Glow enable / disable"));
+	glowMenu->Check(ID_MENU_GLOW_TIME_4, true);
 
 	wxMenu *viewImgParamsMenu = new wxMenu;
 	viewImgParamsMenu->Append(Menu_View_ImgParams_Brightness, 
@@ -245,7 +267,8 @@ GammaFrame::GammaFrame()
 	wxMenu *viewMenu = new wxMenu;
 	viewMenu->Append(Menu_View_Zoom, wxT("Window Size"), viewZoomMenu);
 	viewMenu->Append(Menu_View_Colourmap, wxT("Colourmap"), viewColourmapMenu);
-	viewMenu->Append(Menu_View_Integrate, wxT("Integrate"), viewIntegrateMenu);
+	viewMenu->Append(ID_MENU_INTEGRATE, _("Refresh rate"), integrateMenu);
+	viewMenu->Append(ID_MENU_GLOW, _("Glow effect"), glowMenu);
 	viewMenu->Append(Menu_View_ImgParams, wxT("Brightness/Contrast/Gamma"), viewImgParamsMenu);
 
 	wxMenu *settingsMenu = new wxMenu;
@@ -277,25 +300,25 @@ GammaFrame::GammaFrame()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-	m_centerSizer = new wxBoxSizer(wxVERTICAL);
+	//m_centerSizer = new wxBoxSizer(wxVERTICAL);
 
 	m_canvas = new GammaCanvas(this, wxID_ANY);
 	//m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
-                  Caption(_("Statistics")).Center().Dockable(false).BestSize(256,256));
+                  Caption(_("Main")).Floatable().MinSize(256,256).BestSize(256,256));
 
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
-	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
+	//m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
 
-	m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
-	m_horizontalSizer->Add(m_centerSizer, 1, wxEXPAND);
+	//m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
+	//m_horizontalSizer->Add(m_centerSizer, 1, wxEXPAND);
 
 	m_sidePanel = new GammaSidePanel(this, wxID_ANY);
 	//m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
 	m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
                   Caption(_("Statistics")).Right().Resizable(false));
 	
-	SetSizerAndFit(m_horizontalSizer);
+	//SetSizerAndFit(m_horizontalSizer);
 
 	m_mgr.Update();
 
@@ -494,7 +517,7 @@ void GammaFrame::OnMenuSetColourmap(wxCommandEvent& event)
 
 void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 {
-	if( event.GetId() == Menu_View_Integrate_Enabled )
+	if( event.GetId() == ID_MENU_INTEGRATE_ENABLED )
 	{
 		bool bIntegrate = event.IsChecked();
 		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
@@ -504,38 +527,38 @@ void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 		wxTimeSpan intTime;
 		switch ( event.GetId() )
 		{
-		case Menu_View_Integrate_Time_1_1000:
+		case ID_MENU_INTEGRATE_TIME_1_1000:
 			intTime = wxTimeSpan::Milliseconds(1); break;
-		case Menu_View_Integrate_Time_1_500:
+		case ID_MENU_INTEGRATE_TIME_1_500:
 			intTime = wxTimeSpan::Milliseconds(2); break;
-		case Menu_View_Integrate_Time_1_250:
+		case ID_MENU_INTEGRATE_TIME_1_250:
 			intTime = wxTimeSpan::Milliseconds(4); break;
-		case Menu_View_Integrate_Time_1_125:
+		case ID_MENU_INTEGRATE_TIME_1_125:
 			intTime = wxTimeSpan::Milliseconds(8); break;
-		case Menu_View_Integrate_Time_1_60:
+		case ID_MENU_INTEGRATE_TIME_1_60:
 			intTime = wxTimeSpan::Milliseconds(17); break;
-		case Menu_View_Integrate_Time_1_30:
+		case ID_MENU_INTEGRATE_TIME_1_30:
 			intTime = wxTimeSpan::Milliseconds(33); break;
-		case Menu_View_Integrate_Time_1_15:
+		case ID_MENU_INTEGRATE_TIME_1_15:
 			intTime = wxTimeSpan::Milliseconds(67); break;
-		case Menu_View_Integrate_Time_1_8:
+		case ID_MENU_INTEGRATE_TIME_1_8:
 			intTime = wxTimeSpan::Milliseconds(125); break;
 		default:
-		case Menu_View_Integrate_Time_1_4:
+		case ID_MENU_INTEGRATE_TIME_1_4:
 			intTime = wxTimeSpan::Milliseconds(250); break;
-		case Menu_View_Integrate_Time_1_2:
+		case ID_MENU_INTEGRATE_TIME_1_2:
 			intTime = wxTimeSpan::Milliseconds(500); break;
-		case Menu_View_Integrate_Time_1:
+		case ID_MENU_INTEGRATE_TIME_1:
 			intTime = wxTimeSpan::Milliseconds(1000); break;
-		case Menu_View_Integrate_Time_2:
+		case ID_MENU_INTEGRATE_TIME_2:
 			intTime = wxTimeSpan::Milliseconds(2000); break;
-		case Menu_View_Integrate_Time_4:
+		case ID_MENU_INTEGRATE_TIME_4:
 			intTime = wxTimeSpan::Milliseconds(4000); break;
-		case Menu_View_Integrate_Time_8:
+		case ID_MENU_INTEGRATE_TIME_8:
 			intTime = wxTimeSpan::Milliseconds(8000); break;
-		case Menu_View_Integrate_Time_16:
+		case ID_MENU_INTEGRATE_TIME_16:
 			intTime = wxTimeSpan::Milliseconds(16000); break;
-		case Menu_View_Integrate_Time_32:
+		case ID_MENU_INTEGRATE_TIME_32:
 			intTime = wxTimeSpan::Milliseconds(32000); break;
 		}
 		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_TIME, (void*)&intTime);
@@ -568,7 +591,12 @@ void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 
 void GammaFrame::onMenuSettings(wxCommandEvent& WXUNUSED(event))
 {
-	new GammaUsbSettingsDialog(this->GetManager());
+	new GammaUsbSettingsDialog(this);
+}
+
+void GammaFrame::onTrigger(wxThreadEvent& event)
+{
+	wxLogStatus("%s() time = %s", __FUNCTION__, event.GetPayload<wxTimeSpan>().Format("%H:%M:%S,%l").c_str());
 }
 
 bool GammaFrame::SetParam(GammaParam_e param, void* value)
@@ -598,9 +626,9 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 	case GAMMA_PARAM_DATA_TYPE_MATRIX:
 		{
 			GammaMatrix* pMatrix = static_cast<GammaMatrix*>(value);
-			m_sidePanel->m_frequency = (double)1000 * pMatrix->eventSum / pMatrix->span.GetValue().GetValue();
+			m_sidePanel->m_frequency = (double)1000 * pMatrix->eventSum / pMatrix->intTime.GetValue().GetValue();
 			m_sidePanel->m_eventAvg = (double)pMatrix->eventSum / GetManager()->getConfig()->getFieldOfView()->getPointCount();
-			m_sidePanel->m_eventMax = pMatrix->eventMax;
+			m_sidePanel->m_eventMax = pMatrix->eventMax();
 			m_sidePanel->m_eventSum = pMatrix->eventSum;
 			m_sidePanel->m_trig = pMatrix->trig;
 			

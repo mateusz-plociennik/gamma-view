@@ -9,7 +9,6 @@
 #define _GAMMA_VIEW_DIALOG_USB_SETTINGS_H_
 
 #include <wx/dialog.h>
-#include "block_base.h"
 
 #include <wx/sizer.h>
 
@@ -21,13 +20,14 @@
 
 #include <wx/button.h>
 
+class GammaFrame;
 
 // Define a new frame type
-class GammaUsbSettingsDialog : public GammaPipeMgmt, public wxDialog
+class GammaUsbSettingsDialog : public wxDialog
 {
 
 public:
-	GammaUsbSettingsDialog(GammaManager* pManager);
+	GammaUsbSettingsDialog(GammaFrame* pParent);
 	~GammaUsbSettingsDialog();
 
 private:
@@ -47,7 +47,7 @@ private:
 
 	wxChoice* m_gateChoice;
 
-	DECLARE_EVENT_TABLE();
+	DECLARE_EVENT_TABLE()
 };
 
 #endif //_GAMMA_VIEW_DIALOG_USB_SETTINGS_H_

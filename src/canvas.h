@@ -49,17 +49,18 @@ private:
 
 	// OnMouse variables
 	wxMutex m_mouseMutex;
-	double m_brightness;
-	double m_contrast;
-	double m_gamma;
-	int m_startX;
-	int m_startY;
+	wxDouble m_brightness;
+	wxDouble m_contrast;
+	wxDouble m_gamma;
+	wxInt32 m_startX;
+	wxInt32 m_startY;
 
 	// OnPaint variables
 	wxMutex m_paintMutex;
 	wxImage m_image;
-	double m_scaleX;
-	double m_scaleY;
+	wxDouble m_scaleX;
+	wxDouble m_scaleY;
+	wxDouble m_scaleXY;
 
   DECLARE_EVENT_TABLE();
 };

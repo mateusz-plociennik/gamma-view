@@ -5,31 +5,33 @@
  * @data	2012-07-30
  */
 
-#ifndef _GAMMA_VIEW_BLOCK_TRANS_SM_H_
-#define _GAMMA_VIEW_BLOCK_TRANS_SM_H_
+#ifndef _GAMMA_VIEW_BLOCK_MATRIX_SUM_H_
+#define _GAMMA_VIEW_BLOCK_MATRIX_SUM_H_
 
 #include "block_base.h"
 
 #include <wx/timer.h>
 #include <wx/thread.h>
+#include <deque>
 
-
-class GammaBlockTransSM : public GammaPipeSegment
+class GammaMatrixSum : public GammaPipeSegment
 {
 public:
-	GammaBlockTransSM(GammaManager* pManager);
-	~GammaBlockTransSM();
+	GammaMatrixSum(GammaManager* pManager);
+	~GammaMatrixSum();
 
 	void processData(wxSharedPtr<GammaData> pData);
 	inline void pushData();
 	wxInt32 setParam(GammaParam_e param, void* value);
+
+	void onGlowMenu(wxCommandEvent& event);
 	void onIntegrateMenu(wxCommandEvent& event);
 
 private:
-	wxTimeSpan m_intTime;
+	//wxUint32 m_intTime;
 	bool m_intEnabled;
+	bool m_glowEnabled;
 
-	//GammaMatrix* m_pDataOut;
 	wxSharedPtr<GammaData> m_pDataOut;
 	wxTimeSpan m_markerTime;
 
@@ -45,7 +47,10 @@ private:
 	wxTimeSpan m_timeTrig;
 	wxUint32 m_gateCounter;
 	wxUint32 m_gateTrig;
+	wxTimeSpan m_glowTime;
+
+	std::deque<wxSharedPtr<GammaData>> m_dataDeque;
 };
 
 
-#endif //_GAMMA_VIEW_BLOCK_TRANS_SM_H_
+#endif //_GAMMA_VIEW_BLOCK_MATRIX_SUM_H_

@@ -62,9 +62,11 @@ private:
 
 	void OnMenuHelpAbout(wxCommandEvent& event);
 
-	void OnSliderUpdate(wxCommandEvent &event);
+	void OnSliderUpdate(wxCommandEvent& event);
 
 	void SetImage(wxImage& image);
+
+	void onTrigger(wxThreadEvent& event);
 
 	//
 	wxString openFile();

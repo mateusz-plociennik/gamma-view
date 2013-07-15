@@ -43,7 +43,7 @@ void GammaNemaCalc::processData(wxSharedPtr<GammaData> pData)
 	convolutionFilter(pDataOut);
 
 	memcpy(m_pDataIn->matrix, pDataOut->matrix, sizeof(wxUint32) * 256 * 256);
-	pDataOut->time = m_pDataIn->time;
+	pDataOut->acqTime = m_pDataIn->acqTime;
 
 	wxLogStatus("Intg = %f, Diff(X) = %f, Diff(Y) = %f", 
 		getIntgUniformity(), 
@@ -57,7 +57,7 @@ void GammaNemaCalc::processData(wxSharedPtr<GammaData> pData)
 
 void GammaNemaCalc::floodFill(wxPoint start, wxUint32 colour)
 {
-	wxUint32 threshold = m_pDataIn->eventMax * 0;//2/4;
+	wxUint32 threshold = m_pDataIn->eventMax() * 0;//2/4;
 
 	std::list<wxPoint> queue;
 
@@ -137,7 +137,6 @@ void GammaNemaCalc::convolutionFilter(GammaMatrix* pDataOut)
 		1, 2, 1 };
 
 	//wxUint32* dataFiltered = new wxUint32[256*256]();
-	pDataOut->eventMax = 1;
 
 	for(wxUint32 y = 1; y <= 254; y++)
 	{
@@ -165,11 +164,6 @@ void GammaNemaCalc::convolutionFilter(GammaMatrix* pDataOut)
 					+ filter[6] * (0 != m_pDataIn->matrix[POINT(x-1,y+1)])
 					+ filter[7] * (0 != m_pDataIn->matrix[POINT(x  ,y+1)])
 					+ filter[8] * (0 != m_pDataIn->matrix[POINT(x+1,y+1)]) );
-
-				if(pDataOut->eventMax < pDataOut->matrix[POINT(x,y)])
-				{
-					pDataOut->eventMax = pDataOut->matrix[POINT(x,y)];
-				}
 			}
 			else
 			{

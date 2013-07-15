@@ -6,6 +6,11 @@
  */
 
 #include "d_settings.h"
+#include "data_types.h"
+#include "frame_view.h"
+
+#include <wx/log.h>
+#include <wx/statbox.h>
 
 enum
 {
@@ -16,7 +21,7 @@ enum
 	ID_GAMMA_SET_GATE,
 };
 
-wxBEGIN_EVENT_TABLE(GammaUsbSettingsDialog, wxDialog)
+BEGIN_EVENT_TABLE(GammaUsbSettingsDialog, wxDialog)
 	EVT_CLOSE(GammaUsbSettingsDialog::onClose)
 	EVT_SPINCTRL(ID_GAMMA_SET_ZOOM, GammaUsbSettingsDialog::onSpinCtrl)
 	EVT_SPINCTRL(ID_GAMMA_SET_SHIFT_X, GammaUsbSettingsDialog::onSpinCtrl)
@@ -25,11 +30,10 @@ wxBEGIN_EVENT_TABLE(GammaUsbSettingsDialog, wxDialog)
 	EVT_CHOICE(ID_GAMMA_SET_GATE, GammaUsbSettingsDialog::onChoice)
 	EVT_BUTTON(wxID_OK, GammaUsbSettingsDialog::onButtonOk)
 	EVT_BUTTON(wxID_CANCEL, GammaUsbSettingsDialog::onButtonCancel)
-wxEND_EVENT_TABLE()
+END_EVENT_TABLE()
 
-GammaUsbSettingsDialog::GammaUsbSettingsDialog(GammaManager* pManager) 
-	: wxDialog(NULL, wxID_ANY, _("USB Settings"))
-	, GammaPipeMgmt(pManager)
+GammaUsbSettingsDialog::GammaUsbSettingsDialog(GammaFrame* pParent) 
+	: wxDialog(pParent, wxID_ANY, _("USB Settings"))
 {
 	wxLogStatus("%s()", __FUNCTION__); 
 
@@ -133,7 +137,7 @@ void GammaUsbSettingsDialog::onButtonOk(wxCommandEvent& WXUNUSED(event))
 void GammaUsbSettingsDialog::onSpinCtrl(wxSpinEvent& event)
 {
 	wxUint8 value = event.GetValue();
-
+/*
 	switch(event.GetId())
 	{
 	case ID_GAMMA_SET_ZOOM:
@@ -148,13 +152,14 @@ void GammaUsbSettingsDialog::onSpinCtrl(wxSpinEvent& event)
 	default:
 		return;
 	}
+	*/
 }
 
 void GammaUsbSettingsDialog::onChoice(wxCommandEvent& event)
 {
 	wxLogStatus("%s()", __FUNCTION__); 
 
-	
+/*	
 
 	switch(event.GetId())
 	{
@@ -173,4 +178,5 @@ void GammaUsbSettingsDialog::onChoice(wxCommandEvent& event)
 	default:
 		return;
 	}
+	*/
 }

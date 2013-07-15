@@ -33,8 +33,10 @@
 #include <wx/thread.h>
 #include <wx/wx.h>
 #include <wx/string.h>
+#include <wx/event.h>
 
 #include "block_mgmt.h"
+#include "frame_view.h"
 
 #include "data_types.h"
 #include "block_data.h"
@@ -91,15 +93,20 @@ protected:
 	bool m_bPaused;
 };
 
-class GammaPipeMgmt
+class GammaPipeMgmt : public wxEvtHandler
 {
 public:
 	GammaPipeMgmt(GammaManager* pManager, wxString name = wxT("no_name")) 
 		: m_pManager(pManager)
 		, m_name(name)
 	{
+		getManager()->getFrame()->PushEventHandler(this);
 	}
 
+	~GammaPipeMgmt()
+	{
+		getManager()->getFrame()->RemoveEventHandler(this);
+	}
 	/**
 	 * This function returns pointer to GammaManager
 	 * @return Pointer to GammaManager.

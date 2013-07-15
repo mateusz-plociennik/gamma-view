@@ -14,6 +14,7 @@
 #include <list>
 #include "main.h"
 #include <wx/thread.h>
+#include <wx/event.h>
 
 //namespace LogicTier
 
@@ -25,17 +26,14 @@ class GammaFrame;
 
 #include "config.h"
 
-class GammaManager
+class GammaManager : public wxEvtHandler
 {
 
 public:
 	GammaManager(GammaFrame* pFrame);
+	~GammaManager();
 
-	
-	~GammaManager()
-	{
-		//
-	}
+	void onEvent(wxCommandEvent& event);
 
 	/**
 	 * Set mode for blocks under manager
@@ -53,6 +51,7 @@ public:
 	bool PresentationTierSetParam(GammaParam_e param, void* value);
 
 	GammaConfig* getConfig();
+	GammaFrame* getFrame();
 	
 private:
 	wxMutex m_mgrMutex;
@@ -61,7 +60,6 @@ private:
 
 	GammaConfig m_config;
 	GammaPipeHead* m_pPipeHead;
-	
 };
 
 #endif //_GAMMA_VIEW_BLOCK_MGMT_H_

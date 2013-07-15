@@ -15,6 +15,8 @@
 #include <list>
 #include "data_types.h"
 
+#pragma warning(disable : 4351) // elements of array will be default initialized
+
 /**
  * Base class to make GammaBlock able to send pointers without cast.
  */
@@ -26,6 +28,7 @@ public:
 	 */
 	GammaData(GammaDataType_e i_type)
 		: type(i_type)
+		, m_readersCount(0)
 	{
 	}
 
@@ -33,7 +36,43 @@ public:
 	{
 	}
 
+	void enterRead()
+	{
+		wxCriticalSectionLocker orderLocker(m_orderCriticalSection);
+		wxCriticalSectionLocker readersLocker(m_readersCriticalSection);
+		if(0 == m_readersCount++)
+		{
+			m_accessCriticalSection.Enter();
+		}
+	}
+
+	void leaveRead()
+	{
+		wxCriticalSectionLocker readersLocker(m_readersCriticalSection);
+		if(0 == --m_readersCount)
+		{
+			m_accessCriticalSection.Leave();
+		}
+	}
+
+	void enterWrite()
+	{
+		wxCriticalSectionLocker orderLocker(m_orderCriticalSection);
+		m_accessCriticalSection.Enter();
+	}
+
+	void leaveWrite()
+	{
+		m_accessCriticalSection.Leave();
+	}
+
 	const GammaDataType_e type;
+
+private:
+	wxCriticalSection m_orderCriticalSection;
+	wxCriticalSection m_accessCriticalSection;
+	wxCriticalSection m_readersCriticalSection;
+	wxInt32 m_readersCount;
 };
 
 /**
@@ -75,6 +114,8 @@ public:
 	std::vector<GammaItem> items;
 };
 
+#define GAMMA_EVENT_UNIT (256)
+
 /**
  * GammaImage class.
  */
@@ -84,11 +125,11 @@ class GammaMatrix :
 public:
 	GammaMatrix()
 		: GammaData(GAMMA_DATA_TYPE_MATRIX)
-		, eventMax(1)
+		, matrix()
 		, eventSum(0)
-		, eventSumIn(0)
-		, time(0)
-		, span(0)
+		, eventSumFov(0)
+		, acqTime(0)
+		, intTime(0)
 		, trig(GAMMA_TRIG_NONE)
 	{
 	}
@@ -97,13 +138,26 @@ public:
 	{
 	}
 
-	wxUint32 matrix[256 * 256];
-	wxUint32 eventMax;
-	wxUint64 eventSum;
-	wxUint64 eventSumIn;
+	wxUint32 eventMax()
+	{
+		wxUint32 r = 0;
+		for(wxInt32 i = 0; i < 256 * 256; i++)
+		{
+			if(r < matrix[i])
+			{
+				r = matrix[i];
+			}
+		}
 
-	wxTimeSpan time;
-	wxTimeSpan span;
+		return r;
+	}
+
+	wxUint32 matrix[256 * 256];
+	wxUint64 eventSum;
+	wxUint64 eventSumFov;
+
+	wxTimeSpan acqTime;
+	wxTimeSpan intTime;
 
 	GammaTrig_e trig;
 };

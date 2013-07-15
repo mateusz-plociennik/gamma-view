@@ -827,6 +827,14 @@
 					RelativePath="..\src\config.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\src\matrix_sum.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\throttle.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="gui"
@@ -923,6 +931,14 @@
 				</File>
 				<File
 					RelativePath="..\src\data_types.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\matrix_sum.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\throttle.h"
 					>
 				</File>
 			</Filter>

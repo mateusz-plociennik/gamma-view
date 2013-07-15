@@ -21,6 +21,7 @@ wxBEGIN_EVENT_TABLE(GammaCanvas, wxWindow)
 	EVT_LEFT_DOWN(GammaCanvas::OnMouse)
 	EVT_LEFT_UP(GammaCanvas::OnMouse)
 	EVT_MOTION(GammaCanvas::OnMouse)
+
 wxEND_EVENT_TABLE()
 
 GammaCanvas::GammaCanvas(GammaFrame *parent,
@@ -107,7 +108,7 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 	if(!event.Leaving())
 	{
 		m_frame->m_sidePanel->m_positionValue->SetLabel(
-			wxString::Format("%03.0f, %03.0f", (m_startX/m_scaleX), (m_startY/m_scaleY)));
+			wxString::Format("%03.0f, %03.0f", (m_startX/m_scaleXY), (m_startY/m_scaleXY)));
 
 		wxWindow::SetCursor(wxCursor(wxCURSOR_CROSS));
 	}
@@ -130,8 +131,9 @@ void GammaCanvas::OnPaint(wxPaintEvent& event)
 		
 		m_scaleX = (double)GetClientSize().GetWidth() / m_image.GetWidth();
 		m_scaleY = (double)GetClientSize().GetHeight() / m_image.GetHeight();
+		m_scaleXY = std::min(m_scaleX, m_scaleY);
 		
-		pdc.SetUserScale(m_scaleX, m_scaleY);
+		pdc.SetUserScale(m_scaleXY, m_scaleXY);
 		pdc.DrawBitmap(wxBitmap(m_image), 0, 0);
 	}
 
@@ -143,3 +145,4 @@ void GammaCanvas::OnSize(wxSizeEvent& event)
 	Refresh(false);
 	event.Skip();
 }
+

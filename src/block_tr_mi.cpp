@@ -25,7 +25,7 @@ GammaTransMI::GammaTransMI(GammaManager* pManager)
 
 void GammaTransMI::calcMax(wxUint32 eventMax)
 {
-	static const wxDouble range = sqrt(2.0);
+	static const wxDouble range = 8 * GAMMA_EVENT_UNIT;
 
 	wxDouble sigma = m_eventMaxTable.size();
 	wxDouble sigmaX = 0, sigmaY = 0;
@@ -47,7 +47,7 @@ void GammaTransMI::calcMax(wxUint32 eventMax)
 	//wxDouble stdDev = sqrt(sigmaYY - a * sigmaXY - b * sigmaY);
 	wxDouble y = a * m_eventMaxTable.size() + b;
 
-	if(y / range < eventMax && eventMax < range * y)
+	if(y - range < eventMax && eventMax < y + range)
 	{
 		if(64 <= m_eventMaxTable.size())
 		{
@@ -75,7 +75,7 @@ void GammaTransMI::processData(wxSharedPtr<GammaData> pData)
 	GammaMatrix* pDataIn = dynamic_cast<GammaMatrix*>(pData.get());
 	GammaImage* pDataOut = new GammaImage;
 
-	calcMax(pDataIn->eventMax);
+	calcMax(pDataIn->eventMax());
 
 	calcColour(0);
 	pDataOut->image.SetRGB( wxRect(0, 0, 256, 256), 
@@ -94,12 +94,12 @@ void GammaTransMI::processData(wxSharedPtr<GammaData> pData)
 		}
 	}
 
-	if(GAMMA_TRIG_NONE != pDataIn->trig)
+/*	if(GAMMA_TRIG_NONE != pDataIn->trig)
 	{
 		getManager()->DataTierSetParam(GAMMA_PARAM_UNIFORM_MATRIX_SET, pDataIn->matrix);
 		getManager()->PresentationTierSetParam(GAMMA_PARAM_TRIG_TYPE, &pDataIn->trig);
 	}
-
+*/
 /*	wxLogStatus("eventMax = %u, m_max = %f, eventSum = %"wxLongLongFmtSpec"d, span = %"wxLongLongFmtSpec"d freq = %f k/s", 
 		pDataIn->eventMax, m_max, pDataIn->eventSum, pDataIn->span.GetValue().GetValue(), 
 		(double)pDataIn->eventSum / pDataIn->span.GetValue().GetValue());
@@ -108,7 +108,7 @@ void GammaTransMI::processData(wxSharedPtr<GammaData> pData)
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_DATA_TYPE_MATRIX, (void*)pDataIn);
 
 	getManager()->PresentationTierSetParam(GAMMA_PARAM_IMG_DATA, (void*)&pDataOut->image);
-	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &pDataIn->time);
+	getManager()->PresentationTierSetParam(GAMMA_PARAM_TIME_NOW, &pDataIn->acqTime);
 
 	pushData(wxSharedPtr<GammaData>(pDataOut));
 }

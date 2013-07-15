@@ -16,12 +16,26 @@
 #include "block_usb_fake.h"
 #include "b_nemacalc.h"
 #include "b_uniform.h"
+#include "matrix_sum.h"
 
 GammaManager::GammaManager(GammaFrame* pFrame)
 	: m_pFrame(pFrame)
 	, m_pPipeHead(NULL)
 {
+	m_pFrame->PushEventHandler(this);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onEvent, this, 201, 204);
 }
+
+GammaManager::~GammaManager()
+{
+	m_pFrame->RemoveEventHandler(this);
+}
+
+void GammaManager::onEvent(wxCommandEvent& event)
+{
+	wxLogStatus(__FUNCTION__);
+}
+
 
 void GammaManager::setMode(GammaMode_e mode)
 {
@@ -99,9 +113,11 @@ void GammaManager::setMode(GammaMode_e mode)
 			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
 			GammaPipeFrontEnd* buff1 = new GammaPipeBuffer(this);
 			GammaPipeFrontEnd* buff2 = new GammaPipeBuffer(this);
-			GammaPipeFrontEnd* buff3 = new GammaPipeBuffer(this);
+			GammaPipeFrontEnd* buff3 = new GammaPipeBuffer(this, 8);
+			GammaPipeFrontEnd* buff4 = new GammaPipeBuffer(this, 8);
+			GammaPipeFrontEnd* m_sum = new GammaMatrixSum(this);
 
-			*m_pPipeHead += *buff1 += *unif += *buff2 += *tr_sm += *buff3 +=/*nema += */*tr_mi;
+			*m_pPipeHead += *buff1 += *unif += *buff2 += *tr_sm  += *buff3 += *m_sum += *buff4 +=/*nema += */*tr_mi;
 
 			break;
 		}
@@ -139,4 +155,9 @@ bool GammaManager::PresentationTierSetParam(GammaParam_e param, void* value)
 GammaConfig* GammaManager::getConfig()
 {
 	return &m_config;
+}
+
+GammaFrame* GammaManager::getFrame()
+{
+	return m_pFrame;
 }
