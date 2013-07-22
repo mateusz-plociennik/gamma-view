@@ -32,7 +32,7 @@ private:
 	bool m_intEnabled;
 	bool m_glowEnabled;
 
-	wxSharedPtr<GammaData> m_pDataOut;
+	wxSharedPtr<GammaData> m_sDataOut;
 	wxTimeSpan m_markerTime;
 
 	wxTimeSpan m_intBeginTime;

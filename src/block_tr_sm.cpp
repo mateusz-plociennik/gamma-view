@@ -25,7 +25,7 @@ GammaBlockTransSM::GammaBlockTransSM(GammaManager* pManager)
 	, m_intEndTime(0)
 	, m_gateTrig(0)
 	, m_gateCounter(0)
-	, m_pDataOut(new GammaMatrix())
+	, m_sDataOut(new GammaMatrix())
 {
 	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaBlockTransSM::onIntegrateMenu, this, 
 		ID_MENU_INTEGRATE_TIME_1_1000, ID_MENU_INTEGRATE_ENABLED);
@@ -37,13 +37,13 @@ GammaBlockTransSM::~GammaBlockTransSM()
 		ID_MENU_INTEGRATE_TIME_1_1000, ID_MENU_INTEGRATE_ENABLED);
 }
 
-void GammaBlockTransSM::processData(wxSharedPtr<GammaData> pData)
+void GammaBlockTransSM::processData(wxSharedPtr<GammaData> sDataIn)
 {
 	wxMutexLocker locker(m_processDataMutex);
 
-	wxASSERT(GAMMA_DATA_TYPE_ITEMS == pData->type);
-	GammaItems* pDataIn = dynamic_cast<GammaItems*>(pData.get());
-	GammaMatrix* pDataOut = dynamic_cast<GammaMatrix*>(m_pDataOut.get());
+	wxASSERT(GAMMA_DATA_TYPE_ITEMS == sDataIn->type);
+	GammaItems* pDataIn = dynamic_cast<GammaItems*>(sDataIn.get());
+	GammaMatrix* pDataOut = dynamic_cast<GammaMatrix*>(m_sDataOut.get());
 	
 	for(std::vector<GammaItem>::iterator it = pDataIn->items.begin();
 		it != pDataIn->items.end(); it++)
@@ -71,8 +71,9 @@ void GammaBlockTransSM::processData(wxSharedPtr<GammaData> pData)
 
 					pDataOut->trig = GAMMA_TRIG_TIME;
 					pDataOut->intTime = pDataOut->acqTime - m_intBeginTime;
-					GammaPipeSegment::pushData(m_pDataOut);
-					m_pDataOut.reset(new GammaMatrix());
+					GammaPipeSegment::pushData(m_sDataOut);
+					m_sDataOut.reset(new GammaMatrix());
+					pDataOut = dynamic_cast<GammaMatrix*>(m_sDataOut.get());
 					m_intBeginTime = m_markerTime;
 				}
 

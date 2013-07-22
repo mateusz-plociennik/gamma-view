@@ -25,6 +25,7 @@ GammaMatrixSum::GammaMatrixSum(GammaManager* pManager)
 	, m_gateCounter(0)
 	, m_glowEnabled(true)
 	, m_glowTime(wxTimeSpan::Milliseconds(4000))
+	, m_sDataOut(new GammaMatrix())
 	//, m_pDataOut(new GammaMatrix())
 	//, m_pDataOutShared(m_pDataOut)
 {
@@ -42,78 +43,65 @@ GammaMatrixSum::~GammaMatrixSum()
 		ID_MENU_INTEGRATE_ENABLED);
 }
 
-void GammaMatrixSum::processData(wxSharedPtr<GammaData> pData)
+void GammaMatrixSum::processData(wxSharedPtr<GammaData> sDataIn)
 {
 	wxMutexLocker locker(m_processDataMutex);
-	//GammaMatrix* pDataOut = new GammaMatrix();
 
-	wxASSERT(GAMMA_DATA_TYPE_MATRIX == pData->type);
-	GammaMatrix* pDataOut = dynamic_cast<GammaMatrix*>(pData.get());
+	wxASSERT(GAMMA_DATA_TYPE_MATRIX == sDataIn->type);
+	GammaMatrix* pDataIn = dynamic_cast<GammaMatrix*>(sDataIn.get());
 
-	wxTimeSpan intTimeSum = pDataOut->intTime;
-	for(std::deque<wxSharedPtr<GammaData>>::iterator iMatrix = m_dataDeque.begin();
-		iMatrix != m_dataDeque.end(); iMatrix++)
+	//wxSharedPtr<GammaData> sDataOut(new GammaMatrix());
+	GammaMatrix* pDataOut = dynamic_cast<GammaMatrix*>(m_sDataOut.get());
+
+	//wxTimeSpan intTimeSum = pDataOut->intTime;
+
+	wxInt32 mult = 0;
+	if(m_intEnabled)
 	{
-		GammaMatrix* pDataIn = dynamic_cast<GammaMatrix*>((*iMatrix).get());
-
-		if(m_intEnabled)
-		{
-			for(wxInt32 i = 0; i < 256 * 256; i += 4)
-			{
-				pDataOut->matrix[i+0] += pDataIn->matrix[i+0];
-				pDataOut->matrix[i+1] += pDataIn->matrix[i+1];
-				pDataOut->matrix[i+2] += pDataIn->matrix[i+2];
-				pDataOut->matrix[i+3] += pDataIn->matrix[i+3];
-			}
-		}
-		else
-		{
-			wxInt32 mult = 0;
-			if(m_glowEnabled)
-			{
-				mult = (m_glowTime.GetValue().GetValue() - intTimeSum.GetValue().GetValue())
-					* GAMMA_EVENT_UNIT / m_glowTime.GetValue().GetValue();
-			}
-			else
-			{
-				mult = 0;
-			}
-			if(mult <= GAMMA_EVENT_UNIT / 8)
-			{
-				m_dataDeque.erase(iMatrix, m_dataDeque.end());
-				break;
-			}
-
-			for(wxInt32 i = 0; i < 256 * 256; i += 4)
-			{
-				pDataOut->matrix[i+0] = std::max(pDataOut->matrix[i+0], mult * pDataIn->matrix[i+0] / GAMMA_EVENT_UNIT);
-				pDataOut->matrix[i+1] = std::max(pDataOut->matrix[i+1], mult * pDataIn->matrix[i+1] / GAMMA_EVENT_UNIT);
-				pDataOut->matrix[i+2] = std::max(pDataOut->matrix[i+2], mult * pDataIn->matrix[i+2] / GAMMA_EVENT_UNIT);
-				pDataOut->matrix[i+3] = std::max(pDataOut->matrix[i+3], mult * pDataIn->matrix[i+3] / GAMMA_EVENT_UNIT);
-			}
-		}
-
-		intTimeSum += pDataIn->intTime;
+		mult = GAMMA_EVENT_UNIT;
+		pDataOut->intTime += pDataIn->intTime;
 	}
-	
-	pDataOut->intTime = intTimeSum;
-	if(!m_dataDeque.empty())
+	else 
 	{
-		pDataOut->acqTime = dynamic_cast<GammaMatrix*>(m_dataDeque.back().get())->acqTime;
+		pDataOut->intTime = pDataIn->intTime;
+		pDataOut->acqTime = pDataIn->acqTime;
+		if(m_glowEnabled)
+		{
+			mult = (m_glowTime.GetValue().GetValue() - pDataIn->intTime.GetValue().GetValue())
+				* GAMMA_EVENT_UNIT / m_glowTime.GetValue().GetValue();
+		}
 	}
 
 	if(m_intEnabled)
 	{
-		m_dataDeque.clear();
+		for(wxInt32 i = 0; i < 256 * 256; i += 4)
+		{
+			pDataOut->matrix[i+0] += pDataIn->matrix[i+0];
+			pDataOut->matrix[i+1] += pDataIn->matrix[i+1];
+			pDataOut->matrix[i+2] += pDataIn->matrix[i+2];
+			pDataOut->matrix[i+3] += pDataIn->matrix[i+3];
+		}
 	}
-	m_dataDeque.push_front(pData);
-	GammaPipeSegment::pushData(pData);
+	else
+	{
+		for(wxInt32 i = 0; i < 256 * 256; i += 4)
+		{
+			pDataOut->matrix[i+0] = std::max(pDataIn->matrix[i+0], mult * pDataOut->matrix[i+0] / GAMMA_EVENT_UNIT);
+			pDataOut->matrix[i+1] = std::max(pDataIn->matrix[i+1], mult * pDataOut->matrix[i+1] / GAMMA_EVENT_UNIT);
+			pDataOut->matrix[i+2] = std::max(pDataIn->matrix[i+2], mult * pDataOut->matrix[i+2] / GAMMA_EVENT_UNIT);
+			pDataOut->matrix[i+3] = std::max(pDataIn->matrix[i+3], mult * pDataOut->matrix[i+3] / GAMMA_EVENT_UNIT);
+		}
+	}
+
+	GammaPipeSegment::pushData(m_sDataOut);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 wxInt32 GammaMatrixSum::setParam(GammaParam_e param, void* value)
 {
+	wxMutexLocker locker(m_processDataMutex);
+
 	switch(param)
 	{
 	case GAMMA_PARAM_IMG_INTEGRATE_TIME:
@@ -165,6 +153,8 @@ void GammaMatrixSum::pushData()
 
 void GammaMatrixSum::onGlowMenu(wxCommandEvent& event)
 {
+	wxMutexLocker locker(m_processDataMutex);
+
 	switch(event.GetId())
 	{
 	case ID_MENU_GLOW_TIME_1_1000:
@@ -208,10 +198,14 @@ void GammaMatrixSum::onGlowMenu(wxCommandEvent& event)
 
 void GammaMatrixSum::onIntegrateMenu(wxCommandEvent& event)
 {
+	wxMutexLocker locker(m_processDataMutex);
+
 	switch(event.GetId())
 	{
 	case ID_MENU_INTEGRATE_ENABLED:
-		m_intEnabled = event.IsChecked(); break;
+		m_intEnabled = event.IsChecked(); 
+		m_sDataOut.reset(new GammaMatrix());
+		break;
 	default:
 		break;
 	}

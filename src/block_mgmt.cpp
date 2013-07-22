@@ -111,13 +111,14 @@ void GammaManager::setMode(GammaMode_e mode)
 			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
 			//GammaPipeFrontEnd* nema = new GammaNemaCalc(this);
 			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
-			GammaPipeFrontEnd* buff1 = new GammaPipeBuffer(this);
+/*			GammaPipeFrontEnd* buff1 = new GammaPipeBuffer(this);
 			GammaPipeFrontEnd* buff2 = new GammaPipeBuffer(this);
 			GammaPipeFrontEnd* buff3 = new GammaPipeBuffer(this, 8);
 			GammaPipeFrontEnd* buff4 = new GammaPipeBuffer(this, 8);
-			GammaPipeFrontEnd* m_sum = new GammaMatrixSum(this);
+*/			GammaPipeFrontEnd* m_sum = new GammaMatrixSum(this);
 
-			*m_pPipeHead += *buff1 += *unif += *buff2 += *tr_sm  += *buff3 += *m_sum += *buff4 +=/*nema += */*tr_mi;
+			//*m_pPipeHead += *buff1 += *unif += *buff2 += *tr_sm  += *buff3 += *m_sum += *buff4 +=/*nema += */*tr_mi;
+			*m_pPipeHead += *unif += *tr_sm += *m_sum +=/*nema += */*tr_mi;
 
 			break;
 		}
