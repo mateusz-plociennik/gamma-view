@@ -36,7 +36,7 @@ public:
 
 protected:
 	void onPaint(wxPaintEvent& event);
-	GammaManager* GetManager();
+	GammaManager* getManager();
 
 private:
 	GammaFrame* m_frame;

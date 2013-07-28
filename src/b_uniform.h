@@ -18,6 +18,8 @@ public:
 	void processData(wxSharedPtr<GammaData> pData);
 	wxInt32 setParam(GammaParam_e param, void* value);
 
+	void onThreadEvent(wxThreadEvent& event);
+
 private:
 	int corrCount(wxUint32 x, wxUint32 y);
 	void setMatrix(wxUint32* matrix);

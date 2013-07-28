@@ -46,7 +46,7 @@ wxInt32 GammaBlockFileRead::setParam(GammaParam_e param, void* value)
 
 wxThread::ExitCode GammaBlockFileRead::Entry()
 {
-	m_fileName.Assign("C:\\Users\\RF-710\\Dropbox\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
+	m_fileName.Assign("D:\\git\\gamma-view\\data\\20120813_184157.gvb"); //jednorodnosc
 	//m_fileName.Assign("20120813_200126.gvb"); //siatka
 	//m_fileName.Assign("5066901116_002707.gif");
 	

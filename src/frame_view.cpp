@@ -13,6 +13,8 @@
 #include "f_end_cond.h"
 #include "d_settings.h"
 
+#include "block_fwrite.h"
+
 #include <algorithm>
 
 #include <wx/dcclient.h>
@@ -35,13 +37,6 @@
 
 enum
 {
-	MENU_MODE = 100,
-	MENU_MODE_LIVE,
-	MENU_MODE_LIVE_UNI,
-	MENU_MODE_PLAYBACK,
-	MENU_MODE_PLAYBACK_UNI,
-	MENU_MODE_UNIFORMITY,
-
 	Menu_View_Zoom = 200,
 	Menu_View_Zoom_100,
 	Menu_View_Zoom_200,
@@ -86,8 +81,8 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 	//EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
 	//EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
 
-	EVT_MENU_RANGE(MENU_MODE, MENU_MODE_UNIFORMITY, 
-		GammaFrame::OnMenuMode)
+//	EVT_MENU_RANGE(ID_MENU_MODE, MENU_MODE_UNIFORMITY, 
+//		GammaFrame::OnMenuMode)
 	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, 
 		GammaFrame::OnMenuResizeWindow)
 	EVT_MENU_RANGE(Menu_View_Colourmap_AUTUMN, Menu_View_Colourmap_INVERT, 
@@ -96,6 +91,7 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 		//GammaFrame::OnMenuSetIntegrate)
 	EVT_MENU_RANGE(Menu_View_ImgParams_Brightness, Menu_View_ImgParams_All, 
 		GammaFrame::OnMenuSetImgParams)
+	EVT_MENU(ID_MENU_UNIFORM_LOAD, GammaFrame::onMenuUniform)
 
 	EVT_MENU(ID_MENU_SETTINGS, GammaFrame::onMenuSettings)
 
@@ -122,19 +118,22 @@ GammaFrame::GammaFrame()
 
 	SetIcon(wxICON(gamma-view));
 
+	Bind(wxEVT_THREAD, &GammaFrame::onThread, this, 
+		ID_EVENT_TRIG);
+
 	// Make a menubar
 
 	wxMenu *modeMenu = new wxMenu;
-	modeMenu->AppendRadioItem(MENU_MODE_LIVE, 
+	modeMenu->AppendRadioItem(ID_MENU_MODE_LIVE, 
 		wxT("Live"), wxT("Live mode"));
-	modeMenu->Check(MENU_MODE_LIVE, true);
-	modeMenu->AppendRadioItem(MENU_MODE_LIVE_UNI, 
+	modeMenu->Check(ID_MENU_MODE_LIVE, true);
+	modeMenu->AppendRadioItem(ID_MENU_MODE_LIVE_UNI, 
 		wxT("Live (uniform)"), wxT("Live mode with uniformity"));
-	modeMenu->AppendRadioItem(MENU_MODE_PLAYBACK, 
+	modeMenu->AppendRadioItem(ID_MENU_MODE_PLAYBACK, 
 		wxT("Playback"), wxT("Playback mode"));
-	modeMenu->AppendRadioItem(MENU_MODE_PLAYBACK_UNI, 
+	modeMenu->AppendRadioItem(ID_MENU_MODE_PLAYBACK_UNI, 
 		wxT("Playback (uniform)"), wxT("Playback mode with unformity"));
-	modeMenu->AppendRadioItem(MENU_MODE_UNIFORMITY, 
+	modeMenu->AppendRadioItem(ID_MENU_MODE_UNIFORMITY, 
 		wxT("Uniform matrix"), wxT("Aquisition of uniformity matrix"));
 
 	wxMenu *viewZoomMenu = new wxMenu;
@@ -264,12 +263,17 @@ GammaFrame::GammaFrame()
 	viewImgParamsMenu->Append(Menu_View_ImgParams_All, 
 		wxT("Reset All"), wxT("Reset All to defaults"));
 
+	wxMenu* uniformMenu = new wxMenu;
+	uniformMenu->Append(ID_MENU_UNIFORM_LOAD, 
+		_("Load matrix"), wxT("."));
+
 	wxMenu *viewMenu = new wxMenu;
 	viewMenu->Append(Menu_View_Zoom, wxT("Window Size"), viewZoomMenu);
 	viewMenu->Append(Menu_View_Colourmap, wxT("Colourmap"), viewColourmapMenu);
 	viewMenu->Append(ID_MENU_INTEGRATE, _("Refresh rate"), integrateMenu);
 	viewMenu->Append(ID_MENU_GLOW, _("Glow effect"), glowMenu);
 	viewMenu->Append(Menu_View_ImgParams, wxT("Brightness/Contrast/Gamma"), viewImgParamsMenu);
+	viewMenu->Append(ID_MENU_UNIFORM, wxT("Uniformity"), uniformMenu);
 
 	wxMenu *settingsMenu = new wxMenu;
 	settingsMenu->Append(ID_MENU_SETTINGS, _("Settings..."), wxT("USB Settings etc."));
@@ -337,10 +341,10 @@ GammaFrame::~GammaFrame()
 {
 	m_mgr.UnInit();
 
-	GetManager()->setMode(GAMMA_MODE_NONE);
+	getManager()->setMode(GAMMA_MODE_NONE);
 
 	delete wxConfigBase::Set(NULL);
-	delete GetManager();
+	delete getManager();
 }
 
 void GammaFrame::OnClose(wxCloseEvent& event)
@@ -392,10 +396,10 @@ void GammaFrame::OnMenuHelpAbout(wxCommandEvent& WXUNUSED(event))
 
 void GammaFrame::OnMenuMode(wxCommandEvent& commandEvent)
 {
-	switch(commandEvent.GetId())
+/*	switch(commandEvent.GetId())
 	{
 	default:
-	case MENU_MODE_LIVE:
+	case ID_MENU_MODE_LIVE:
 	case MENU_MODE_LIVE_UNI:
 	case MENU_MODE_PLAYBACK:
 		openFile(); break;
@@ -406,6 +410,7 @@ void GammaFrame::OnMenuMode(wxCommandEvent& commandEvent)
 		}
 		break;
 	}
+*/
 }
 
 wxString GammaFrame::openFile()
@@ -474,7 +479,7 @@ void GammaFrame::OnMenuSetColourmap(wxCommandEvent& event)
 	if( event.GetId() == Menu_View_Colourmap_INVERT )
 	{
 		bool invert = event.IsChecked();
-		GetManager()->DataTierSetParam(GAMMA_PARAM_COLOURMAP_INVERT, (void*)&invert);
+		getManager()->DataTierSetParam(GAMMA_PARAM_COLOURMAP_INVERT, (void*)&invert);
 	}
 	else
 	{
@@ -511,7 +516,7 @@ void GammaFrame::OnMenuSetColourmap(wxCommandEvent& event)
 		case Menu_View_Colourmap_WINTER:
 			colourmap = GAMMA_COLOURMAP_WINTER; break;
 		}
-		GetManager()->DataTierSetParam(GAMMA_PARAM_COLOURMAP, (void*)&colourmap);
+		getManager()->DataTierSetParam(GAMMA_PARAM_COLOURMAP, (void*)&colourmap);
 	}
 }
 
@@ -520,7 +525,7 @@ void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 	if( event.GetId() == ID_MENU_INTEGRATE_ENABLED )
 	{
 		bool bIntegrate = event.IsChecked();
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
+		getManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_ENABLED, (void*)&bIntegrate);
 	}
 	else
 	{
@@ -561,7 +566,7 @@ void GammaFrame::OnMenuSetIntegrate(wxCommandEvent& event)
 		case ID_MENU_INTEGRATE_TIME_32:
 			intTime = wxTimeSpan::Milliseconds(32000); break;
 		}
-		GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_TIME, (void*)&intTime);
+		getManager()->DataTierSetParam(GAMMA_PARAM_IMG_INTEGRATE_TIME, (void*)&intTime);
 	}
 }
 
@@ -581,9 +586,9 @@ void GammaFrame::OnMenuSetImgParams(wxCommandEvent& event)
 		m_canvas->m_gamma = 1.0; break;
 	}
 
-	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_canvas->m_brightness);
-	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_canvas->m_contrast);
-	GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_canvas->m_gamma);
+	getManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_canvas->m_brightness);
+	getManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_canvas->m_contrast);
+	getManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_canvas->m_gamma);
 
 	GetStatusBar()->SetStatusText(wxString::Format(wxT("B=%.2f; C=%.2f; G=%.2f"), 
 		m_canvas->m_brightness, m_canvas->m_contrast, m_canvas->m_gamma), 0);
@@ -627,7 +632,7 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 		{
 			GammaMatrix* pMatrix = static_cast<GammaMatrix*>(value);
 			m_sidePanel->m_frequency = (double)1000 * pMatrix->eventSum / pMatrix->intTime.GetValue().GetValue();
-			m_sidePanel->m_eventAvg = (double)pMatrix->eventSum / GetManager()->getConfig()->getFieldOfView()->getPointCount();
+			m_sidePanel->m_eventAvg = (double)pMatrix->eventSum / getManager()->getConfig()->getFieldOfView()->getPointCount();
 			m_sidePanel->m_eventMax = pMatrix->eventMax();
 			m_sidePanel->m_eventSum = pMatrix->eventSum;
 			m_sidePanel->m_trig = pMatrix->trig;
@@ -646,4 +651,27 @@ bool GammaFrame::SetParam(GammaParam_e param, void* value)
 	}
 
 	return true;
+}
+
+void GammaFrame::onThread(wxThreadEvent& event)
+{
+	switch(event.GetId())
+	{
+	case ID_EVENT_TRIG:
+		{
+
+			GammaBlockFileWrite file(getManager());
+			file.processData(event.GetPayload<wxSharedPtr<GammaData>>());
+			break;
+		}
+	default:
+		wxASSERT_MSG(0, "Not implemented!");
+	}
+}
+
+void GammaFrame::onMenuUniform(wxCommandEvent& event)
+{
+	wxThreadEvent tEvent;
+	tEvent.SetString(openFile().c_str());
+	wxQueueEvent(this, tEvent.Clone());
 }

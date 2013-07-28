@@ -114,7 +114,7 @@ void GammaSidePanel::onPaint(wxPaintEvent& WXUNUSED(event))
 	m_eventSumValue->SetLabel(formatReadableNumber(m_eventSum, true));
 }
 
-GammaManager* GammaSidePanel::GetManager()
+GammaManager* GammaSidePanel::getManager()
 {
-	return m_frame->GetManager();
+	return m_frame->getManager();
 }

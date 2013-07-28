@@ -17,13 +17,16 @@
 #include "b_nemacalc.h"
 #include "b_uniform.h"
 #include "matrix_sum.h"
+#include "f_end_cond.h"
 
 GammaManager::GammaManager(GammaFrame* pFrame)
 	: m_pFrame(pFrame)
 	, m_pPipeHead(NULL)
 {
 	m_pFrame->PushEventHandler(this);
-	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onEvent, this, 201, 204);
+	//Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onEvent, this, 201, 204);
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onMenuMode, this, 
+		ID_MENU_MODE_LIVE, ID_MENU_MODE_UNIFORMITY);
 }
 
 GammaManager::~GammaManager()
@@ -36,6 +39,27 @@ void GammaManager::onEvent(wxCommandEvent& event)
 	wxLogStatus(__FUNCTION__);
 }
 
+void GammaManager::onMenuMode(wxCommandEvent& event)
+{
+	setMode(GAMMA_MODE_NONE);
+
+	switch(event.GetId())
+	{
+	case ID_MENU_MODE_LIVE:
+		setMode(GAMMA_MODE_USB_2_IMAGE); break;
+	case ID_MENU_MODE_LIVE_UNI:
+		setMode(GAMMA_MODE_USB_2_IMAGE_UNI); break;
+	case ID_MENU_MODE_PLAYBACK:
+		setMode(GAMMA_MODE_FILE_2_IMAGE); break;
+	case ID_MENU_MODE_PLAYBACK_UNI:
+		setMode(GAMMA_MODE_FILE_2_IMAGE_UNI); break;
+	case ID_MENU_MODE_UNIFORMITY:
+		setMode(GAMMA_MODE_USB_2_UNI_MATRIX); break;
+	default:
+		wxASSERT_MSG(0, "Not implemented!");
+		return;
+	}
+}
 
 void GammaManager::setMode(GammaMode_e mode)
 {
@@ -76,8 +100,10 @@ void GammaManager::setMode(GammaMode_e mode)
 			GammaPipeFrontEnd* tr_us = new GammaBlockTransUS(this);
 			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
 			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
+			GammaPipeFrontEnd* file = new GammaBlockFileWrite(this);
 
 			*m_pPipeHead += *tr_us += *tr_sm += *tr_mi;
+			*tr_us += *file;
 			break;
 		}
 	case GAMMA_MODE_USB_2_IMAGE_UNI:
@@ -87,8 +113,10 @@ void GammaManager::setMode(GammaMode_e mode)
 			GammaPipeFrontEnd* unif = new GammaUniformity(this);
 			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
 			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
+			GammaPipeFrontEnd* file = new GammaBlockFileWrite(this);
 
 			*m_pPipeHead += *tr_us += *unif += *tr_sm += *tr_mi;
+			*unif += *file;
 			break;
 		}
 	case GAMMA_MODE_USB_FULL:
@@ -107,7 +135,6 @@ void GammaManager::setMode(GammaMode_e mode)
 	case GAMMA_MODE_FILE_2_IMAGE:
 		{
 			m_pPipeHead = new GammaBlockFileRead(this);
-			GammaPipeFrontEnd* unif = new GammaUniformity(this);
 			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
 			//GammaPipeFrontEnd* nema = new GammaNemaCalc(this);
 			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
@@ -118,19 +145,56 @@ void GammaManager::setMode(GammaMode_e mode)
 */			GammaPipeFrontEnd* m_sum = new GammaMatrixSum(this);
 
 			//*m_pPipeHead += *buff1 += *unif += *buff2 += *tr_sm  += *buff3 += *m_sum += *buff4 +=/*nema += */*tr_mi;
-			*m_pPipeHead += *unif += *tr_sm += *m_sum +=/*nema += */*tr_mi;
+			*m_pPipeHead += *tr_sm += *m_sum +=/*nema += */*tr_mi;
 
 			break;
 		}
-	case GAMMA_MODE_NONE:
-	default:
+	case GAMMA_MODE_FILE_2_IMAGE_UNI:
 		{
-			m_pPipeHead->stopAll();
-			m_pPipeHead->deleteAll();
-			m_pPipeHead = NULL;
+			m_pPipeHead = new GammaBlockFileRead(this);
+			GammaPipeFrontEnd* unif = new GammaUniformity(this);
+			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
+			//GammaPipeFrontEnd* nema = new GammaNemaCalc(this);
+/*			GammaPipeFrontEnd* buff1 = new GammaPipeBuffer(this);
+			GammaPipeFrontEnd* buff2 = new GammaPipeBuffer(this);
+			GammaPipeFrontEnd* buff3 = new GammaPipeBuffer(this, 8);
+			GammaPipeFrontEnd* buff4 = new GammaPipeBuffer(this, 8);
+*/			GammaPipeFrontEnd* m_sum = new GammaMatrixSum(this);
+			//GammaPipeFrontEnd* file = new GammaBlockFileWrite(this);
+			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
+
+			*m_pPipeHead += *unif += *tr_sm += *m_sum += *tr_mi;
+
+			break;
+		}
+	case GAMMA_MODE_USB_2_UNI_MATRIX:
+		{
+			new GammaEndCondDialog(this);
+
+			m_pPipeHead = new GammaBlockUSB(this);
+			GammaPipeFrontEnd* tr_us = new GammaBlockTransUS(this);
+			GammaPipeFrontEnd* tr_sm = new GammaBlockTransSM(this);
+			GammaPipeFrontEnd* tr_mi = new GammaTransMI(this);
+			GammaPipeFrontEnd* file = new GammaBlockFileWrite(this);
+
+			*m_pPipeHead += *tr_us += *tr_sm += *tr_mi;
+			*tr_us += *file;
+			break;
+		}
+	case GAMMA_MODE_NONE:
+		{
+			if(m_pPipeHead)
+			{
+				m_pPipeHead->stopAll();
+				m_pPipeHead->deleteAll();
+				m_pPipeHead = NULL;
+			}
 			
 			break;
 		}
+	default:
+		wxASSERT_MSG(0, "Not implemented!");
+		return;
 	}
 
 	if(GAMMA_MODE_NONE != mode)

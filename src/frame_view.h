@@ -36,7 +36,7 @@ public:
 	GammaFrame();
 	~GammaFrame();
 
-	GammaManager* GetManager()
+	GammaManager* getManager()
 	{
 		return m_pManager;
 	}
@@ -67,6 +67,8 @@ private:
 	void SetImage(wxImage& image);
 
 	void onTrigger(wxThreadEvent& event);
+	void onThread(wxThreadEvent& event);
+	void onMenuUniform(wxCommandEvent& event);
 
 	//
 	wxString openFile();

@@ -49,7 +49,7 @@ GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
 
 GammaManager* GammaPlayerPanel::getManager()
 {
-	return m_frame->GetManager();
+	return m_frame->getManager();
 }
 
 void GammaPlayerPanel::onPaint(wxPaintEvent& WXUNUSED(event))

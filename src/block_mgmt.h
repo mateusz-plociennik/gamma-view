@@ -34,6 +34,7 @@ public:
 	~GammaManager();
 
 	void onEvent(wxCommandEvent& event);
+	void onMenuMode(wxCommandEvent& event);
 
 	/**
 	 * Set mode for blocks under manager

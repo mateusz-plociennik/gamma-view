@@ -15,7 +15,7 @@
 GammaMatrixSum::GammaMatrixSum(GammaManager* pManager) 
 	: GammaPipeSegment(pManager)
 	, m_intEnabled(false)
-	, m_eventMaxTrig(1)
+	, m_eventMaxTrig(0)
 	, m_eventSumTrig(0)
 	, m_areaTrig(GAMMA_AREA_CFOV)
 	, m_timeTrig(0)
@@ -65,6 +65,9 @@ void GammaMatrixSum::processData(wxSharedPtr<GammaData> sDataIn)
 	{
 		pDataOut->intTime = pDataIn->intTime;
 		pDataOut->acqTime = pDataIn->acqTime;
+		pDataOut->eventSum = pDataIn->eventSum;
+		pDataOut->eventSumFov = pDataIn->eventSumFov;
+
 		if(m_glowEnabled)
 		{
 			mult = (m_glowTime.GetValue().GetValue() - pDataIn->intTime.GetValue().GetValue())
@@ -91,6 +94,27 @@ void GammaMatrixSum::processData(wxSharedPtr<GammaData> sDataIn)
 			pDataOut->matrix[i+2] = std::max(pDataIn->matrix[i+2], mult * pDataOut->matrix[i+2] / GAMMA_EVENT_UNIT);
 			pDataOut->matrix[i+3] = std::max(pDataIn->matrix[i+3], mult * pDataOut->matrix[i+3] / GAMMA_EVENT_UNIT);
 		}
+	}
+
+	if(m_eventMaxTrig && m_eventMaxTrig < pDataOut->eventMax())
+	{
+		pDataOut->trig = GAMMA_TRIG_MAX;
+	}
+	if(m_eventSumTrig && m_eventSumTrig < pDataOut->eventSum)
+	{
+		pDataOut->trig = GAMMA_TRIG_SUM;
+	}
+	if(!m_timeTrig.IsNull() && m_timeTrig < pDataOut->acqTime)
+	{
+		pDataOut->trig = GAMMA_TRIG_TIME;
+	}
+
+	if(pDataOut->trig != GAMMA_TRIG_NONE)
+	{
+		wxThreadEvent event(wxEVT_THREAD, ID_EVENT_TRIG);
+		event.SetPayload<wxSharedPtr<GammaData>>(m_sDataOut);
+		wxQueueEvent(getManager()->getFrame(), event.Clone());
+		pDataOut->trig = GAMMA_TRIG_NONE;
 	}
 
 	GammaPipeSegment::pushData(m_sDataOut);

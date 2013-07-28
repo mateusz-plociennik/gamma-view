@@ -36,7 +36,7 @@ public:
 	virtual wxSize DoGetBestSize() const;
 	virtual wxSize DoGetBestClientSize() const;
 	void DoSetBestSize(const wxSize& size);
-	GammaManager* GetManager();
+	GammaManager* getManager();
 
 private:
 	void OnMouse(wxMouseEvent& event);

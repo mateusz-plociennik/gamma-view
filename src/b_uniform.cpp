@@ -9,6 +9,9 @@
 
 #include <vector>
 
+#include <wx/file.h>
+#include <wx/filename.h>
+
 
 #include "config.h"
 
@@ -127,6 +130,26 @@ void GammaUniformity::setMatrix(wxUint32* matrix)
 		else
 		{
 			m_matrix[i] = wxINT32_MAX;
+		}
+	}
+}
+
+void GammaUniformity::onThreadEvent(wxThreadEvent& event)
+{
+	switch(event.GetId())
+	{
+	case ID_EVENT_SET_UNI_FILE:
+		{
+			wxString name(event.GetPayload<wxString>());
+			wxFile file;
+			GammaMatrix data;
+
+			file.Open(name, wxFile::read);
+			file.Seek(3);
+			file.Read(&data, sizeof(GammaMatrix));
+
+			setMatrix(data.matrix);
+			break;
 		}
 	}
 }

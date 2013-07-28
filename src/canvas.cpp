@@ -61,9 +61,9 @@ void GammaCanvas::DoSetBestSize(const wxSize& size)
 	m_bestSize = size;
 }
 
-GammaManager* GammaCanvas::GetManager()
+GammaManager* GammaCanvas::getManager()
 {
-	return m_frame->GetManager();
+	return m_frame->getManager();
 }
 
 void GammaCanvas::OnMouse(wxMouseEvent& event)
@@ -75,15 +75,15 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 		if( event.LeftIsDown() )
 		{
 			m_brightness += ( 0.001 * (event.GetX() - m_startX) );
-			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
+			getManager()->DataTierSetParam(GAMMA_PARAM_IMG_BRIGHTNESS, &m_brightness);
 
 			m_contrast *= pow( 1.001, -(event.GetY() - m_startY) );
-			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_contrast);
+			getManager()->DataTierSetParam(GAMMA_PARAM_IMG_CONTRAST, &m_contrast);
 		}
 		else
 		{
 			m_gamma *= pow( 1.001, -(event.GetY() - m_startY) );
-			GetManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_gamma);
+			getManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_gamma);
 		}
 
 		wxString status;
