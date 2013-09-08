@@ -48,6 +48,10 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 	const wxString& name)
 		: wxPanel(parent, id, pos, size, style, name)
 		, m_frame(parent)
+		, m_frequency(8888000)
+		, m_eventAvg(8888000)
+		, m_eventMax(8888000)
+		, m_eventSum(8888000)
 {
 	UNREFERENCED_PARAMETER(style);
 	UNREFERENCED_PARAMETER(name);
@@ -56,7 +60,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 	
 	wxStaticText* frequencyLabel = new wxStaticText(this, wxID_ANY, _("Frequency:"));
 	sideSizer->Add(frequencyLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_frequencyValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, false), 
+	m_frequencyValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888000, false), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_frequencyValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* frequencyUnit = new wxStaticText(this, wxID_ANY, _("/ s"));
@@ -64,7 +68,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventAvgLabel = new wxStaticText(this, wxID_ANY, _("Average:"));
 	sideSizer->Add(eventAvgLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventAvgValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, false), 
+	m_eventAvgValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888000, false), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventAvgValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventAvgUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -72,7 +76,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventMaxLabel = new wxStaticText(this, wxID_ANY, _("Maximum:"));
 	sideSizer->Add(eventMaxLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventMaxValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
+	m_eventMaxValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888000, true), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventMaxValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventMaxUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -80,7 +84,7 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* eventSumLabel = new wxStaticText(this, wxID_ANY, _("Sum:"));
 	sideSizer->Add(eventSumLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_eventSumValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
+	m_eventSumValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888000, true), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_eventSumValue, 0, wxALIGN_RIGHT|wxALL, 5);
 	wxStaticText* eventSumUnit = new wxStaticText(this, wxID_ANY, _("events"));
@@ -96,11 +100,36 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 
 	wxStaticText* countLabel = new wxStaticText(this, wxID_ANY, _("Count:"));
 	sideSizer->Add(countLabel, 0, wxALIGN_RIGHT|wxALL, 5);
-	m_countValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888888, true), 
+	m_countValue = new wxStaticText(this, wxID_ANY, formatReadableNumber(8888000, true), 
 		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
 	sideSizer->Add(m_countValue, 0, wxALIGN_RIGHT|wxALL, 5);
-	wxStaticText* countUnit = new wxStaticText(this, wxID_ANY, wxT("events"));
+	wxStaticText* countUnit = new wxStaticText(this, wxID_ANY, _("events"));
 	sideSizer->Add(countUnit, 0, wxALIGN_LEFT|wxALL, 5);
+
+
+	wxStaticText* brightnessLabel = new wxStaticText(this, wxID_ANY, _("Brightness:"));
+	sideSizer->Add(brightnessLabel, 0, wxALIGN_RIGHT|wxALL, 5);
+	m_brightnessValue = new wxStaticText(this, wxID_ANY, wxString::Format("%.2f", 888888.0), 
+		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+	sideSizer->Add(m_brightnessValue, 0, wxALIGN_RIGHT|wxALL, 5);
+	wxStaticText* brightnessUnit = new wxStaticText(this, wxID_ANY, _(""));
+	sideSizer->Add(brightnessUnit, 0, wxALIGN_LEFT|wxALL, 5);
+
+	wxStaticText* contrastLabel = new wxStaticText(this, wxID_ANY, _("Contrast:"));
+	sideSizer->Add(contrastLabel, 0, wxALIGN_RIGHT|wxALL, 5);
+	m_contrastValue = new wxStaticText(this, wxID_ANY, wxString::Format("%.2f", 888888.0), 
+		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+	sideSizer->Add(m_contrastValue, 0, wxALIGN_RIGHT|wxALL, 5);
+	wxStaticText* contrastUnit = new wxStaticText(this, wxID_ANY, _(""));
+	sideSizer->Add(contrastUnit, 0, wxALIGN_LEFT|wxALL, 5);
+
+	wxStaticText* gammaLabel = new wxStaticText(this, wxID_ANY, _("Gamma:"));
+	sideSizer->Add(gammaLabel, 0, wxALIGN_RIGHT|wxALL, 5);
+	m_gammaValue = new wxStaticText(this, wxID_ANY, wxString::Format("%.2f", 888888.0), 
+		wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+	sideSizer->Add(m_gammaValue, 0, wxALIGN_RIGHT|wxALL, 5);
+	wxStaticText* gammaUnit = new wxStaticText(this, wxID_ANY, _(""));
+	sideSizer->Add(gammaUnit, 0, wxALIGN_LEFT|wxALL, 5);
 
 	SetSizerAndFit(sideSizer);
 }

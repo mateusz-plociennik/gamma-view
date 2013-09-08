@@ -86,9 +86,12 @@ void GammaCanvas::OnMouse(wxMouseEvent& event)
 			getManager()->DataTierSetParam(GAMMA_PARAM_IMG_GAMMA, &m_gamma);
 		}
 
-		wxString status;
-		status.Printf("B=%.2f; C=%.2f; G=%.2f", m_brightness, m_contrast, m_gamma);
-		m_frame->GetStatusBar()->SetStatusText(status, 0);
+		//wxString status;
+		//status.Printf("B=%.2f; C=%.2f; G=%.2f", m_brightness, m_contrast, m_gamma);
+		//m_frame->GetStatusBar()->SetStatusText(status, 0);
+		m_frame->m_sidePanel->m_brightnessValue->SetLabel(wxString::Format("%.2f", m_brightness));
+		m_frame->m_sidePanel->m_contrastValue->SetLabel(wxString::Format("%.2f", m_contrast));
+		m_frame->m_sidePanel->m_gammaValue->SetLabel(wxString::Format("%.2f", m_gamma));
 	}
 
 	/*

@@ -46,15 +46,11 @@ void GammaManager::onMenuMode(wxCommandEvent& event)
 	switch(event.GetId())
 	{
 	case ID_MENU_MODE_LIVE:
-		setMode(GAMMA_MODE_USB_2_IMAGE); break;
-	case ID_MENU_MODE_LIVE_UNI:
 		setMode(GAMMA_MODE_USB_2_IMAGE_UNI); break;
 	case ID_MENU_MODE_PLAYBACK:
-		setMode(GAMMA_MODE_FILE_2_IMAGE); break;
-	case ID_MENU_MODE_PLAYBACK_UNI:
 		setMode(GAMMA_MODE_FILE_2_IMAGE_UNI); break;
-	case ID_MENU_MODE_UNIFORMITY:
-		setMode(GAMMA_MODE_USB_2_UNI_MATRIX); break;
+//	case ID_MENU_MODE_UNIFORMITY:
+//		setMode(GAMMA_MODE_USB_2_UNI_MATRIX); break;
 	default:
 		wxASSERT_MSG(0, "Not implemented!");
 		return;

@@ -59,6 +59,10 @@ private:
 
 	wxStaticText* m_countValue;
 
+	wxStaticText* m_brightnessValue;
+	wxStaticText* m_contrastValue;
+	wxStaticText* m_gammaValue;
+
 	DECLARE_EVENT_TABLE();
 };
 

@@ -106,7 +106,7 @@ GammaFrame::GammaFrame()
 		wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
 		m_pManager(new GammaManager(this))
 {
-	m_mgr.SetManagedWindow(this);
+	//m_mgr.SetManagedWindow(this);
 
 	wxConfigBase* config = new wxFileConfig( "gamma-view", "MP", 
 		"./gamma-view.ini", wxEmptyString, 
@@ -125,16 +125,19 @@ GammaFrame::GammaFrame()
 
 	wxMenu *modeMenu = new wxMenu;
 	modeMenu->AppendRadioItem(ID_MENU_MODE_LIVE, 
-		wxT("Live"), wxT("Live mode"));
-	modeMenu->Check(ID_MENU_MODE_LIVE, true);
-	modeMenu->AppendRadioItem(ID_MENU_MODE_LIVE_UNI, 
-		wxT("Live (uniform)"), wxT("Live mode with uniformity"));
+		_("Live"), _("Live mode"));
 	modeMenu->AppendRadioItem(ID_MENU_MODE_PLAYBACK, 
-		wxT("Playback"), wxT("Playback mode"));
-	modeMenu->AppendRadioItem(ID_MENU_MODE_PLAYBACK_UNI, 
-		wxT("Playback (uniform)"), wxT("Playback mode with unformity"));
-	modeMenu->AppendRadioItem(ID_MENU_MODE_UNIFORMITY, 
-		wxT("Uniform matrix"), wxT("Aquisition of uniformity matrix"));
+		_("Playback..."), _("Playback mode..."));
+	modeMenu->AppendSeparator();
+	modeMenu->AppendRadioItem(ID_MENU_MODE_ACQ_NORMAL, 
+		_("Normal acquisition"), _("Normal acquisition"));
+	modeMenu->AppendRadioItem(ID_MENU_MODE_ACQ_UNIMAT, 
+		_("Uniform matrix acquisition"), _("Uniform matrix acquisition"));
+	modeMenu->AppendSeparator();
+	modeMenu->AppendCheckItem(ID_MENU_MODE_UNIFORMITY, 
+		_("Uniformity correction"), _("Uniformity correction"));
+
+
 
 	wxMenu *viewZoomMenu = new wxMenu;
 	viewZoomMenu->AppendRadioItem(Menu_View_Zoom_100, 
@@ -290,12 +293,8 @@ GammaFrame::GammaFrame()
 	SetMenuBar(menuBar);
 
 	CreateStatusBar();
-	int width_fields[] = {-1,66};
-	GetStatusBar()->SetFieldsCount(2, width_fields);
-
-	wxString status;
-	status.Printf("B=0.00; C=1.00; G=1.00");
-	GetStatusBar()->SetStatusText(status, 0);
+	//int width_fields[] = {-1,66};
+	//GetStatusBar()->SetFieldsCount(2, width_fields);
 
 	wxLogWindow* log = new wxLogWindow(this, "Log Window");
 	log->GetFrame()->SetIcon(wxICON(gamma-view));
@@ -304,31 +303,31 @@ GammaFrame::GammaFrame()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-	//m_centerSizer = new wxBoxSizer(wxVERTICAL);
+	m_centerSizer = new wxBoxSizer(wxVERTICAL);
 
 	m_canvas = new GammaCanvas(this, wxID_ANY);
-	//m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
-	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
-                  Caption(_("Main")).Floatable().MinSize(256,256).BestSize(256,256));
+	m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
+	//m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
+    //              Caption(_("Preview")).Floatable().BestSize(256,256).Fixed());
 
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
-	//m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
+	//m_mgr.AddPane(m_bottomPanel, wxAuiPaneInfo().
+    //             Caption(_("Player panel")).Bottom().Fixed());
+	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
 
-	//m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
-	//m_horizontalSizer->Add(m_centerSizer, 1, wxEXPAND);
+	m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
+	m_horizontalSizer->Add(m_centerSizer, 1, wxEXPAND);
 
 	m_sidePanel = new GammaSidePanel(this, wxID_ANY);
-	//m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
-	m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
-                  Caption(_("Statistics")).Right().Resizable(false));
+	m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
+	//m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
+    //              Caption(_("Statistics")).Floatable().Resizable(false));
 	
-	//SetSizerAndFit(m_horizontalSizer);
+	SetSizerAndFit(m_horizontalSizer);
 
-	m_mgr.Update();
+	//m_mgr.Update();
 
 	Show();
-
-	
 
 	//m_pManager->setMode(GAMMA_MODE_USB_2_IMAGE_UNI);
 	m_pManager->setMode(GAMMA_MODE_FILE_2_IMAGE);
@@ -339,7 +338,7 @@ GammaFrame::GammaFrame()
 
 GammaFrame::~GammaFrame()
 {
-	m_mgr.UnInit();
+	//m_mgr.UnInit();
 
 	getManager()->setMode(GAMMA_MODE_NONE);
 

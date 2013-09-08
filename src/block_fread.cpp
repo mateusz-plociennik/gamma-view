@@ -52,13 +52,18 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	
 	wxLogStatus("%s - started", __FUNCTION__);
 
+	if(!m_fileName.Exists())
+	{
+		return (wxThread::ExitCode)1;
+	}
+
 	wxLogStatus("File modification time: " 
 		+ m_fileName.GetModificationTime().Format());
 	m_file.Open(m_fileName.GetFullPath(), wxFile::read);
 	
 	if(!checkHeader())
 	{
-		return (wxThread::ExitCode)1;
+		return (wxThread::ExitCode)2;
 	}
 
 	wxTimeSpan endTime = getEndTime();
@@ -67,13 +72,9 @@ wxThread::ExitCode GammaBlockFileRead::Entry()
 	wxDateTime startTime(wxDateTime::UNow());
 	while(!GetThread()->TestDestroy())
 	{
+		if(!m_file.Eof())
 		{
 			//wxMutexLocker locker(m_processDataMutex);
-			if(m_file.Eof())
-			{
-				break;
-			}
-
 			GammaItems* pDataOut(new GammaItems);
 			
 			for(wxUint32 iItem = 0; iItem < 256; iItem++)
@@ -129,6 +130,11 @@ bool GammaBlockFileRead::setTime(wxTimeSpan reqTime)
 {
 	//wxMutexLocker locker(m_processDataMutex);
 	//wxFileOffset reqOffset;
+
+	if(!m_file.IsOpened())
+	{
+		return false;
+	}
 
 	wxTimeSpan leftTime = wxTimeSpan(0);
 	wxFileOffset leftOffset = 3;
