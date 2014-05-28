@@ -18,15 +18,16 @@
 #include "b_uniform.h"
 #include "matrix_sum.h"
 #include "f_end_cond.h"
+#include "frame_view.h"
 
 GammaManager::GammaManager(GammaFrame* pFrame)
 	: m_pFrame(pFrame)
 	, m_pPipeHead(NULL)
 {
 	m_pFrame->PushEventHandler(this);
-	//Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onEvent, this, 201, 204);
-	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onMenuMode, this, 
+/*	Bind(wxEVT_COMMAND_MENU_SELECTED, &GammaManager::onMenuMode, this, 
 		ID_MENU_MODE_LIVE, ID_MENU_MODE_UNIFORMITY);
+*/
 }
 
 GammaManager::~GammaManager()
@@ -37,24 +38,6 @@ GammaManager::~GammaManager()
 void GammaManager::onEvent(wxCommandEvent& event)
 {
 	wxLogStatus(__FUNCTION__);
-}
-
-void GammaManager::onMenuMode(wxCommandEvent& event)
-{
-	setMode(GAMMA_MODE_NONE);
-
-	switch(event.GetId())
-	{
-	case ID_MENU_MODE_LIVE:
-		setMode(GAMMA_MODE_USB_2_IMAGE_UNI); break;
-	case ID_MENU_MODE_PLAYBACK:
-		setMode(GAMMA_MODE_FILE_2_IMAGE_UNI); break;
-//	case ID_MENU_MODE_UNIFORMITY:
-//		setMode(GAMMA_MODE_USB_2_UNI_MATRIX); break;
-	default:
-		wxASSERT_MSG(0, "Not implemented!");
-		return;
-	}
 }
 
 void GammaManager::setMode(GammaMode_e mode)

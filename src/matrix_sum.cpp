@@ -112,8 +112,8 @@ void GammaMatrixSum::processData(wxSharedPtr<GammaData> sDataIn)
 	if(pDataOut->trig != GAMMA_TRIG_NONE)
 	{
 		wxThreadEvent event(wxEVT_THREAD, ID_EVENT_TRIG);
-		event.SetPayload<wxSharedPtr<GammaData>>(m_sDataOut);
-		wxQueueEvent(getManager()->getFrame(), event.Clone());
+		event.SetPayload< wxSharedPtr<GammaData> >(m_sDataOut);
+		wxTheApp->QueueEvent(event.Clone());
 		pDataOut->trig = GAMMA_TRIG_NONE;
 	}
 
@@ -157,7 +157,7 @@ wxInt32 GammaMatrixSum::setParam(GammaParam_e param, void* value)
 void GammaMatrixSum::pushData()
 {
 	/*
-	//UNREFERENCED_PARAMETER(pDataOut);
+	//wxUnusedVar(pDataOut);
 	m_pDataOut->span = m_pDataOut->time - m_intBeginTime;
 	GammaPipeSegment::pushData(m_pDataOutShared);
 

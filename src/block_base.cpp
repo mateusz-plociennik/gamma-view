@@ -6,7 +6,9 @@
  */
 
 #include "block_base.h"
+#include "block_data.h"
 
+#if 0
 GammaBlockDataBase* GammaBlockBase::BlockDataGet()
 {
 	wxASSERT(!m_blockDataInListMutex.Lock());
@@ -36,3 +38,4 @@ void GammaBlockBase::BlockDataPop(GammaBlockDataBase* blockData_p)
 	blockData_p->Subscribe();
 	m_blockDataInListMutex.Unlock();
 }
+#endif

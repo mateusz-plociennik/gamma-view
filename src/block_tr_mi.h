@@ -10,7 +10,6 @@
 
 #include "block_base.h"
 #include "block_mgmt.h"
-#include "frame_view.h"
 #include <wx/image.h>
 #include <deque>
 //#include <map>

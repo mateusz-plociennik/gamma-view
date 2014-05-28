@@ -32,8 +32,8 @@ GammaPlayerPanel::GammaPlayerPanel(GammaFrame *parent,
 		wxPanel(parent, id, pos, size, wxBORDER_THEME), 
 		m_frame(parent)
 {
-	UNREFERENCED_PARAMETER(style);
-	UNREFERENCED_PARAMETER(name);
+	wxUnusedVar(style);
+	wxUnusedVar(name);
 
 	m_bottomSizer = new wxBoxSizer(wxHORIZONTAL);
 	

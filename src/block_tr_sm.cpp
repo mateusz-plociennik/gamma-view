@@ -11,7 +11,6 @@
 
 #include "block_tr_sm.h"
 #include "config.h"
-#include "frame_view.h"
 
 GammaBlockTransSM::GammaBlockTransSM(GammaManager* pManager) 
 	: GammaPipeSegment(pManager)
@@ -87,7 +86,7 @@ void GammaBlockTransSM::processData(wxSharedPtr<GammaData> sDataIn)
 			{
 				wxThreadEvent event(wxEVT_THREAD, ID_GATE_TRIGGER);
 				event.SetPayload<wxTimeSpan>(m_markerTime);
-				wxQueueEvent(getManager()->getFrame(), event.Clone());
+				wxTheApp->QueueEvent(event.Clone());
 
 				pDataOut->trig = GAMMA_TRIG_GATE;
 				//pushData();
@@ -134,7 +133,7 @@ wxInt32 GammaBlockTransSM::setParam(GammaParam_e param, void* value)
 void GammaBlockTransSM::pushData()
 {
 	/*
-	//UNREFERENCED_PARAMETER(pDataOut);
+	//wxUnusedVar(pDataOut);
 	pDataOut->span = pDataOut->time - m_intBeginTime;
 //	GammaPipeSegment::pushData(pDataOutShared);
 

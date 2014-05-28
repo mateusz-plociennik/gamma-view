@@ -12,6 +12,7 @@
 #include <wx/gdicmn.h> // for wxSize
 #include <wx/dcbuffer.h> // for wxAutoBufferedPaintDC
 #include <wx/cursor.h>
+#include <wx/log.h>
 
 wxBEGIN_EVENT_TABLE(GammaCanvas, wxWindow)
 	EVT_PAINT(GammaCanvas::OnPaint)

@@ -10,6 +10,7 @@
 
 #include <wx/statbox.h>
 #include <wx/datetime.h>
+#include <wx/log.h>
 
 enum
 {

@@ -12,6 +12,7 @@
 
 #include <wx/datetime.h>
 #include <wx/thread.h>
+#include <wx/image.h>
 #include <list>
 #include "data_types.h"
 

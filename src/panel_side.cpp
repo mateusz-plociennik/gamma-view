@@ -53,8 +53,8 @@ GammaSidePanel::GammaSidePanel(GammaFrame *parent,
 		, m_eventMax(8888000)
 		, m_eventSum(8888000)
 {
-	UNREFERENCED_PARAMETER(style);
-	UNREFERENCED_PARAMETER(name);
+	wxUnusedVar(style);
+	wxUnusedVar(name);
 
 	wxFlexGridSizer* sideSizer = new wxFlexGridSizer(0, 3, wxSize(0, 0));
 	

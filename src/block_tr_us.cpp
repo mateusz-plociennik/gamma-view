@@ -72,8 +72,8 @@ wxInt32 GammaBlockTransUS::setParam(GammaParam_e param, void* value)
 			m_timeDiv = 10; break;
 		case GAMMA_TMARKER_100MS:
 			m_timeDiv = 100; break;
-		case GAMMA_TMARKER_240MS:
-			m_timeDiv = 240; break;
+		case GAMMA_TMARKER_232MS:
+			m_timeDiv = 232; break;
 		default:
 			break;
 		}

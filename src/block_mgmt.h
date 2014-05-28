@@ -12,7 +12,7 @@
 #include "data_types.h"
 
 #include <list>
-#include "main.h"
+
 #include <wx/thread.h>
 #include <wx/event.h>
 

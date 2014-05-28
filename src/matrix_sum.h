@@ -49,7 +49,7 @@ private:
 	wxUint32 m_gateTrig;
 	wxTimeSpan m_glowTime;
 
-	std::deque<wxSharedPtr<GammaData>> m_dataDeque;
+	std::deque< wxSharedPtr<GammaData> > m_dataDeque;
 };
 
 

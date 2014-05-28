@@ -80,7 +80,7 @@ GammaUsbSettingsDialog::GammaUsbSettingsDialog(GammaFrame* pParent)
 	m_timeMarkerChoice->Insert(wxT("1 ms"), GAMMA_TMARKER_1MS);
 	m_timeMarkerChoice->Insert(wxT("10 ms"), GAMMA_TMARKER_10MS);
 	m_timeMarkerChoice->Insert(wxT("100 ms"), GAMMA_TMARKER_100MS);
-	m_timeMarkerChoice->Insert(wxT("240 ms"), GAMMA_TMARKER_240MS);
+	m_timeMarkerChoice->Insert(wxT("232 ms"), GAMMA_TMARKER_232MS);
 	m_timeMarkerChoice->Select(GAMMA_TMARKER_10MS);
 	settingsBoxGridSizer->Add(m_timeMarkerChoice, 0, wxALL|wxEXPAND, 5);
 

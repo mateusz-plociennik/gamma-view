@@ -36,7 +36,6 @@
 #include <wx/event.h>
 
 #include "block_mgmt.h"
-#include "frame_view.h"
 
 #include "data_types.h"
 #include "block_data.h"
@@ -83,8 +82,8 @@ public:
 	 */
 	virtual wxInt32 setParam(GammaParam_e param, void* value)
 	{
-		UNREFERENCED_PARAMETER(param);
-		UNREFERENCED_PARAMETER(value);
+		wxUnusedVar(param);
+		wxUnusedVar(value);
 		return 0;
 	}
 
@@ -100,12 +99,12 @@ public:
 		: m_pManager(pManager)
 		, m_name(name)
 	{
-		getManager()->getFrame()->PushEventHandler(this);
+//		getManager()->getFrame()->PushEventHandler(this);
 	}
 
 	~GammaPipeMgmt()
 	{
-		getManager()->getFrame()->RemoveEventHandler(this);
+//		getManager()->getFrame()->RemoveEventHandler(this);
 	}
 	/**
 	 * This function returns pointer to GammaManager
@@ -421,7 +420,7 @@ public:
 		return 0;
 	}
 
-	std::queue<wxSharedPtr<GammaData>> m_dataQueue;
+	std::queue< wxSharedPtr<GammaData> > m_dataQueue;
 	wxUint32 m_sizeMax;
 
 	wxMutex m_dataQueueMutex;

@@ -20,6 +20,7 @@ public:
 	~GammaBlockFileRead();
 
 	wxInt32 setParam(GammaParam_e param, void* value);
+	void onEvent(wxThreadEvent& event);
 
 protected:
 	wxThread::ExitCode Entry();
@@ -29,6 +30,7 @@ private:
 	wxTimeSpan getTime();
 	wxTimeSpan getEndTime();
 	bool setTime(wxTimeSpan reqTime);
+	
 
 	wxFileName m_fileName;
 	wxFile m_file;

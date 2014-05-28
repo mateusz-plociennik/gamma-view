@@ -29,11 +29,11 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/slider.h>
+#include <wx/string.h>
 
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
 
-#include <wx/aui/aui.h>
 
 enum
 {
@@ -81,8 +81,8 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 	//EVT_MENU(wxID_NEW, GammaFrame::OnMenuNewWindow)
 	//EVT_MENU(wxID_CLOSE, GammaFrame::OnMenuCloseWindow)
 
-//	EVT_MENU_RANGE(ID_MENU_MODE, MENU_MODE_UNIFORMITY, 
-//		GammaFrame::OnMenuMode)
+	EVT_MENU_RANGE(ID_MENU_MODE, ID_MENU_MODE_UNIFORMITY, 
+		GammaFrame::OnMenuMode)
 	EVT_MENU_RANGE(Menu_View_Zoom_100, Menu_View_Zoom_Max, 
 		GammaFrame::OnMenuResizeWindow)
 	EVT_MENU_RANGE(Menu_View_Colourmap_AUTUMN, Menu_View_Colourmap_INVERT, 
@@ -102,11 +102,13 @@ wxBEGIN_EVENT_TABLE(GammaFrame, wxFrame)
 wxEND_EVENT_TABLE()
 
 GammaFrame::GammaFrame() 
-		: 
-		wxFrame(NULL, wxID_ANY, wxT("gamma-view")), 
-		m_pManager(new GammaManager(this))
+	: wxFrame(NULL, wxID_ANY, wxT("gamma-view"))
+	, m_pManager(new GammaManager(this))
 {
-	//m_mgr.SetManagedWindow(this);
+	wxLogWindow* log = new wxLogWindow(this, "Log Window");
+	log->GetFrame()->SetIcon(wxICON(gamma-view));
+	wxLog::SetTimestamp("%H:%M:%S,%l");
+	wxLog::SetActiveTarget(log);
 
 	wxConfigBase* config = new wxFileConfig( "gamma-view", "MP", 
 		"./gamma-view.ini", wxEmptyString, 
@@ -296,23 +298,14 @@ GammaFrame::GammaFrame()
 	//int width_fields[] = {-1,66};
 	//GetStatusBar()->SetFieldsCount(2, width_fields);
 
-	wxLogWindow* log = new wxLogWindow(this, "Log Window");
-	log->GetFrame()->SetIcon(wxICON(gamma-view));
-	wxLog::SetTimestamp("%H:%M:%S,%l");
-	wxLog::SetActiveTarget(log);
-
 ////////////////////////////////////////////////////////////////////////////////
 
 	m_centerSizer = new wxBoxSizer(wxVERTICAL);
 
 	m_canvas = new GammaCanvas(this, wxID_ANY);
 	m_centerSizer->Add(m_canvas, 1, wxSHAPED|wxALIGN_CENTER|wxADJUST_MINSIZE);
-	//m_mgr.AddPane(m_canvas, wxAuiPaneInfo().
-    //              Caption(_("Preview")).Floatable().BestSize(256,256).Fixed());
 
 	m_bottomPanel = new GammaPlayerPanel(this, wxID_ANY);
-	//m_mgr.AddPane(m_bottomPanel, wxAuiPaneInfo().
-    //             Caption(_("Player panel")).Bottom().Fixed());
 	m_centerSizer->Add(m_bottomPanel, 0, wxEXPAND);
 
 	m_horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -320,12 +313,10 @@ GammaFrame::GammaFrame()
 
 	m_sidePanel = new GammaSidePanel(this, wxID_ANY);
 	m_horizontalSizer->Add(m_sidePanel, 0, wxEXPAND);
-	//m_mgr.AddPane(m_sidePanel, wxAuiPaneInfo().
-    //              Caption(_("Statistics")).Floatable().Resizable(false));
 	
 	SetSizerAndFit(m_horizontalSizer);
 
-	//m_mgr.Update();
+
 
 	Show();
 
@@ -338,8 +329,6 @@ GammaFrame::GammaFrame()
 
 GammaFrame::~GammaFrame()
 {
-	//m_mgr.UnInit();
-
 	getManager()->setMode(GAMMA_MODE_NONE);
 
 	delete wxConfigBase::Set(NULL);
@@ -393,28 +382,33 @@ void GammaFrame::OnMenuHelpAbout(wxCommandEvent& WXUNUSED(event))
 	wxAboutBox(info, this);
 }
 
-void GammaFrame::OnMenuMode(wxCommandEvent& commandEvent)
+void GammaFrame::OnMenuMode(wxCommandEvent& event)
 {
-/*	switch(commandEvent.GetId())
+	getManager()->setMode(GAMMA_MODE_NONE);
+
+	switch(event.GetId())
 	{
-	default:
 	case ID_MENU_MODE_LIVE:
-	case MENU_MODE_LIVE_UNI:
-	case MENU_MODE_PLAYBACK:
-		openFile(); break;
-	case MENU_MODE_PLAYBACK_UNI:
-	case MENU_MODE_UNIFORMITY:
+		getManager()->setMode(GAMMA_MODE_USB_2_IMAGE_UNI); break;
+	case ID_MENU_MODE_PLAYBACK:
 		{
-			new GammaEndCondDialog(m_pManager);
+			getManager()->setMode(GAMMA_MODE_FILE_2_IMAGE_UNI); 
+
+			wxCommandEvent newEvent(wxEVT_THREAD, ID_EVENT_SET_IN_FILE);
+			newEvent.SetString(openFile().Clone());
+			wxQueueEvent(this, newEvent.Clone());
+			break;
 		}
-		break;
+//	case ID_MENU_MODE_UNIFORMITY:
+//		setMode(GAMMA_MODE_USB_2_UNI_MATRIX); break;
+	default:
+		wxASSERT_MSG(0, "Not implemented!"); break;
 	}
-*/
 }
 
-wxString GammaFrame::openFile()
+wxString GammaFrame::openFile(bool bConfirm)
 {
-	if(true)
+	if(bConfirm)
 	{
 		if(wxMessageBox(_("Current content has not been saved! Proceed?"), 
 			_("Please confirm"), wxICON_QUESTION | wxYES_NO, this) == wxNO)
@@ -455,7 +449,7 @@ void GammaFrame::OnMenuNewWindow(wxCommandEvent& WXUNUSED(event))
 
 void GammaFrame::OnMenuResizeWindow(wxCommandEvent& commandEvent)
 {
-	if( IsMaximized() )
+	if(IsMaximized())
 	{
 		Maximize(false);
 	}
@@ -660,7 +654,7 @@ void GammaFrame::onThread(wxThreadEvent& event)
 		{
 
 			GammaBlockFileWrite file(getManager());
-			file.processData(event.GetPayload<wxSharedPtr<GammaData>>());
+			file.processData(event.GetPayload< wxSharedPtr<GammaData> >());
 			break;
 		}
 	default:

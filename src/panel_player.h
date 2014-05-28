@@ -12,6 +12,7 @@
 #include <wx/window.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/slider.h>
 
 #include "block_mgmt.h"
 

@@ -9,8 +9,12 @@
 #define _GAMMA_VIEW_BLOCK_USB_H_
 
 #ifdef _WIN32
-#include <windows.h>
-#include "CyAPI.h"
+	#if defined(_MSC_VER) && defined(GAMMA_USB_CYAPI)
+		#include <windows.h>
+		#include <CyAPI.h>
+	#else
+		#include <lusb0_usb.h>
+	#endif
 #endif
 
 #include "data_types.h"
@@ -33,9 +37,11 @@ protected:
 	wxThread::ExitCode Entry();
 
 private:
-#ifdef _WIN32
-	CCyUSBDevice* m_USBDevice;
+#if defined(_MSC_VER) && defined(GAMMA_USB_CYAPI)
+	CCyUSBDevice* m_usbDevice;
 	short int m_device;
+#else
+	usb_dev_handle* m_usbDevice;
 #endif
 };
 

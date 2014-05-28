@@ -10,16 +10,21 @@
 #include <wx/file.h>
 #include <wx/filename.h>
 #include <wx/datetime.h>
+#include <wx/event.h>
 
 GammaBlockFileRead::GammaBlockFileRead(GammaManager* pManager) 
 	: GammaPipeHead(pManager)
 {
 	wxLogStatus("%s", __FUNCTION__);
+
+	Bind(wxEVT_THREAD, &GammaBlockFileRead::onEvent, this, ID_EVENT_SET_IN_FILE);
 }
 
 GammaBlockFileRead::~GammaBlockFileRead()
 {
 	wxLogStatus("%s", __FUNCTION__);
+
+	Unbind(wxEVT_THREAD, &GammaBlockFileRead::onEvent, this, ID_EVENT_SET_IN_FILE);
 }
 
 wxInt32 GammaBlockFileRead::setParam(GammaParam_e param, void* value)
@@ -200,4 +205,17 @@ wxTimeSpan GammaBlockFileRead::getTime()
 	while(GAMMA_ITEM_TYPE_TMARKER != item.type);
 
 	return wxTimeSpan(0, 0, 0, item.data.time);
+}
+
+void GammaBlockFileRead::onEvent(wxThreadEvent& event)
+{
+	switch(event.GetId())
+	{
+	case ID_EVENT_SET_IN_FILE:
+		{
+			break;
+		}
+	default:
+		wxASSERT_MSG(0, "Cannot be done");
+	}
 }
